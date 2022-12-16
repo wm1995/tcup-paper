@@ -126,6 +126,24 @@ Characterise as an example of robust inference (i.e., don't need to know the act
 Then say presenting practical methodology and implementation here.
 }
 
+There are multiple approaches to the problem of linear regression in astronomy
+where all variables are measured with error.  \citet{Kelly:2007} illustrates
+that ad-hoc estimators such as \textsc{fitexy} \citep{Press:1992, Tremaine:2002}
+and \textsc{bces} \citep{Akritas:1996} suffer from biases and can underestimate
+intrinsic scatter. As an alternative, Kelly presents a Bayesian hierarchical
+model for linear regression with measurement errors as an alternative. However,
+the model is designed to be sampled using Gibbs sampling, which limits the
+choice of distributions for variables within the model and the number of
+parameters that can be fit simultaneously. As a result of the former, the model
+assumes random variables are normally distributed throughout; however, inference
+that relies on normal distributions can be unduly affected by outliers (see
+\citet{Berger:1994} for a review of robust Bayesian inference).  One possible
+alternative is to use Student's $t$-distributions, which have heavier tails and
+are, therefore, less affected by the presence of outliers \citep{Berger:1994};
+Student's $t$-distributions have seen use in astronomical
+\citep[][e.g.]{Park:2017} and cosmological \citep[][e.g.]{Feeney:2018}
+inference.
+
 \section{Formalism}
 \label{sec:formalism}
 
@@ -234,7 +252,7 @@ Try to keep it short.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Data Availability}
 
- 
+
 The inclusion of a Data Availability Statement is a requirement for articles published in MNRAS. Data Availability Statements provide a standardised format for readers to understand the availability of data underlying the research results described in the article. The statement may refer to original data generated in the course of the study or to third-party data analysed in the article. The statement should describe and provide means of access, where possible, by linking to the data or providing the required accession numbers for the relevant databases or DOIs.
 
 

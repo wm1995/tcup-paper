@@ -144,6 +144,74 @@ Student's $t$-distributions have seen use in astronomical
 \citep[][e.g.]{Park:2017} and cosmological \citep[][e.g.]{Feeney:2018}
 inference.
 
+Bayesian hierarchical models (BHMs) are a natural way to deal with datasets with
+measurement errors, selection effects, interlinked parameters, censored data,
+and many other effects common to astronomical problems. BHMs have seen
+increasing use in astrophysics over the past 30 years, from the
+distance-redshift relation in cosmology \citep[e.g.][]{Feeney:2018,
+Avelino:2019} and photometric redshift estimation \citep[e.g.][]{Leistedt:2016}
+to exoplanet characterisation \citep[e.g.][]{Sestovic:2018} and population-level
+inference \citep[e.g.][]{Kelly:2009} --- see \citet{Feigelson:2021} for a recent
+review of statistical methods in astrophysics, including further examples of
+BHMs.
+
+\citet{Kelly:2007} formulated a Bayesian linear regression model under the
+assumption of Gaussianity and compared it with other common regression methods
+in astronomy, including ordinary least squares, \textsc{bces}
+\citep{Akritas:1996}, and \textsc{fitexy} \citep{Press:1992, Tremaine:2002}.
+\citeauthor{Kelly:2007} found that the Bayesian approach had several advantages
+over the other methods considered: no bootstrapping was required to obtain
+uncertainties on parameters; the Bayesian approach was easily extensible to
+truncated or censored data; and other methods would sometimes severely
+underestimate intrinsic scatter in the data. This formulation of Bayesian
+regression, sometimes known as \textsc{linmix\_err}, is now commonly used in
+astronomy \citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
+
+When we have a dataset that has a large number of outliers, our inference of
+certain parameters can be drawn off by the presence of those outliers. Robust
+inference refers to a body of techniques to fit in an outlier-resistant way so
+that we can recover the parameters of interest while not being unduly affected
+by the outliers.  For example, ordinary least squares regression is based on the
+assumption that datapoints are normally distributed about a true regression
+line; however, normal distributions have exponential tails, which means that
+this approach is often heavily affected by the presence of outliers (see Section
+\ref{sec:results} for an exploration of this effect). An alternative approach is
+to use heavier-tailed distributions.  Examples of this include least absolute
+deviation regression, where the data is assumed to be Laplace-distributed about
+the regression line.  Another distribution that can be used is Student's
+$t$-distribution \citep[e.g.][]{Berger:1994, Gelman:2013}, which also has
+heavier tails than a normal distribution --- see Section \ref{sec:results} for a
+comparison of regression using normal distributions and $t$-distributions.
+
+There are several approaches to robust inference in a Bayesian context
+--- see \citet{Berger:1994} for a review. Examples of applications of robust
+inference in astronomy include \citet{Park:2017, Feeney:2018}.
+
+From the review of previous methods, we can identify properties that we would
+like to see in our regression model:
+
+\begin{itemize}
+	\item A Bayesian hierarchical model -- we favour a hierarchical approach
+	because it naturally encodes the hierarchical structure of astronomical
+	regression problems (i.e.\ objects are drawn from a high-level population;
+	the objects intrinsically obey some relationship; the objects are measured
+	with error and only the measured values are known). We favour a Bayesian
+	approach because it gives posterior distributions encoding our degree of
+	belief of the values of parameters, quantifying our uncertainty in their
+	values.
+
+	\item A robust model -- we desire a model that is robust to both outliers
+	(i.e.\ data points that, whether intrinsically or by virtue of measurement
+	errors, do not lie on our regression relation) and model misspecification
+	(i.e.\ where the underlying distribution of data does not match up with the
+	distribution assumed for modelling).
+
+	\item A general method -- we seek a model that does not require case-by-case
+	optimisation for application to different regression problems (e.g.\ no
+	manual outlier identification and removal, no need to rescale prior
+	distributions for different problems, etc.)
+\end{itemize}
+
 \section{Formalism}
 \label{sec:formalism}
 
@@ -188,10 +256,12 @@ inference.
 % e.g. Table~\ref{tab:example_table}.
 
 \section{Results on simulated datasets}
+\label{sec:results}
 
 Simulate data-sets with different numbers of outliers (just normally distributed with no outliers; normally distributed with a chosen fraction of manual outliers; t distributed with a chosen shape parameter; drawn from some other heavy-tailed distribution such as a normal mixture or exponential/Laplace; asymmetric, such a log-normal).  Basic presentation of results will be similar for each case: showing the simulated data with posterior draws of fitted lines/curves (as in your presentation plots) and corner plots
 
 \section{Demonstration on real-world data}
+\label{sec:real-world}
 
 A simple demonstration on real data (Park is a possibility; another is an M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this on the paper used by Kelly as can directly compare.
 
@@ -218,7 +288,7 @@ A simple demonstration on real data (Park is a possibility; another is an M-sigm
     \caption{This is an example figure. Captions appear below each figure.
 	Give enough detail for the reader to understand what they're looking at,
 	but leave detailed discussion to the main body of the text.}
-    \label{fig:example_figure}
+    \label{fig:example_widefigure}
 \end{figure*}
 
 % Example table

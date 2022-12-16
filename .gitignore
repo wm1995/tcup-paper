@@ -1,3 +1,11 @@
+# Data files
+*.nc
+*.json
+*.csv
+
+# Plots in script folder
+graphics/scripts/*.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

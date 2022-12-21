@@ -57,6 +57,16 @@
 % overwriting existing commands. Example:
 %\newcommand{\pcm}{\,cm$^{-2}$}	% per cm-squared
 
+\newcommand{\studentt}[2]{t_\nu \left( #1, #2 \right)}
+\newcommand{\depvar}{y_i}
+\newcommand{\indepvars}{\boldsymbol{x}_i}
+\newcommand{\obsdep}{\hat{y}_i}
+\newcommand{\obsindep}{\hat{\boldsymbol{x}}_i}
+\newcommand{\obserr}{\Sigma_i}
+\newcommand{\intscttr}{\sigma_{\text{int}}}
+\newcommand{\intercept}{\alpha}
+\newcommand{\covariate}{\beta}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%% TITLE PAGE %%%%%%%%%%%%%%%%%%%
@@ -215,20 +225,271 @@ like to see in our regression model:
 \section{Formalism}
 \label{sec:formalism}
 
+Let us observe $N$ objects, each with $\{\hat{x}_i, \hat{y}_i,
+\boldsymbol{\Sigma}_i\}$, representing the independent variable, the dependent
+variable, and the covariance matrix of the observed quantities.  We can further
+assume that each observation represents a true-but-unobserved latent object
+$\{x_i, y_i\}$, with these quantities related by
+\begin{eqnarray}
+    y_i &=& \alpha x_i + \beta + \epsilon_i \\
+    \epsilon_i &\sim& \mathcal{P} \left( \sigma_{\text{int}} \right)
+\end{eqnarray}
+for regression parameters $\boldsymbol{\theta} = \left\{\alpha, \beta,
+\sigma_{\mathrm{int}}\right\}$ and some probability distribution $P\left(
+\hat{\mathbf{x}}, \hat{\mathbf{y}} \mid \mathbf{x}, \mathbf{y}, \Sigma \right)$
+linking the latent values with the observed values.
+
 \subsection{Regression model}
 \label{sec:formalism.model}
+
+Similarly to \citet{Kelly:2007}, we define a Bayesian hierarchical model to
+reflect the nature of the regression problem. Firstly, we assume that the
+dependent variable $\{\depvar\}$ and the independent variables $\{\indepvars\}$
+have a linear relationship with some underlying scatter $\intscttr$ -- i.e.
+
+\begin{equation}
+\depvar \sim \studentt{\covariate \indepvars + \intercept}{\intscttr}.
+\end{equation}
+
+We use a Student's $t$-distribution here not because we believe that the data
+intrinsically follows this distribution, but because the resulting model is more
+robust to outliers at the object level -- such as if a galaxy were to be an
+outlier from a particular relation as a result of a recent merger.
+
+The quantities $\{\depvar\}$ and $\{\indepvars\}$ are, however, rarely known
+exactly; instead, we measure the observables $\{\obsdep\}$ and $\{\obsindep\}$
+with covariance $\{\obserr\}$ in the most general case. This measurement is
+modelled as
+
+\begin{equation}
+    \begin{pmatrix}
+        \obsdep \\ \obsindep
+    \end{pmatrix}
+    \sim
+    \studentt{
+        \begin{pmatrix}
+            \depvar \\ \indepvars
+        \end{pmatrix}
+    }{
+        \obserr
+    }.
+\end{equation}
+
+Once again, we use a Student's $t$-distribution because the resulting model is
+more robust to outliers -- in this case, the object itself is not an outlier
+from a relation, but the observed quantities are outliers as a result of their
+measurement.
 
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}
 
+Student's $t$-distributions are encountered when estimating the mean of a normal
+distribution with unknown variance from a limited number of samples. The number
+of samples is a parameter of the distribution: for $n$ samples, the
+corresponding Student's $t$-distribution will have $\nu \equiv n - 1$
+``degrees-of-freedom''. This value of $\nu$ parameterises how heavy-tailed the
+distribution is. While the interpretation of $\nu$ as ``degrees-of-freedom''
+only makes sense for $\nu \in \mathbb Z^+$, the distribution is normalisable for
+any positive, real $\nu$; for this reason, we shall refer to $\nu$ as the shape
+parameter. Constructing a statistical model that treats this shape parameter as
+a free parameter to be fitted allows the model to adapt to outliers in the data,
+reverting to the result of a model that uses normal distributions in the absence
+of outliers \citep{Feeney:2018}. In this context, $\nu$ is considered a
+nuisance parameter: its exact value is unimportant, and its inclusion in the
+model is solely to ensure that inference is robust to outliers.
+
+The Student's $t$-distribution has probability density function
+\begin{equation}
+    \studentt{\mu}{\sigma}
+        =
+    \frac{1}{\sqrt{\pi \nu} \sigma}
+    \frac{
+        \Gamma \left(\frac{\nu + 1}2\right)
+    }{
+        \Gamma \left(\frac{\nu}2\right)
+    }
+    \left(
+        1 + \frac{1}{\nu} \frac{\left(x - \mu\right)^2}{\sigma^2}
+    \right)^{
+        -\frac{\nu + 1}{2}
+    }.
+\end{equation}
+Plots of a range of $\nu$ are shown in Figure \ref{fig:model.t}; note that $\nu
+= 1$ gives a Cauchy distribution, and $\nu \rightarrow \infty$ tends to a normal
+distribution. The distribution has mean
+\begin{equation}
+    \mathbb{E}(x)
+        =
+    \begin{cases}
+        \mu & \nu > 1, \\
+        \textrm{undefined} & \textrm{otherwise}
+    \end{cases}
+\end{equation}
+and variance
+\begin{equation}
+    \mathrm{Var}(x)
+        =
+    \begin{cases}
+        \frac{\nu}{\nu - 2} \sigma^2 & \phantom{2 \leq} \nu > 2, \\
+        \infty & 2 \leq \nu > 1, \\
+        \textrm{undefined} & \textrm{otherwise.}
+    \end{cases}
+\end{equation}
+
 \subsubsection{Priors on $t$-distribution parameters}
 \label{sec:formalism.sampling.prior}
+
+It can be informative to reparameterise the shape parameter $\nu$ in a few
+different ways. Following \citet{Feeney:2018}, we can define the peak height
+ratio $t$ as
+\begin{eqnarray}
+    t(\nu) &=& \frac{
+        \studentt{x = \mu; \mu}{\sigma}
+    }{
+        \mathcal N \left(x = \mu; \mu, \sigma \right)
+    } \\
+    &=& \sqrt{\frac{2}{\nu}} \;
+    \frac{
+        \Gamma\left(\frac{\nu + 1}{2}\right)
+    }{
+        \Gamma\left(\frac{\nu}{2}\right)
+    }.
+\end{eqnarray}
+As can be seen in Figure \ref{fig:model.peak_height}, the behaviour of $t(\nu)$
+is highly non-linear, reflecting that, for $\nu \gtrsim 10$, the Student's
+$t$-distribution rapidly approaches a normal distribution.
+
+% \begin{figure}
+%     \centering
+%     \includegraphics{scripts/peak-height.pdf}
+%     \caption{A plot of peak height ratio $t$ with varying shape parameter $\nu$}
+%     \label{fig:model.peak_height}
+% \end{figure}
+
+As we are using the flexibility of Student's $t$-distributions to adapt to
+datasets with outliers, it can also be useful to consider the outlier fraction
+$\omega$. If we define outliers as any points lying more than $3\sigma$ from the
+mean $\mu$, the outlier fraction is
+\begin{eqnarray}
+    \omega(\nu)
+    &=& P\left(
+        \left|x - \mu \right| > 3 \sigma \;
+        \middle| \;
+        x \sim \studentt{\mu}{\sigma}
+    \right) \\
+    &=& 2 F_\nu \left(\mu - 3 \sigma \right),
+\end{eqnarray}
+where $F_\nu(x)$ is the cumulative distribution function for Student's
+$t$-distribution with shape parameter $\nu$. Figure \ref{fig:model.outlier_frac}
+shows the relationship between outlier fraction $\omega$ and shape parameter
+$\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
+distribution --- i.e., as $\nu \rightarrow \infty$. We would, therefore, expect
+that approximately 1 in 370 datapoints would be outliers for data that follows a
+normal distribution\footnotemark; for Cauchy-distributed data (i.e. $\nu = 1$),
+we would expect every fifth datapoint to be an outlier.
+
+\footnotetext{As of the time of writing, we know of $\sim$300 $z > 6$ quasars
+\citep{Bosman:2020}; under the assumption of normality, we would expect no
+outliers in this dataset.}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics{scripts/outlier-frac.pdf}
+%     \caption{Outlier fraction $\omega$ as a function of $\nu$ - for large $\nu$,
+%     $\omega$ tends to the Gaussian limit value of $\omega \rightarrow 2.70
+%     \times 10^{-3}$}
+%     \label{fig:model.outlier_frac}
+% \end{figure}
+
+Using Student's $t$-distributions for robust Bayesian inference means that we
+have to specify a prior on the shape parameter $\nu$. One approach is to adopt a
+fixed value of $\nu$, which is equivalent to setting a Dirac delta function
+prior: a common choice is $\nu = 4$ \citep[e.g.][]{Berger:1994, Gelman:2013}.
+Another approach is to adopt a more flexible approach by allowing $\nu$ to vary
+\citep[e.g.][]{Juarez:2010, Park:2017, Feeney:2018}.
+
+In \citet{Feeney:2018}, it is argued that, for common choices of prior, too
+much prior density is placed on large values of $\nu$; to rectify this, they
+propose a uniform prior on peak height $t \sim U\left(0, 1\right)$. As this
+prior has no closed form derivative (a requirement for Hamiltonian Monte Carlo),
+they approximate this with the prior
+\begin{equation}
+    \mathcal P\left(\nu\right) \propto
+    \frac{
+        \Theta(\nu)
+    }{
+        \left(
+            \left(\frac{\nu}{\nu_0}\right)^{1 / (2 a)}
+            + \left(\frac{\nu}{\nu_0}\right)^{2 / a}
+        \right)^a
+    }
+\end{equation}
+where $\Theta(\nu)$ is the Heaviside step function, and $\nu_0$ and $a$ are
+constants with values $\sim 0.55$ and $\sim 1.2$ respectively.  One feature of
+this prior is that it has significant density for $0 < \nu < 1$; in extreme
+cases, this can correspond to outliers that are more than 100 orders of
+magnitude larger than $\sigma$. In theory, these unphysical regions of parameter
+space ought to be excluded during the process of inference. However, the use of
+Hamiltonian Monte Carlo (HMC) in such cases can lead to divergences in the
+sampling process or inefficient sampling as the sampler struggles with regions
+of high curvature --- see Section \ref{sec:model.model.reparam} for greater
+detail.
+
+Another possible prior is on outlier fraction $\omega$. It could be argued that
+the term outlier loses its meaning when the majority of a dataset is composed of
+so-called ``outliers''; therefore, a natural choice of prior might be a uniform
+distribution ranging from the normally-distributed outlier fraction of
+$\sim$0.00270 to this ``maximum'' outlier fraction of 0.5, corresponding to $\nu
+\sim 0.302$. This still leads to large outliers (some of 8 orders of magnitude
+for 100 draws from the distribution), which are unphysical and continue to
+present difficulties when sampling with HMC.
+
+To limit the number of unphysical outliers, we can instead limit the prior to
+consider only distributions that are less heavy-tailed than the Cauchy
+distribution --- i.e. all those with $\nu > 1$. This prior can be set on either
+peak height $t$ or outlier fraction $\omega$.
+
+% \begin{figure}
+%     \centering
+%     \includegraphics{scripts/scaled-peak-height.pdf}
+%     \caption{Rescaled peak height $\tilde{t}$ as a function of $\nu$; also
+%     illustrated is the approximation given in Equation \ref{eqn:model.t_approx}.
+%     }
+%     \label{fig:model.t_approx}
+% \end{figure}
+
+After considering a range of priors, we have adopted a prior which is
+approximately uniform on peak height between Cauchy and normal distributions.
+We achieve this by rescaling peak height $t$ to $\tilde{t}$, such that
+$\tilde{t} = 0$ corresponds to a Cauchy distribution, and $\tilde{t} = 1$
+corresponds to a normal distribution. We adopt a uniform prior $\tilde{t} \sim
+U\left(0, 1\right)$, and then approximate the function
+\begin{equation}
+    \nu\left(\tilde{t}\right)
+        \approx
+    \sec \left(\frac{\pi}{2} \sqrt{\tilde{t}} \right);
+    \label{eqn:model.t_approx}
+\end{equation}
+this approximation (illustrated in Figure \ref{fig:model.t_approx}) is accurate
+to within 3\% and provides an analytic derivative for HMC.
 
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}
 
+{\color{green} For Daniel}
+
 \subsection{Implementation}
 \label{sec:formalism.implementation}
+
+The chosen statistical model is implemented in Stan \citep{STAN}, which is used
+to draw samples via a HMC No U-Turn Sampler. The implementation is packaged as
+$t$-cup, available as a Python package\footnotemark.
+
+For the purposes of comparison, we have also implemented a model that mirrors
+the above structure, but uses normal distributions at each stage --- this model
+is referred to as $n$-cup.
+
+\footnotetext{\url{https://github.com/wm1995/tcup}}
 
 % Normally the next section describes the techniques the authors used.
 % It is frequently split into subsections, such as Section~\ref{sec:maths} below.
@@ -258,12 +519,29 @@ like to see in our regression model:
 \section{Results on simulated datasets}
 \label{sec:results}
 
-Simulate data-sets with different numbers of outliers (just normally distributed with no outliers; normally distributed with a chosen fraction of manual outliers; t distributed with a chosen shape parameter; drawn from some other heavy-tailed distribution such as a normal mixture or exponential/Laplace; asymmetric, such a log-normal).  Basic presentation of results will be similar for each case: showing the simulated data with posterior draws of fitted lines/curves (as in your presentation plots) and corner plots
+In the previous section, we proposed a general-purpose, robust statistical model
+for linear regression; in this section, we investigate the performance of the
+model on a series of simulated datasets with known parameters. Code that
+reproduces the datasets in this section is available online\footnotemark.
+
+\footnotetext{\url{https://github.com/wm1995/tcup-paper}}
+
+\subsection{Normally-distributed data}
+
+Simulate data-sets with different numbers of outliers (just normally distributed
+with no outliers; normally distributed with a chosen fraction of manual
+outliers; t distributed with a chosen shape parameter; drawn from some other
+heavy-tailed distribution such as a normal mixture or exponential/Laplace;
+asymmetric, such a log-normal).  Basic presentation of results will be similar
+for each case: showing the simulated data with posterior draws of fitted
+lines/curves (as in your presentation plots) and corner plots
 
 \section{Demonstration on real-world data}
 \label{sec:real-world}
 
-A simple demonstration on real data (Park is a possibility; another is an M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this on the paper used by Kelly as can directly compare.
+A simple demonstration on real data (Park is a possibility; another is an
+M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
+on the paper used by Kelly as can directly compare.
 
 % Example figure
 \begin{figure}
@@ -311,7 +589,9 @@ A simple demonstration on real data (Park is a possibility; another is an M-sigm
 
 \section{Conclusions}
 
-Summarise the take-home point that the method is a form of robust inference; works on all sorts of outliers; then lead on to use in Paper 2 on the mass ladder.
+Summarise the take-home point that the method is a form of robust inference;
+works on all sorts of outliers; then lead on to use in Paper 2 on the mass
+ladder.
 
 \section*{Acknowledgements}
 
@@ -323,7 +603,14 @@ Try to keep it short.
 \section*{Data Availability}
 
 
-The inclusion of a Data Availability Statement is a requirement for articles published in MNRAS. Data Availability Statements provide a standardised format for readers to understand the availability of data underlying the research results described in the article. The statement may refer to original data generated in the course of the study or to third-party data analysed in the article. The statement should describe and provide means of access, where possible, by linking to the data or providing the required accession numbers for the relevant databases or DOIs.
+The inclusion of a Data Availability Statement is a requirement for articles
+published in MNRAS. Data Availability Statements provide a standardised format
+for readers to understand the availability of data underlying the research
+results described in the article. The statement may refer to original data
+generated in the course of the study or to third-party data analysed in the
+article. The statement should describe and provide means of access, where
+possible, by linking to the data or providing the required accession numbers for
+the relevant databases or DOIs.
 
 
 

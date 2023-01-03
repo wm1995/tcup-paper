@@ -1,10 +1,8 @@
-# Data files
-*.nc
-*.json
-*.csv
-
-# Plots in script folder
-graphics/scripts/*.pdf
+# Directories for building paper
+build/
+data/
+plots/
+results/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

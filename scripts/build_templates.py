@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     datasets = []
 
-    for dataset in Path("graphics/scripts/").glob("*.json"):
+    for dataset in Path("data/").glob("*.json"):
         params = load_dataset(dataset)
         datasets.append(params)
 

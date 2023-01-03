@@ -12,7 +12,7 @@ SEED = 24601
 
 
 def load_dataset(name):
-    with open(f"data_{name}.json", "r") as f:
+    with open(f"data/data_{name}.json", "r") as f:
         dataset = json.load(f)
 
     data = {key: np.array(val) for key, val in dataset["data"].items()}
@@ -76,7 +76,7 @@ if __name__ == "__main__":
                 mcmc = tcup(data, SEED, model, prior)
 
             # Save chains
-            mcmc.to_netcdf(f"{dataset}_{model}_{prior}.nc")
+            mcmc.to_netcdf(f"results/{dataset}_{model}_{prior}.nc")
 
             # Calculate summary
             summary = az.summary(mcmc)
@@ -99,10 +99,8 @@ if __name__ == "__main__":
 
             # Create trace plot
             az.plot_trace(mcmc)
-            plt.savefig(f"trace_{dataset}_{model}_{prior}.pdf")
+            plt.savefig(f"plots/trace_{dataset}_{model}_{prior}.pdf")
             plt.close()
 
             # Save results as we go
-            results.to_csv("results.csv", index=False)
-
-    results.to_csv("results.csv", index=False)
+            results.to_csv("results/results.csv", index=False)

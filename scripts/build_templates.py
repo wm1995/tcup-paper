@@ -83,7 +83,7 @@ if __name__ == "__main__":
     datasets.rename(columns=cols, inplace=True)
 
     styler = datasets.style
-    styler.format(precision=2)
+    styler.format(na_rep="-", precision=2)
     styler.hide(level=0, axis=0)
     datasets_latex = styler.to_latex()
 

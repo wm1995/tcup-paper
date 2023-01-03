@@ -3,6 +3,10 @@ build/
 data/
 plots/
 results/
+old/
+
+# Visual Studio code
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

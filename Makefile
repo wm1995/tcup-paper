@@ -58,7 +58,7 @@ plots/*.pdf: results/* scripts/run_models.py
 
 templates: datasets.tex
 
-datasets.tex: templates/datasets.tex scripts/build_templates.py
+datasets.tex: datasets templates/datasets.tex scripts/build_templates.py
 	${PYTHON} scripts/build_templates.py
 
 ################################################################################

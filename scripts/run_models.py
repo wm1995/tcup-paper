@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
     priors = [
         "invgamma",
+        "invgamma2",
         "cauchy",
         "cauchy_scaled",
         "cauchy_truncated",
@@ -42,6 +43,7 @@ if __name__ == "__main__":
         "nu2_principled",
         "nu2_heuristic",
         "nu2_scaled",
+        "invnu",
         None,  # will be fixed to nu = 2
     ]
     models = [("tcup", prior) for prior in priors]

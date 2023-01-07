@@ -12,7 +12,7 @@ SEED = 24601
 
 
 def load_dataset(name):
-    with open(f"data/data_{name}.json", "r") as f:
+    with open(f"data/{name}.json", "r") as f:
         dataset = json.load(f)
 
     data = {key: np.array(val) for key, val in dataset["data"].items()}

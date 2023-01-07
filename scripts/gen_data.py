@@ -12,7 +12,7 @@ def write_dataset(name, data, params):
         "data": data,
         "params": params,
     }
-    with open(f"data/data_{name}.json", "w") as f:
+    with open(f"data/{name}.json", "w") as f:
         json.dump(output, f)
 
 

@@ -1,9 +1,18 @@
-VENV = venv/
-PYTHON = ${VENV}/bin/python
-PIP = ${VENV}/bin/pip
+VENV := venv/
+PYTHON := ${VENV}/bin/python
+PIP := ${VENV}/bin/pip
+
+PRIORS := invgamma invgamma2 \
+		  cauchy cauchy_scaled cauchy_truncated \
+		  F18 F18reparam \
+		  nu2 nu2_principled nu2_heuristic nu2_scaled \
+		  invnu
+
+DATASETS := linear_1D0 linear_1D1 linear_2D0 linear_2D1 linear_3D0 linear_3D1
+
+MCMC :=  $(foreach dataset, $(DATASETS), $(foreach prior, $(PRIORS), results/${dataset}_${prior}.nc))
 
 .PHONY = datasets mcmc templates venv clean deep-clean
-
 
 ################################################################################
 # Set up Python virtual environment
@@ -31,13 +40,15 @@ data/*.json: scripts/gen_data.py
 # Fit MCMC models to datasets
 ################################################################################
 
-mcmc: results/ results/*
+mcmc: results/ ${MCMC}
 
 results:
 	mkdir results
 
-results/*: data/*.json scripts/run_models.py
-	${PYTHON} scripts/run_models.py
+$(foreach prior, ${PRIORS}, results/%_${prior}.nc): data/%.json
+	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/run_models.py -p ${prior} $< results/$*_${prior}.nc; )
+	-${PYTHON} scripts/run_models.py -n $< results/$*_ncup.nc
+	-${PYTHON} scripts/run_models.py -f 2 $< results/$*_fixed2.nc
 
 ################################################################################
 # Produce plots

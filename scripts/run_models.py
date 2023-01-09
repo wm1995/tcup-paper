@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 import json
 
-import arviz as az
-import matplotlib.pyplot as plt
+import argparse
 import numpy as np
-import pandas as pd
 from tcup.stan import tcup
 
 # Set up run parameters
 SEED = 24601
+N_SAMPLES = 1000
 
 
-def load_dataset(name):
-    with open(f"data/{name}.json", "r") as f:
+def load_dataset(filename):
+    with open(filename, "r") as f:
         dataset = json.load(f)
 
     data = {key: np.array(val) for key, val in dataset["data"].items()}
@@ -22,87 +21,27 @@ def load_dataset(name):
 
 
 if __name__ == "__main__":
-    datasets = [
-        "linear_1D0",
-        "linear_1D1",
-        "linear_2D0",
-        "linear_2D1",
-        "linear_3D0",
-        "linear_3D1",
-    ]
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Fit a model to data")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-p", "--prior")
+    group.add_argument("-f", "--fixed", type=int)
+    group.add_argument("-n", "--normal", action="store_true")
+    parser.add_argument("dataset")
+    parser.add_argument("outfile")
+    args = parser.parse_args()
 
-    priors = [
-        "invgamma",
-        "invgamma2",
-        "cauchy",
-        "cauchy_scaled",
-        "cauchy_truncated",
-        "F18",
-        "F18reparam",
-        "nu2",
-        "nu2_principled",
-        "nu2_heuristic",
-        "nu2_scaled",
-        "invnu",
-        None,  # will be fixed to nu = 2
-    ]
-    models = [("tcup", prior) for prior in priors]
-    models.append(("ncup", None))
+    # Load dataset
+    data, params = load_dataset(args.dataset)
 
-    results = pd.DataFrame(
-        columns=[
-            "dataset",
-            "model",
-            "prior",
-            "r_hat",
-            "divergences",
-            "sigma_int",
-            "alpha",
-            "beta[0]",
-            "beta[1]",
-            "beta[2]",
-            "nu",
-            "peak_height",
-        ]
-    )
+    # Fit model
+    if args.normal:
+        mcmc = tcup(data, SEED, "ncup", num_samples=N_SAMPLES)
+    elif args.fixed:
+        data["nu"] = args.fixed
+        mcmc = tcup(data, SEED, num_samples=N_SAMPLES)
+    else:
+        mcmc = tcup(data, SEED, prior=args.prior, num_samples=N_SAMPLES)
 
-    for dataset in datasets:
-        data, params = load_dataset(dataset)
-        for model, prior in models:
-            # Fit model
-            if model == "tcup" and prior is None:
-                fixed_nu = data.copy()
-                fixed_nu["nu"] = 2
-                mcmc = tcup(fixed_nu, SEED, model, prior)
-            else:
-                mcmc = tcup(data, SEED, model, prior)
-
-            # Save chains
-            mcmc.to_netcdf(f"results/{dataset}_{model}_{prior}.nc")
-
-            # Calculate summary
-            summary = az.summary(mcmc)
-
-            # Add results to table
-            results.loc[len(results)] = [
-                dataset,
-                model,
-                prior,
-                summary["r_hat"].max(),
-                np.sum(mcmc.sample_stats["diverging"].values),
-                summary["mean"].get("sigma", None),
-                summary["mean"].get("alpha", None),
-                summary["mean"].get("beta[0]", None),
-                summary["mean"].get("beta[1]", None),
-                summary["mean"].get("beta[2]", None),
-                summary["mean"].get("nu", None),
-                summary["mean"].get("peak_height", None),
-            ]
-
-            # Create trace plot
-            az.plot_trace(mcmc)
-            plt.savefig(f"plots/trace_{dataset}_{model}_{prior}.pdf")
-            plt.close()
-
-            # Save results as we go
-            results.to_csv("results/results.csv", index=False)
+    # Save chains
+    mcmc.to_netcdf(args.outfile)

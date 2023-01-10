@@ -46,9 +46,9 @@ results:
 	mkdir results
 
 $(foreach prior, ${PRIORS}, results/%_${prior}.nc): data/%.json
-	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/run_models.py -p ${prior} $< results/$*_${prior}.nc; )
-	-${PYTHON} scripts/run_models.py -n $< results/$*_ncup.nc
-	-${PYTHON} scripts/run_models.py -f 2 $< results/$*_fixed2.nc
+	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/fit_model.py -p ${prior} $< results/$*_${prior}.nc; )
+	-${PYTHON} scripts/fit_model.py -n $< results/$*_ncup.nc
+	-${PYTHON} scripts/fit_model.py -f 2 $< results/$*_fixed2.nc
 
 ################################################################################
 # Produce plots

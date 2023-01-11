@@ -7,7 +7,7 @@ from tcup.stan import tcup
 
 # Set up run parameters
 SEED = 24601
-N_SAMPLES = 1000
+N_SAMPLES = 5000
 
 
 def load_dataset(filename):

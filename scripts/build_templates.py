@@ -16,6 +16,7 @@ def load_dataset(filename):
     # Pull out loaded parameters
     params = dataset["params"]
 
+    params["type"] = filename.name.split("_")[0]
     params["N"] = N
 
     # Calculate number of outliers
@@ -53,6 +54,7 @@ if __name__ == "__main__":
 
     # Reorder columns
     cols = [
+        "type",
         "N",
         "dim_x",
         "outliers",
@@ -69,6 +71,7 @@ if __name__ == "__main__":
 
     # Rename columns for better presentation
     cols = {
+        "type": r"Type",
         "N": r"$N$",
         "dim_x": r"$\dim x$",
         "outliers": r"Outliers",
@@ -80,15 +83,14 @@ if __name__ == "__main__":
         "beta_2": r"$\beta_2$",
         "sigma_int": r"$\sigma_{\text{int}}$",
     }
-    datasets.rename(columns=cols, inplace=True)
+    styler = datasets.rename(columns=cols).style
 
-    styler = datasets.style
     styler.format(na_rep="-", precision=2)
     styler.hide(level=0, axis=0)
     datasets_latex = styler.to_latex()
 
     template = env.get_template("datasets.tex")
-    content = template.render(datasets=datasets_latex)
+    content = template.render(datasets=datasets, datasets_latex=datasets_latex)
 
     with open("datasets.tex", "w") as f:
         f.write(content)

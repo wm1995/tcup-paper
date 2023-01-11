@@ -2,5 +2,16 @@
 	\centering
 	\caption{A summary of the datasets tested in Section \ref{sec:results}.}
 	\label{tab:results.datasets}
-    {{ datasets }}
+    {{ datasets_latex }}
 \end{table*}
+
+{% for dataset_type in datasets["type"].unique() %}
+\subsection{ {{ dataset_type }} }
+
+{% for _, dataset in datasets[["N", "dim_x"]].drop_duplicates().iterrows() %}
+{% if dataset["type"] == dataset_type %}
+\subsubsection{$\dim x = {{ dataset.dim_x | int }}, N = {{ dataset.N | int }}$}
+
+{% endif %}
+{% endfor %}
+{% endfor %}

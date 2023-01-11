@@ -1,4 +1,4 @@
-VENV := venv/
+VENV := venv
 PYTHON := ${VENV}/bin/python
 PIP := ${VENV}/bin/pip
 
@@ -12,7 +12,7 @@ DATASETS := linear_1D0 linear_1D1 linear_2D0 linear_2D1 linear_3D0 linear_3D1
 
 MCMC :=  $(foreach dataset, $(DATASETS), $(foreach prior, $(PRIORS), results/${dataset}_${prior}.nc))
 
-.PHONY = datasets mcmc templates venv clean deep-clean
+.PHONY = analysis datasets mcmc templates venv clean deep-clean
 
 ################################################################################
 # Set up Python virtual environment
@@ -51,17 +51,22 @@ $(foreach prior, ${PRIORS}, results/%_${prior}.nc): data/%.json
 	-${PYTHON} scripts/fit_model.py -f 2 $< results/$*_fixed2.nc
 
 ################################################################################
-# Produce plots
+# Produce plots and analysis
 ################################################################################
 
+analysis: graphics results/results.csv
+
 graphics: plots/ plots/*.pdf
-	cp plots/* graphics/*
+	cp plots/* graphics/
 
 plots:
 	mkdir plots
 
 plots/*.pdf: results/* scripts/run_models.py
 	${PYTHON} scripts/run_models.py
+
+results/results.csv:
+	${PYTHON} scripts/summarise_mcmc.py
 
 ################################################################################
 # Build LaTeX templates from data

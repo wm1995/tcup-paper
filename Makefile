@@ -57,13 +57,16 @@ $(foreach prior, ${PRIORS}, results/%_${prior}.nc): data/%.json
 analysis: graphics results/results.csv
 
 graphics: plots/ plots/*.pdf
-	cp plots/* graphics/
+	cp plots/dag.pdf graphics/
 
 plots:
 	mkdir plots
 
-plots/*.pdf: results/* scripts/run_models.py
-	${PYTHON} scripts/run_models.py
+plots/dag.pdf: scripts/plot_dag.py
+	${PYTHON} scripts/plot_dag.py
+
+plots/corner_%.pdf: results/%.nc scripts/make_plots.py
+	${PYTHON} scripts/make_plots.py
 
 results/results.csv:
 	${PYTHON} scripts/summarise_mcmc.py

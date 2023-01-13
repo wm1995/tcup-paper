@@ -10,6 +10,8 @@ PRIORS := invgamma invgamma2 \
 
 DATASETS := linear_1D0 linear_1D1 linear_2D0 linear_2D1 linear_3D0 linear_3D1
 
+DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
+
 MCMC :=  $(foreach dataset, $(DATASETS), $(foreach prior, $(PRIORS), results/${dataset}_${prior}.nc))
 
 .PHONY = analysis datasets mcmc templates venv clean deep-clean
@@ -28,12 +30,12 @@ ${VENV}:
 # Generate mock datasets
 ################################################################################
 
-datasets: data/ data/*.json
+datasets: data/ ${DATASETS_JSON}
 
 data:
 	mkdir data
 
-data/*.json: scripts/gen_data.py
+${DATASETS_JSON}: scripts/gen_data.py
 	${PYTHON} scripts/gen_data.py
 
 ################################################################################
@@ -68,7 +70,7 @@ plots/dag.pdf: scripts/plot_dag.py
 plots/corner_%.pdf: results/%.nc scripts/make_plots.py
 	${PYTHON} scripts/make_plots.py
 
-results/results.csv:
+results/results.csv: ${MCMC}
 	${PYTHON} scripts/summarise_mcmc.py
 
 ################################################################################

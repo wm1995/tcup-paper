@@ -106,32 +106,28 @@ def gen_data(
         "x_obs_params": x_obs_params,
         "y_obs_params": y_obs_params,
     }
-    return data, params
+    if np.sum(~outlier_mask) > 0:
+        no_outlier_data = {
+            "x": x[outlier_mask].tolist(),
+            "dx": dx[outlier_mask].tolist(),
+            "y": y[outlier_mask].tolist(),
+            "dy": dy[outlier_mask].tolist(),
+        }
+        no_outlier_params = {
+            "y_true_params": y_true_params,
+            "outliers": outlier_mask[outlier_mask].tolist(),
+            "x_obs_params": x_obs_params,
+            "y_obs_params": y_obs_params,
+        }
+        return data, params, no_outlier_data, no_outlier_params
+    else:
+        return data, params
 
 
 if __name__ == "__main__":
     # Create datasets
-    # Dataset 1: linear relationship, dim x = 1, 0 outliers
-    data, params = gen_data(
-        seed=SEED,
-        x_true=np.linspace(0, 10, 12)[:, np.newaxis],
-        y_true_fn=lin_rel,
-        y_true_params={
-            "alpha": 3,
-            "beta": [2],
-            "sigma_int": 0.1,
-        },
-        x_obs_fn=simple_x_obs,
-        x_obs_params={"err": 0.2},
-        y_obs_fn=simple_y_obs,
-        y_obs_params={"err": 0.2},
-        outlier_fn=no_outlier,
-        outlier_params={},
-    )
-    write_dataset("linear_1D0", data, params)
-
-    # Dataset 2: linear relationship, dim x = 1, 1 outlier
-    data, params = gen_data(
+    # Dataset 1: linear relationship, dim x = 1, 1 outlier
+    data, params, no_outlier_data, no_outlier_params = gen_data(
         seed=SEED,
         x_true=np.linspace(0, 10, 12)[:, np.newaxis],
         y_true_fn=lin_rel,
@@ -147,29 +143,11 @@ if __name__ == "__main__":
         outlier_fn=simple_outlier,
         outlier_params={"outlier": 10},
     )
+    write_dataset("linear_1D0", no_outlier_data, no_outlier_params)
     write_dataset("linear_1D1", data, params)
 
-    # Dataset 3: linear relationship, dim x = 2, 0 outliers
-    data, params = gen_data(
-        seed=SEED,
-        x_true=np.random.default_rng(SEED).uniform(-1, 1, 200).reshape(-1, 2),
-        y_true_fn=lin_rel,
-        y_true_params={
-            "alpha": 3,
-            "beta": [2, 1],
-            "sigma_int": 0.1,
-        },
-        x_obs_fn=simple_x_obs,
-        x_obs_params={"err": 0.2},
-        y_obs_fn=simple_y_obs,
-        y_obs_params={"err": 0.2},
-        outlier_fn=no_outlier,
-        outlier_params={},
-    )
-    write_dataset("linear_2D0", data, params)
-
-    # Dataset 4: linear relationship, dim x = 2, 1 outlier
-    data, params = gen_data(
+    # Dataset 2: linear relationship, dim x = 2, 1 outlier
+    data, params, no_outlier_data, no_outlier_params = gen_data(
         seed=SEED,
         x_true=np.random.default_rng(SEED).uniform(-1, 1, 200).reshape(-1, 2),
         y_true_fn=lin_rel,
@@ -185,29 +163,11 @@ if __name__ == "__main__":
         outlier_fn=simple_outlier,
         outlier_params={"outlier": 1.5},
     )
+    write_dataset("linear_2D0", no_outlier_data, no_outlier_params)
     write_dataset("linear_2D1", data, params)
 
-    # Dataset 5: linear relationship, dim x = 3, 0 outliers
-    data, params = gen_data(
-        seed=SEED,
-        x_true=np.random.default_rng(SEED).uniform(-1, 1, 90).reshape(-1, 3),
-        y_true_fn=lin_rel,
-        y_true_params={
-            "alpha": 3,
-            "beta": [2, 1, 3],
-            "sigma_int": 0.1,
-        },
-        x_obs_fn=simple_x_obs,
-        x_obs_params={"err": 0.2},
-        y_obs_fn=simple_y_obs,
-        y_obs_params={"err": 0.2},
-        outlier_fn=no_outlier,
-        outlier_params={},
-    )
-    write_dataset("linear_3D0", data, params)
-
-    # Dataset 6: linear relationship, dim x = 3, 1 outlier
-    data, params = gen_data(
+    # Dataset 3: linear relationship, dim x = 3, 1 outlier
+    data, params, no_outlier_data, no_outlier_params = gen_data(
         seed=SEED,
         x_true=np.random.default_rng(SEED).uniform(-1, 1, 90).reshape(-1, 3),
         y_true_fn=lin_rel,
@@ -223,4 +183,5 @@ if __name__ == "__main__":
         outlier_fn=simple_outlier,
         outlier_params={"outlier": 1.5},
     )
+    write_dataset("linear_3D0", no_outlier_data, no_outlier_params)
     write_dataset("linear_3D1", data, params)

@@ -5,13 +5,22 @@
     {{ datasets_latex }}
 \end{table*}
 
-{% for dataset_type in datasets["type"].unique() %}
+{% for dataset_type in datasets["type"].unique() -%}
 \subsection{ {{ dataset_type }} }
 
-{% for _, dataset in datasets[["N", "dim_x"]].drop_duplicates().iterrows() %}
-{% if dataset["type"] == dataset_type %}
+{% for _, dataset in datasets[["type", "N", "dim_x"]].drop_duplicates().iterrows() -%}
+{%- if dataset["type"] == dataset_type -%}
 \subsubsection{$\dim x = {{ dataset.dim_x | int }}, N = {{ dataset.N | int }}$}
 
+{% if dataset["dim_x"] == 1 -%}
+\begin{figure*}
+	\includegraphics[width=\textwidth]{graphics/regression_{{ dataset.type }}_{{dataset.dim_x | int }}D1_cauchy.pdf}
+    \caption{This is an example figure. Captions appear below each figure.
+	Give enough detail for the reader to understand what they're looking at,
+	but leave detailed discussion to the main body of the text.}
+    \label{fig:example_widefigure}
+\end{figure*}
 {% endif %}
-{% endfor %}
-{% endfor %}
+{% endif -%}
+{%- endfor -%}
+{%- endfor -%}

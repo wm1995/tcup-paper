@@ -69,6 +69,9 @@ if __name__ == "__main__":
     datasets = datasets[cols]
     datasets.sort_values(by=["dim_x", "outliers"], inplace=True)
 
+    # Title case the "type" column
+    datasets["type"] = datasets["type"].str.title()
+
     # Rename columns for better presentation
     cols = {
         "type": r"Type",
@@ -83,7 +86,13 @@ if __name__ == "__main__":
         "beta_2": r"$\beta_2$",
         "sigma_int": r"$\sigma_{\text{int}}$",
     }
-    styler = datasets.rename(columns=cols).style
+    styler = (
+        datasets[
+            ~((datasets["type"] == "Linear") & (datasets["outliers"] == 0))
+        ]
+        .rename(columns=cols)
+        .style
+    )
 
     styler.format(na_rep="-", precision=2)
     styler.hide(level=0, axis=0)

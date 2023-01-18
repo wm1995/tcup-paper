@@ -27,12 +27,18 @@ if __name__ == "__main__":
     group.add_argument("-p", "--prior")
     group.add_argument("-f", "--fixed", type=int)
     group.add_argument("-n", "--normal", action="store_true")
+    parser.add_argument("-e", "--exclude-outliers", action="store_true")
     parser.add_argument("dataset")
     parser.add_argument("outfile")
     args = parser.parse_args()
 
     # Load dataset
     data, params = load_dataset(args.dataset)
+
+    if args.exclude_outliers:
+        # Remove outliers from data
+        data = {key: val[~params["outliers"]] for key, val in data.items()}
+        print(data["x"].shape)
 
     # Fit model
     if args.normal:

@@ -8,11 +8,13 @@ PRIORS := invgamma invgamma2 \
 		  nu2 nu2_principled nu2_heuristic nu2_scaled \
 		  invnu
 
-DATASETS := linear_1D0 linear_1D1 linear_2D0 linear_2D1 linear_3D0 linear_3D1
+DATASETS := linear_1D linear_2D linear_3D
+
+SUFFIXES := 0 1
 
 DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
 
-MCMC :=  $(foreach dataset, $(DATASETS), $(foreach prior, $(PRIORS), results/${dataset}_${prior}.nc))
+MCMC :=  $(foreach suffix, $(SUFFIXES), $(foreach dataset, $(DATASETS), $(foreach prior, $(PRIORS), results/${dataset}${suffix}_${prior}.nc)))
 
 .PHONY = analysis datasets mcmc templates venv clean deep-clean
 
@@ -48,9 +50,12 @@ results:
 	mkdir results
 
 $(foreach prior, ${PRIORS}, results/%_${prior}.nc): data/%.json
-	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/fit_model.py -p ${prior} $< results/$*_${prior}.nc; )
-	-${PYTHON} scripts/fit_model.py -n $< results/$*_ncup.nc
-	-${PYTHON} scripts/fit_model.py -f 2 $< results/$*_fixed2.nc
+	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/fit_model.py -p ${prior} -e $< results/$*0_${prior}.nc; )
+	-${PYTHON} scripts/fit_model.py -n -e $< results/$*0_ncup.nc
+	-${PYTHON} scripts/fit_model.py -f 2 -e $< results/$*0_fixed2.nc
+	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/fit_model.py -p ${prior} $< results/$*1_${prior}.nc; )
+	-${PYTHON} scripts/fit_model.py -n $< results/$*1_ncup.nc
+	-${PYTHON} scripts/fit_model.py -f 2 $< results/$*1_fixed2.nc
 
 ################################################################################
 # Produce plots and analysis

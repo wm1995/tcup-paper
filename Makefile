@@ -40,6 +40,11 @@ data:
 ${DATASETS_JSON}: scripts/gen_data.py
 	${PYTHON} scripts/gen_data.py
 
+data/kelly.json:
+	curl https://cdsarc.cds.unistra.fr/ftp/J/ApJS/176/355/table1.dat > data/2008ApJS..176..355K_table1.dat
+	curl https://cdsarc.cds.unistra.fr/ftp/J/ApJ/657/116/table4.dat > data/2007ApJ...657..116K_table4.dat
+	${PYTHON} scripts/preprocess_Kelly.py
+
 ################################################################################
 # Fit MCMC models to datasets
 ################################################################################

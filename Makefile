@@ -43,7 +43,6 @@ ${DATASETS_JSON}: scripts/gen_data.py
 data/kelly.json:
 	-mkdir data/kelly/
 	curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
-	curl https://cdsarc.cds.unistra.fr/ftp/J/ApJ/657/116/table4.dat > data/kelly/2007ApJ...657..116K_table4.dat
 	${PYTHON} scripts/preprocess_Kelly.py
 
 ################################################################################

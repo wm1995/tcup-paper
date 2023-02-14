@@ -99,7 +99,6 @@ if __name__ == "__main__":
 
     priors = [
         (partial(pdf_invgamma, alpha=3, beta=10), r"This work"),
-        (partial(pdf_invgamma, alpha=2, beta=6), r"This work (alt)"),
         (pdf_F18, "Feeney et al. 2018"),
         (partial(pdf_invgamma, alpha=2, beta=10), r"Ju\'arez \& Steel (2010)"),
         (partial(pdf_invgamma, alpha=1, beta=10), r"Ding (2014)"),

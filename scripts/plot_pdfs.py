@@ -1,20 +1,53 @@
 from functools import partial
 import jax
 import jax.numpy as jnp
+import jax.scipy.special as jspec
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import tensorflow_probability.substrates.jax.distributions as tfp_stats
 
-from tcup.priors import (
-    pdf_F18,
-    pdf_F18reparam,
-    pdf_cauchy,
-    pdf_nu2,
-    pdf_peak_height,
-    pdf_inv_nu,
-    pdf_invgamma,
-    pdf_invgamma2,
-)
 from tcup.utils import peak_height, outlier_frac
+
+
+def pdf_inv_nu(nu, coord):
+    grad_x = jnp.vectorize(jax.grad(coord))
+    # P(nu) = P(theta) |dtheta / d_nu|
+    # 1/nu = theta ~ U(0, 1)
+    # I've already taken the absolute value below
+    dtheta = 1 / nu**2
+    if coord == peak_height:
+        # The following is a weird hack for peak height only
+        # In the limit where nu is large, we can end up with numerical errors
+        # This leads to the true probability being underestimated
+        # Therefore, let's clip at the limiting value
+        P_nu = jnp.where(
+            nu >= 1,
+            jnp.clip(dtheta / jnp.abs(grad_x(nu)), a_min=4.0),
+            0.0,
+        )
+    else:
+        P_nu = jnp.where(nu >= 1, dtheta, 0.0) / jnp.abs(grad_x(nu))
+
+    return P_nu
+
+
+def pdf_invgamma(nu, coord, alpha, beta):
+    grad_x = jnp.vectorize(jax.grad(coord))
+    return tfp_stats.InverseGamma(alpha, beta).prob(nu) / jnp.abs(grad_x(nu))
+
+
+def pdf_F18(nu, coord):
+    a = 1.2
+    nu_0 = 0.55
+    grad_x = jnp.vectorize(jax.grad(coord))
+
+    P_nu = ((nu / nu_0) ** (1.0 / 2.0 / a) + (nu / nu_0) ** (2.0 / a)) ** -a
+    log_norm = (
+        jspec.gammaln(a / 3) + jspec.gammaln(2 * a / 3) - jspec.gammaln(a)
+    )
+    norm = 2 / 3 * a * nu_0 * jnp.exp(log_norm)
+    return P_nu / norm / jnp.abs(grad_x(nu))
+
 
 if __name__ == "__main__":
     jax.config.update("jax_enable_x64", True)
@@ -65,16 +98,12 @@ if __name__ == "__main__":
     ]
 
     priors = [
-        (pdf_F18, "Feeney+18"),
-        (pdf_F18reparam, r"$t_{approx} \sim U(0, 1)$"),
-        (pdf_peak_height, r"$t \sim U(0, 1)$"),
-        (pdf_cauchy, r"$t_{approx} \sim U(t(\nu = 1), 1)$"),
-        (partial(pdf_peak_height, nu_min=1), r"$t \sim U(t(\nu = 1), 1)$"),
-        (pdf_nu2, r"$t_{approx} \sim U(t(\nu = 2), 1)$"),
-        (partial(pdf_peak_height, nu_min=2), r"$t \sim U(t(\nu = 2), 1)$"),
-        (pdf_invgamma, r"$\nu \sim Inv-\Gamma(3, 10)$"),
-        (pdf_invgamma2, r"$\nu \sim Inv-\Gamma(2, 6)$"),
-        (pdf_inv_nu, r"$\nu^{-1} \sim U(0, 1)$"),
+        (partial(pdf_invgamma, alpha=3, beta=10), r"This work"),
+        (partial(pdf_invgamma, alpha=2, beta=6), r"This work (alt)"),
+        (pdf_F18, "Feeney et al. 2018"),
+        (partial(pdf_invgamma, alpha=2, beta=10), r"Ju\'arez \& Steel (2010)"),
+        (partial(pdf_invgamma, alpha=1, beta=10), r"Ding (2014)"),
+        (pdf_inv_nu, r"Gelman et al. (2013)"),  # p. 443
     ]
 
     for coord in coords:

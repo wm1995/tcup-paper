@@ -20,7 +20,7 @@ def load_dataset(filename):
     params["N"] = N
 
     # Calculate number of outliers
-    params["outliers"] = np.sum(np.logical_not(params.pop("outliers")))
+    params["outliers"] = np.sum(params.pop("outliers"))
 
     # Expand out nested dictionaries
     params |= params.pop("y_true_params")

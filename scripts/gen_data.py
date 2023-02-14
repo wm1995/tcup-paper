@@ -16,6 +16,18 @@ def write_dataset(name, data, params):
         json.dump(output, f)
 
 
+def t_dist(rng, x_true, alpha, beta, sigma_int, nu):
+    (N, K) = x_true.shape
+
+    y_true = (
+        alpha
+        + np.dot(x_true, beta)
+        + sps.t.rvs(nu, sigma_int, size=(N,), random_state=rng)
+    )
+
+    return y_true
+
+
 def lin_rel(rng, x_true, alpha, beta, sigma_int):
     (N, K) = x_true.shape
 
@@ -64,6 +76,23 @@ def simple_outlier(rng, y_true, outlier):
     mask[-2] = False
 
     y_true[~mask] -= outlier
+
+    return y_true, mask
+
+
+def normal_outlier(rng, y_true, sigma_outlier, outlier_frac):
+    (N,) = y_true.shape
+
+    N_outlier = rng.binomial(N, outlier_frac)
+
+    # Set up outlier mask
+    mask = np.ones(N, dtype=bool)
+    inds = rng.choice(np.arange(N), N_outlier, replace=False)
+    mask[inds] = False
+
+    y_true[~mask] += sps.norm.rvs(
+        0, sigma_outlier, size=(N_outlier,), random_state=rng
+    )
 
     return y_true, mask
 
@@ -167,3 +196,45 @@ if __name__ == "__main__":
         outlier_params={"outlier": 1.5},
     )
     write_dataset("linear_3D", data, params)
+
+    # Dataset 4: t-distribution data, dim x = 1, 1 outlier
+    data, params = gen_data(
+        seed=SEED,
+        x_true=np.linspace(-5, 5, 40)[:, np.newaxis],
+        y_true_fn=t_dist,
+        y_true_params={
+            "alpha": -1,
+            "beta": [0.5],
+            "sigma_int": 0.02,
+            "nu": 4,
+        },
+        x_obs_fn=simple_x_obs,
+        x_obs_params={"err": 0.1},
+        y_obs_fn=simple_y_obs,
+        y_obs_params={"err": 0.1},
+        outlier_fn=no_outlier,
+        outlier_params={},
+    )
+    write_dataset("t_dist_1D", data, params)
+
+    # Dataset 5: Gaussian mixture, dim x = 1
+    data, params = gen_data(
+        seed=SEED,
+        x_true=np.linspace(-3, 6, 100)[:, np.newaxis],
+        y_true_fn=lin_rel,
+        y_true_params={
+            "alpha": -1,
+            "beta": [0.5],
+            "sigma_int": 0.02,
+        },
+        x_obs_fn=simple_x_obs,
+        x_obs_params={"err": 0.1},
+        y_obs_fn=simple_y_obs,
+        y_obs_params={"err": 0.1},
+        outlier_fn=normal_outlier,
+        outlier_params={
+            "sigma_outlier": 0.2,
+            "outlier_frac": 0.15,
+        },
+    )
+    write_dataset("gaussian_mixture_1D", data, params)

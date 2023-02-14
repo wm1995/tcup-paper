@@ -141,6 +141,9 @@ if __name__ == "__main__":
                 plt.ylabel(rf"$F({coord['symbol']})$")
             elif plot == "sf":
                 plt.ylabel(rf"$1 - F({coord['symbol']})$")
+                if coord["name"] == "outlier_frac":
+                    plt.yscale("log")
+                    plt.ylim(1e-3, 1)
             plt.xscale(coord["xscale"])
             if plot == "pdf":
                 plt.yscale(coord["yscale"])

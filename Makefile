@@ -70,6 +70,8 @@ analysis: graphics results/results.csv
 
 graphics: plots/ plots/*.pdf
 	cp plots/dag.pdf graphics/
+	cp plots/pdf_nu.pdf graphics/
+	cp plots/cdf_outlier_frac.pdf graphics/
 
 plots:
 	mkdir plots

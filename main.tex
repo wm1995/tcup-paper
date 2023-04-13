@@ -646,10 +646,73 @@ the relevant databases or DOIs.
 
 \appendix
 
-\section{Some extra material}
+\section{Prior choice for shape parameter}
 
-If you want to present additional material which would interrupt the flow of the main paper,
-it can be placed in an Appendix which appears after the list of references.
+Previous work that has employed the $t$-distributions has used different
+priors for the shape parameter $\nu$, which controls how heavy-tailed the
+distribution is. Previous priors suggested include:
+\begin{itemize}
+    \item priors of the form $\nu \sim {\rm Inv-}\Gamma(\alpha, \beta)$ for some
+          $\left\{\alpha, \beta\right\}$ -- e.g.
+          \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 10\right\}$;
+          \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 10\right\}$
+    \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
+    \item A uniform prior in distribution peak height relative to a normal
+    distribution, such that
+    \begin{equation}
+        \sqrt{\frac2\nu}\frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)} \sim U(0, 1).
+    \end{equation}
+\end{itemize}
+These priors are illustrated in Figure \ref{fig:priors.pdf}.
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
+    \caption{This is an example figure. Captions appear below each figure.
+	Give enough detail for the reader to understand what they're looking at,
+	but leave detailed discussion to the main body of the text.}
+    \label{fig:priors.pdf}
+\end{figure}
+
+A uniform proper prior in $\frac1\nu$ gives a hard cutoff in $\nu$, which
+renders regions of parameter space inaccessible (in the case of the
+\citet{Gelman:2013} prior, $\nu = 1$ is the cutoff, which corresponds to a
+Cauchy distribution.) On the other hand, the prior used in \citet{Feeney:2018}
+has disproportionate prior density at low values of $\nu$, which corresponds to
+models with outliers several orders of magnitude larger than the predicted
+effect size.
+
+It can also be instructive to calculate the ``outlier fraction'' for different
+values of $\nu$. We define the outlier fraction $\omega$ as
+\begin{eqnarray}
+    \omega(\nu) &=& \mathcal P\left(|x - \mu| > 3 \sigma \mid x \sim t_\nu (\mu, \sigma^2) \right) \\
+    &=& I\left(\frac{\nu}{\nu + 3^2};\frac\nu2, \frac12\right),
+\end{eqnarray}
+where $I(x; \alpha, \beta)$ is the regularised beta function. For a normal
+distribution, we expect about 0.27\% of points to be outliers greater than
+3~$\sigma$ from the mean --- i.e. $\lim_{\nu \rightarrow \infty}\omega(\nu)
+\approx 0.0027$; for a Cauchy distribution, $\omega(\nu = 1) \approx 0.20$.
+
+The cumulative distribution functions for the priors in terms of outlier
+fraction are illustrated in Figure \ref{fig:priors.outlier_frac}.
+\begin{figure}
+	\includegraphics[width=\columnwidth]{graphics/cdf_outlier_frac}
+    \caption{This is an example figure. Captions appear below each figure.
+	Give enough detail for the reader to understand what they're looking at,
+	but leave detailed discussion to the main body of the text.}
+    \label{fig:priors.outlier_frac}
+\end{figure}
+
+In this work, we use the prior
+\begin{equation}
+    \nu \sim {\rm Inv-}\Gamma(3, 10),
+\end{equation}
+where ${\rm Inv-}\Gamma(\alpha, \beta)$ is an inverse gamma distribution with
+{\color{red} shape parameter $\alpha$ and scale parameter $\beta$}.
+
+This prior was chosen for two reasons:
+\begin{itemize}
+    \item 
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

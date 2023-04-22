@@ -5,8 +5,27 @@ import jax.scipy.special as jspec
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tensorflow_probability.substrates.jax.distributions as tfp_stats
+import tensorflow_probability.substrates.jax.math as tfp_math
 
-from tcup.utils import peak_height, outlier_frac
+
+@jax.jit
+def peak_height(nu):
+    log_t = 0.5 * jnp.log(2)
+    log_t -= 0.5 * jnp.log(nu)
+    log_t += jspec.gammaln((nu + 1) / 2)
+    log_t -= jspec.gammaln(nu / 2)
+    t = jnp.where(nu == 0.0, 0.0, jnp.exp(log_t))
+    t = jnp.where(jnp.isinf(nu), 1.0, t)
+    return t
+
+
+@jax.jit
+def outlier_frac(nu, outlier_sigma=3):
+    normal_outlier_frac = 1 - jspec.erf(outlier_sigma / jnp.sqrt(2))
+    omega = tfp_math.betainc(0.5 * nu, 0.5, nu / (nu + outlier_sigma**2))
+    omega = jnp.where(nu == 0, 0.0, omega)
+    omega = jnp.where(jnp.isinf(nu), normal_outlier_frac, omega)
+    return omega
 
 
 def pdf_inv_nu(nu, coord):

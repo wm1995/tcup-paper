@@ -2,19 +2,11 @@ VENV := venv
 PYTHON := ${VENV}/bin/python
 PIP := ${VENV}/bin/pip
 
-PRIORS := invgamma invgamma2 \
-		  cauchy cauchy_scaled cauchy_truncated \
-		  F18 F18reparam \
-		  nu2 nu2_principled nu2_heuristic nu2_scaled \
-		  invnu
-
-DATASETS := linear_1D linear_2D linear_3D
-
-SUFFIXES := 0 1
+DATASETS := t normal gaussian_mix laplace lognormal
 
 DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
 
-MCMC :=  $(foreach suffix, $(SUFFIXES), $(foreach dataset, $(DATASETS), $(foreach prior, $(PRIORS), results/${dataset}${suffix}_${prior}.nc)))
+MCMC :=  $(foreach dataset, $(DATASETS), results/${dataset}.nc)
 
 .PHONY = analysis datasets mcmc templates venv clean deep-clean
 
@@ -54,13 +46,10 @@ mcmc: results/ ${MCMC}
 results:
 	mkdir results
 
-$(foreach prior, ${PRIORS}, results/%_${prior}.nc): data/%.json
-	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/fit_model.py -p ${prior} -e $< results/$*0_${prior}.nc; )
-	-${PYTHON} scripts/fit_model.py -n -e $< results/$*0_ncup.nc
-	-${PYTHON} scripts/fit_model.py -f 2 -e $< results/$*0_fixed2.nc
-	-$(foreach prior, ${PRIORS}, ${PYTHON} scripts/fit_model.py -p ${prior} $< results/$*1_${prior}.nc; )
-	-${PYTHON} scripts/fit_model.py -n $< results/$*1_ncup.nc
-	-${PYTHON} scripts/fit_model.py -f 2 $< results/$*1_fixed2.nc
+results/%.nc: data/%.json
+	-${PYTHON} scripts/fit_model.py $< results/$*_tcup.nc
+	-${PYTHON} scripts/fit_model.py -n $< results/$*_ncup.nc
+	-${PYTHON} scripts/fit_model.py -f 3 $< results/$*_fixed3.nc
 
 ################################################################################
 # Produce plots and analysis

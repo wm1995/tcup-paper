@@ -108,6 +108,7 @@ if __name__ == "__main__":
     )
     x = x_true + eps_x
     dy = 10 ** sps.norm(-1, 0.1).rvs(size=shape[0], random_state=rng)
+    y = sps.norm(loc=y_true, scale=dy).rvs(random_state=rng)
     data = {
         "x": x.tolist(),
         "y": y.tolist(),

@@ -14,15 +14,13 @@ def load_dataset(filename):
         dataset = json.load(f)
 
     data = {key: np.array(val) for key, val in dataset["data"].items()}
-    params = dataset["params"]
-    params["outliers"] = np.array(params["outliers"])
-    return data, params
+    info = dataset["info"]
+    return data, info
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True)
-    parser.add_argument("--prior", required=True)
     args = parser.parse_args()
 
     # Set matplotlib style
@@ -40,10 +38,10 @@ if __name__ == "__main__":
     mpl.rcParams["ytick.direction"] = "in"
 
     # Load dataset
-    data, params = load_dataset(f"data/{args.dataset}.json")
+    data, info = load_dataset(f"data/{args.dataset}.json")
 
     # Load mcmc data
-    t_mcmc = az.from_netcdf(f"results/{args.dataset}_{args.prior}.nc")
+    t_mcmc = az.from_netcdf(f"results/{args.dataset}_tcup.nc")
     n_mcmc = az.from_netcdf(f"results/{args.dataset}_ncup.nc")
 
     x_axis = np.linspace(0, 10, 200)
@@ -59,8 +57,9 @@ if __name__ == "__main__":
         ax_i.plot(
             x_axis,
             [
-                mcmc["posterior"]["alpha"].values.flatten()[inds]
-                + mcmc["posterior"]["beta"].values.flatten()[inds] * x_val
+                mcmc["posterior"]["alpha_rescaled"].values.flatten()[inds]
+                + mcmc["posterior"]["beta_rescaled"].values.flatten()[inds]
+                * x_val
                 for x_val in x_axis
             ],
             color="red" if idx else "blue",
@@ -68,21 +67,18 @@ if __name__ == "__main__":
         )
         ax_i.plot(
             x_axis,
-            params["y_true_params"]["alpha"]
-            + params["y_true_params"]["beta"][0] * x_axis,
+            info["alpha"] + info["beta"] * x_axis,
             color="k",
             linestyle="dashed",
         )
         ax_i.errorbar(
-            [x_i[0] for x_i in data["x"]],
+            data["x"],
             data["y"],
             data["dy"],
-            [dx_i[0][0] for dx_i in data["dx"]],
+            data["dx"],
             "k+",
         )
         ax_i.set_xlim((0, 10))
 
     plt.tight_layout()
-    plt.savefig(
-        f"plots/regression_{args.dataset}_{args.prior}.pdf", backend="pgf"
-    )
+    plt.savefig(f"plots/regression_{args.dataset}.pdf", backend="pgf")

@@ -6,7 +6,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-SEED = 42
+SEED = 2023
 
 
 def load_dataset(filename):

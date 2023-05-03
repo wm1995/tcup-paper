@@ -153,13 +153,12 @@ if __name__ == "__main__":
         "sigma_int": 0.2,
     }
     x_true = sps.uniform(-5, 5).rvs(size=shape, random_state=rng)
-    epsilon = 10 ** sps.norm(loc=np.log10(info["sigma_int"]), scale=0.1).rvs(
+    mu = info["alpha"] + np.dot(x_true, info["beta"])
+    epsilon = sps.norm(scale=info["sigma_int"]).rvs(
         size=shape[0], random_state=rng
     )
-    epsilon = sps.laplace(scale=info["sigma_int"]).rvs(
-        size=shape[0], random_state=rng
-    )
-    y_true = info["alpha"] + np.dot(x_true, info["beta"]) + epsilon
+    log_y_true = np.log10(mu) + epsilon
+    y_true = 10**log_y_true
     dx = 10 ** sps.norm(-1, 0.1).rvs(size=shape, random_state=rng)
     dy = 10 ** sps.norm(-1, 0.1).rvs(size=shape[0], random_state=rng)
     x = sps.norm(loc=x_true, scale=dx).rvs(random_state=rng)

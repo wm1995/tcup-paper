@@ -532,17 +532,309 @@ reproduces the datasets in this section is available online\footnotemark.
 
 \footnotetext{\url{https://github.com/wm1995/tcup-paper}}
 
-\input{datasets.tex}
+\subsection{\textit{t}-distributed data}
+\label{sec:results.t}
+
+Our first test illustrates a dataset that matches our model perfectly, with $N =
+20$ datapoints drawn from the following distribution:
+\begin{eqnarray}
+    x_i &\sim& \mathcal N (\mu = 2, \sigma = 2) \\
+    y_i &\sim& t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1) \\
+    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -0.7, \sigma = 0.1) \\
+    \hat{x}_i &\sim& t_{3} (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i &\sim& t_{3} (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{eqnarray}
+
+Note that $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
+\approx 5.8 \%$.
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{{\color{red} 100} draws from the posterior of regression lines
+    (red) for the \textit{t}-distributed dataset (black points). The ground
+    truth regression line is illustrated by the black dashed line.}
+    \label{fig:results.t.regression}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The posterior for each of the regression coefficients and the shape
+    parameter $\nu$ for the \textit{t}-distributed dataset, with ground-truth
+    values indicated by the black dashed lines.}
+    \label{fig:results.t.corner}
+\end{figure}
+
+As we can see in Figures \ref{fig:results.t.regression} and
+\ref{fig:results.t.corner}, we recover the values of the parameters that were
+used to generate the dataset.
+
+We then generated 1000 datasets from the same ground-truth parameters, and
+calculated the maximum a posteriori (MAP) values of the regression coefficients
+and shape parameter $\nu$. The results (illustrated in Figure
+\ref{fig:results.t.map}) indicate that the estimate of true parameter values is
+unbiased.{
+\color{red} We also calculated the 95\% credible intervals for each parameter,
+finding that the true parameter value was contained within the interval for
+$x$\% of parameters and runs.
+}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The distribution of maximum a posteriori (MAP) estimates for each
+    of the regression parameters, as well as the shape parameter $\nu$.}
+    \label{fig:results.t.map}
+\end{figure}
 
 \subsection{Normally-distributed data}
+\label{sec:results.outlier}
 
-Simulate data-sets with different numbers of outliers (just normally distributed
-with no outliers; normally distributed with a chosen fraction of manual
-outliers; t distributed with a chosen shape parameter; drawn from some other
-heavy-tailed distribution such as a normal mixture or exponential/Laplace;
-asymmetric, such a log-normal).  Basic presentation of results will be similar
-for each case: showing the simulated data with posterior draws of fitted
-lines/curves (as in your presentation plots) and corner plots
+In this test, we compare $t$-cup with an equivalent model that employs normal
+distributions to illustrate that:
+\begin{enumerate}
+    \item $t$-cup is able to reduce to a normal model in the absence of outliers
+    \item $t$-cup is able to give less biased results when an extreme outlier is
+          introduced.
+\end{enumerate}
+
+We generated a dataset of $N = 12$ points using the model:
+\begin{alignat}{1}
+    x_i& \sim \mathcal N (\mu = 5, \sigma = 3) \\
+    y_i& \sim
+    \begin{cases}
+        \mathcal N (\mu = 3 + 2 x_i - 10, \sigma = 0.2) &
+            \text{for the second-largest $x_i$} \\
+        \mathcal N (\mu = 3 + 2 x_i, \sigma = 0.2) &
+            \text{otherwise} \\
+    \end{cases}\\
+    \log_{10} \sigma_{x, i}& \sim \mathcal N (\mu = -0.5, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -0.3, \sigma = 0.1) \\
+    \hat{x}_i& \sim \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{alignat}
+
+\begin{figure*}
+    \includegraphics[width=\linewidth]{example-image-a}
+    \caption{{\color{red} 100} draws from the posterior of regression lines from
+    the normal model (left panel, blue) and $t$-cup (right panel, red). The
+    dataset is illustrated by the black points, with the ground-truth regression
+    line illustrated by the black dashed line.}
+    \label{fig:results.outlier.regression}
+\end{figure*}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The posterior for each of the regression coefficients under the
+    normal model with the outlier included (dark blue, solid) and excluded
+    (light blue, dashed), and for $t$-cup with the outlier included (dark red,
+    solid). Ground-truth values are indicated by the black dashed lines.}
+    \label{fig:results.outlier.corner}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The posterior for each of the regression coefficients and the shape
+    parameter $\nu$ under the $t$-cup model with the outlier included (dark red,
+    solid) and excluded (light red, dashed).}
+    \label{fig:results.outlier.tcup}
+\end{figure}
+
+Figure \ref{fig:results.outlier.regression} illustrates how the estimates for
+the true parameter models are biased in the normal model, but less affected in
+the $t$-cup model.
+
+In Figure \ref{fig:results.outlier.corner}, we compare the constraints on
+parameters derived under the normal model (including and excluding the outlier
+from the dataset), and the $t$-cup model (including the outlier only). The
+constraints from the $t$-cup model including the outlier are consistent with
+those derived under the normal model when the outlier is excluded, obviating the
+need to remove the outlier manually. While this outlier is particularly extreme,
+this example illustrates the utility of the $t$-cup model in datasets with
+outliers.
+
+For completeness, in Figure \ref{fig:results.outlier.tcup} we illustrate that
+the $t$-cup model recovers consistent constraints whether the outlier is
+included or excluded.
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The distribution of maximum a posteriori (MAP) estimates for each
+    of the regression parameters under the normal model (blue) and $t$-cup model
+    (red).}
+    \label{fig:results.outlier.map}
+\end{figure}
+
+We then generated 1000 datasets using the same procedure, and
+calculated the maximum a posteriori (MAP) values of the regression coefficients
+for both the normal model and for $t$-cup. The results (illustrated in Figure
+\ref{fig:results.outlier.map}) indicate that {\color{red} constraints under
+$t$-cup are significantly less biased than those calculated under the normal
+model. We also compared the 95\% credible intervals for each parameter,
+finding that the true parameter value was contained within the interval for
+$x$\% of parameters and runs.
+}
+
+\subsection{2D Normal Mixture Model with outlier fraction}
+\label{sec:results.gmm}
+
+This test examines how the model performs when there is a significant fraction
+of outliers. The intrinsic scatter distribution is a mixture of two normal
+distributions with zero mean; 90\% of points are drawn from a core distribution
+with standard deviation $\sigma_\textrm{int}$, and 10\% of points are drawn from
+an outlier distribution with standard deviation $10 \sigma_\textrm{int}$. We
+introduce the random variable $O_i$ to indicate whether the $i$th datapoint is
+drawn from the core distribution (in which case, $O_i = 0$) or from the outlier
+distribution (for which $O_i = 1$).
+
+We generated a dataset of $N = 200$ points using the model:
+\begin{alignat}{1}
+    \boldsymbol{x}_i& \sim
+    \begin{cases}
+        \mathcal N \left(
+            \mu = \begin{pmatrix} -3 \\ 2 \end{pmatrix},
+            \sigma = \begin{pmatrix} 0.5 & -1 \\ -1 & 4 \end{pmatrix}
+        \right) &
+            1 \leqslant i \leqslant 140 \\
+        \mathcal N \left(
+            \mu = \begin{pmatrix} -1 \\ -1 \end{pmatrix},
+            \sigma = \begin{pmatrix} 1 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}
+        \right) &
+            140 < i \leqslant 200 \\
+    \end{cases}\\
+    O_i& \sim \mathrm{Bernoulli}(0.1) \\
+    y_i& \sim
+    \begin{cases}
+        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 0.4) &
+            O_i = 0 \\
+        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 4.0) &
+            O_i = 1 \\
+    \end{cases}\\
+    \Sigma_{x, i}& \sim \mathcal W_2 (\boldsymbol{V} = 0.1 \mathbb{I}, n = 3) \\
+    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \sigma = \Sigma_{x, i}) \\
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{alignat}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The posterior for each of the regression coefficients and the
+    outlier fraction $\omega$ for the normal mixture model dataset, with
+    ground-truth values indicated by the black dashed lines. Note that, although
+    there is not a one-to-one correspondence between the outlier fraction
+    $\omega$ and the $p = 0.1$ outlier fraction in the Bernoulli distribution,
+    {\color{red} insert observation here}.}
+    \label{fig:results.gmm.corner}
+\end{figure}
+
+\subsection{Laplace-distributed data}
+\label{sec:results.laplace}
+
+For this dataset, a Laplace distribution was used as the noise distribution, as
+it is heavy-tailed but does not fall within the family of $t$ distributions and,
+therefore, gives an example of performance under explicit model
+misspecification.
+
+We generate $N = 25$ datapoints under the following model:
+\begin{eqnarray}
+    x_i &\sim& \mathcal U (-5, 5) \\
+    y_i &\sim& \mathrm{Laplace} (\mu = -1 + 0.8 x_i, b = 0.2) \\
+    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{eqnarray}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{{\color{red} 100} draws from the posterior of regression lines
+    (red) for the Laplace-distributed dataset (black points). The ground
+    truth regression line is illustrated by the black dashed line.}
+    \label{fig:results.laplace.regression}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The posterior for each of the regression coefficients and the shape
+    parameter $\nu$ for the Laplace-distributed dataset, with ground-truth
+    values indicated by the black dashed lines.}
+    \label{fig:results.laplace.corner}
+\end{figure}
+
+As we can see in Figures \ref{fig:results.laplace.regression} and
+\ref{fig:results.laplace.corner}, we recover the values of the parameters that were
+used to generate the dataset.
+
+We then generated 1000 datasets from the same ground-truth parameters, and
+calculated the maximum a posteriori (MAP) values of the regression coefficients
+and shape parameter $\nu$. The results (illustrated in Figure
+\ref{fig:results.laplace.map}) indicate that the estimate of true parameter values is
+unbiased.{
+\color{red} We also calculated the 95\% credible intervals for each parameter,
+finding that the true parameter value was contained within the interval for
+$x$\% of parameters and runs.
+}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The distribution of maximum a posteriori (MAP) estimates for each
+    of the regression parameters, as well as the shape parameter $\nu$.}
+    \label{fig:results.laplace.map}
+\end{figure}
+
+
+\subsection{Lognormally-distributed data}
+\label{sec:results.lognormal}
+
+For the final test in this section, we used an asymmetric distribution to assess
+performance of the model in this regime.
+
+We generate $N = 25$ datapoints under the following model:
+\begin{eqnarray}
+    x_i &\sim& \mathcal U (-5, 5) \\
+    \log_{10} y_i &\sim& \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
+    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{eqnarray}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{{\color{red} 100} draws from the posterior of regression lines
+    (red) for the lognormally-distributed dataset (black points). The ground
+    truth regression line is illustrated by the black dashed line.}
+    \label{fig:results.lognormal.regression}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The posterior for each of the regression coefficients and the shape
+    parameter $\nu$ for the lognormally-distributed dataset, with ground-truth
+    values indicated by the black dashed lines.}
+    \label{fig:results.lognormal.corner}
+\end{figure}
+
+As we can see in Figures \ref{fig:results.lognormal.regression} and
+\ref{fig:results.lognormal.corner}, we recover the values of the parameters that were
+used to generate the dataset.
+
+We then generated 1000 datasets from the same ground-truth parameters, and
+calculated the maximum a posteriori (MAP) values of the regression coefficients
+and shape parameter $\nu$. The results (illustrated in Figure
+\ref{fig:results.lognormal.map}) indicate that the estimate of true parameter values is
+unbiased.{
+\color{red} We also calculated the 95\% credible intervals for each parameter,
+finding that the true parameter value was contained within the interval for
+$x$\% of parameters and runs.
+}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{example-image-a}
+    \caption{The distribution of maximum a posteriori (MAP) estimates for each
+    of the regression parameters, as well as the shape parameter $\nu$.}
+    \label{fig:results.lognormal.map}
+\end{figure}
+
 
 \section{Demonstration on real-world data}
 \label{sec:real-world}

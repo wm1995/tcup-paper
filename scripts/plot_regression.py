@@ -14,7 +14,7 @@ def load_dataset(filename):
         dataset = json.load(f)
 
     data = {key: np.array(val) for key, val in dataset["data"].items()}
-    info = dataset["info"]
+    info = dataset.get("info", {})
     return data, info
 
 

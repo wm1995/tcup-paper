@@ -46,10 +46,23 @@ mcmc: results/ ${MCMC}
 results:
 	mkdir results
 
-results/%.nc: data/%.json
-	-${PYTHON} scripts/fit_model.py $< results/$*_tcup.nc
-	-${PYTHON} scripts/fit_model.py -n $< results/$*_ncup.nc
-	-${PYTHON} scripts/fit_model.py -f 3 $< results/$*_fixed3.nc
+results/%_tcup.nc: data/%.json
+	-${PYTHON} scripts/fit_model.py $< $@
+
+results/%_fixed3.nc: data/%.json
+	-${PYTHON} scripts/fit_model.py -f 3 $@
+
+results/%_ncup.nc: data/%.json
+	-${PYTHON} scripts/fit_model.py -n $< $@
+
+results/normal_tcup.nc results/outlier_tcup.nc &: data/normal.json scripts/fit_normal.py
+	-${PYTHON} scripts/fit_normal.py $< results/normal_tcup.nc results/outlier_tcup.nc
+
+results/normal_fixed3.nc results/outlier_fixed3.nc &: data/normal.json scripts/fit_normal.py
+	-${PYTHON} scripts/fit_normal.py -f 3 $<  results/normal_fixed3.nc results/outlier_fixed3.nc
+
+results/normal_ncup.nc results/outlier_ncup.nc &: data/normal.json scripts/fit_normal.py
+	-${PYTHON} scripts/fit_normal.py -n $< results/normal_ncup.nc results/outlier_ncup.nc
 
 ################################################################################
 # Produce plots and analysis

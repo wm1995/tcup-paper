@@ -839,6 +839,11 @@ $x$\% of parameters and runs.
 \section{Demonstration on real-world data}
 \label{sec:real-world}
 
+In this section, we compare the performance of the $t$-cup model with that of
+\textsc{linmix\_err} \citep{Kelly:2007}. We use the same dataset that is used in
+Section 8 of \citet{Kelly:2007} -- a dataset of $N = 39$ quasars with measured
+Eddington ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$.
+
 A simple demonstration on real data (Park is a possibility; another is an
 M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
 on the paper used by Kelly as can directly compare.
@@ -889,6 +894,15 @@ on the paper used by Kelly as can directly compare.
 
 \section{Conclusions}
 
+This paper has demonstrated a general-purpose approach to linear regression that
+is robust to model misspecification, with a model laid out in Section
+\ref{sec:formalism}. In Section \ref{sec:results}, we demonstrated that the
+model recovers constraints consistent with those used to generate the datasets,
+including in cases where there is a mismatch between the generative model used
+to create the dataset and our regression model. In Section \ref{sec:real-world},
+we compared the method to \textsc{linmix\_err} \citep{Kelly:2007} on real-world
+data, illustrating that the models derive consistent constraints.
+
 Summarise the take-home point that the method is a form of robust inference;
 works on all sorts of outliers; then lead on to use in Paper 2 on the mass
 ladder.
@@ -912,25 +926,10 @@ article. The statement should describe and provide means of access, where
 possible, by linking to the data or providing the required accession numbers for
 the relevant databases or DOIs.
 
-
-
-
 %%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
-
-% The best way to enter references is to use BibTeX:
 
 \bibliographystyle{mnras}
 \bibliography{references}
-
-
-% Alternatively you could enter them by hand, like this:
-% This method is tedious and prone to error if you have lots of references
-%\begin{thebibliography}{99}
-%\bibitem[\protect\citeauthoryear{Author}{2012}]{Author2012}
-%Author A.~N., 2013, Journal of Improbable Astronomy, 1, 1
-%\bibitem[\protect\citeauthoryear{Others}{2013}]{Others2013}
-%Others S., 2012, Journal of Interesting Stuff, 17, 198
-%\end{thebibliography}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1003,7 +1002,12 @@ where ${\rm Inv-}\Gamma(\alpha, \beta)$ is an inverse gamma distribution with
 
 This prior was chosen for two reasons:
 \begin{itemize}
-    \item 
+    \item the prior is smooth in $\nu$ with no sharp boundaries (unlike
+          \citet{Gelman:2013})
+    \item the prior has density at a larger range of outlier fractions $\omega$
+          than those in \citet{Juarez:2010, Ding:2014} but insignificant density
+          at unrealistically high outlier fractions, in contrast with the prior
+          in \citet{Feeney:2018}.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

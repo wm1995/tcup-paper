@@ -77,6 +77,9 @@ def plot_corner(
     ):
         if var_x not in pooled_samples:
             continue
+
+        bins_key = var_x + "".join([f"_{x_coord}" for x_coord in var_idx])
+
         for ax_idy, (var_y, var_idy) in enumerate(
             zip(var_names_unpacked, var_indices)
         ):
@@ -87,10 +90,10 @@ def plot_corner(
                 ax[ax_idy, ax_idx].axis("off")
             elif ax_idx == ax_idy:
                 ax[ax_idy, ax_idx].set_yticks([])
-                if var_x in bins:
+                if bins_key in bins:
                     ax[ax_idy, ax_idx].hist(
                         pooled_samples[var_x][var_idx].values,
-                        bins=bins[var_x],
+                        bins=bins[bins_key],
                         histtype="step",
                         **{
                             key: value
@@ -104,7 +107,7 @@ def plot_corner(
                         histtype="step",
                         **marginal_kwargs,
                     )
-                    bins[var_x] = curr_bins
+                    bins[bins_key] = curr_bins
                 if true_vals.get(var_x) is not None:
                     if len(var_idx) > 0:
                         ax[ax_idy, ax_idx].axvline(
@@ -122,7 +125,7 @@ def plot_corner(
                     ax[ax_idy, ax_idx].sharey(ax[ax_idy, 0])
                 elif var_y in var_labels:
                     var_y_suffix = "".join(
-                        [f"_{y_coord}" for y_coord in var_idy]
+                        [f"$_{y_coord}$" for y_coord in var_idy]
                     )
                     ax[ax_idy, 0].set_ylabel(
                         var_labels[var_y] + var_y_suffix,
@@ -154,7 +157,9 @@ def plot_corner(
                             true_vals[var_y], **true_kwargs
                         )
             if var_x in var_labels:
-                var_x_suffix = "".join([f"_{x_coord}" for x_coord in var_idx])
+                var_x_suffix = "".join(
+                    [f"$_{x_coord}$" for x_coord in var_idx]
+                )
                 ax[-1, ax_idx].set_xlabel(var_labels[var_x] + var_x_suffix)
     fig.align_labels()
     fig.subplots_adjust(wspace=0, hspace=0)

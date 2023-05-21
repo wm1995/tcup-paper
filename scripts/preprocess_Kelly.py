@@ -61,8 +61,8 @@ if __name__ == "__main__":
     plt.close()
 
     data = {
-        "x": df["log_Lbol"].values[:, np.newaxis].tolist(),
-        "dx": df["dlog_Lbol"].values[:, np.newaxis, np.newaxis].tolist(),
+        "x": df["log_Lbol"].values.tolist(),
+        "dx": df["dlog_Lbol"].values.tolist(),
         "y": df["Gamma_X"].values.tolist(),
         "dy": df["dGamma_X"].values.tolist(),
     }
@@ -77,24 +77,3 @@ if __name__ == "__main__":
             },
             f,
         )
-
-    # Load spectral data from 2007ApJ...657..116K Table 4
-    spectral = pd.read_fwf(
-        "data/2007ApJ...657..116K_table4.dat",
-        names=[
-            "source",
-            "new",
-            "z",
-            "NH",
-            "n_0",
-            "E_n0",
-            "e_n0",
-            "Gamma",
-            "E_Gamma",
-            "e_Gamma",
-            "logL2500",
-            "logL2kev",
-            "a-ox",
-            "a-UV",
-        ],
-    )

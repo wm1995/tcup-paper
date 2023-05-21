@@ -1,0 +1,10 @@
+[tool.setuptools]
+package-dir = {"tcup_paper" = "tcup-paper"}
+
+[project]
+name = "tcup-paper"
+authors = [
+    {name = "William Martin", email = "w.martin19@imperial.ac.uk"},
+]
+description = "Common functions used for the tcup paper"
+dynamic = ["version"]

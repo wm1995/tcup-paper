@@ -1,6 +1,7 @@
 # Directories for building paper
 build/
 data/
+!tcup-paper/data/
 plots/
 results/
 old/

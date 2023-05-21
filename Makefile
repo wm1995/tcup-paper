@@ -2,11 +2,14 @@ VENV := venv
 PYTHON := ${VENV}/bin/python
 PIP := ${VENV}/bin/pip
 
-DATASETS := t normal gaussian_mix laplace lognormal
+DATASETS := t normal outlier gaussian_mix laplace lognormal kelly
+MODELS := tcup ncup fixed3
+CORNER_DATASETS := t gaussian_mix laplace lognormal kelly
 
 DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
 
-MCMC :=  $(foreach dataset, $(DATASETS), results/${dataset}.nc)
+MCMC :=  $(foreach dataset, $(DATASETS), $(foreach model, ${MODELS}, results/${dataset}_${model}.nc))
+CORNER_PLOTS := $(foreach dataset, $(CORNER_DATASETS), plots/corner_${dataset}.pdf) plots/corner_tcup.pdf plots/corner_ncup.pdf
 
 .PHONY = analysis datasets mcmc templates venv clean deep-clean
 
@@ -29,12 +32,24 @@ datasets: data/ ${DATASETS_JSON}
 data:
 	mkdir data
 
-${DATASETS_JSON}: scripts/gen_data.py
-	${PYTHON} scripts/gen_data.py
+data/t.json: tcup-paper/data/t.py
+	${PYTHON} scripts/gen_dataset.py --t-dist
 
-data/kelly.json:
+data/normal.json data/outlier.json &: tcup-paper/data/outlier.py
+	${PYTHON} scripts/gen_dataset.py --outlier
+
+data/gaussian_mix.json: tcup-paper/data/gaussian_mix.py
+	${PYTHON} scripts/gen_dataset.py --gaussian-mix
+
+data/laplace.json: tcup-paper/data/laplace.py
+	${PYTHON} scripts/gen_dataset.py --laplace
+
+data/lognormal.json: tcup-paper/data/lognormal.py
+	${PYTHON} scripts/gen_dataset.py --lognormal
+
+data/kelly.json: scripts/preprocess_Kelly.py
 	-mkdir data/kelly/
-	curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
+	cd data/kelly/ && curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
 	${PYTHON} scripts/preprocess_Kelly.py
 
 ################################################################################
@@ -50,19 +65,10 @@ results/%_tcup.nc: data/%.json
 	-${PYTHON} scripts/fit_model.py $< $@
 
 results/%_fixed3.nc: data/%.json
-	-${PYTHON} scripts/fit_model.py -f 3 $@
+	-${PYTHON} scripts/fit_model.py -f 3 $< $@
 
 results/%_ncup.nc: data/%.json
 	-${PYTHON} scripts/fit_model.py -n $< $@
-
-results/normal_tcup.nc results/outlier_tcup.nc &: data/normal.json scripts/fit_normal.py
-	-${PYTHON} scripts/fit_normal.py $< results/normal_tcup.nc results/outlier_tcup.nc
-
-results/normal_fixed3.nc results/outlier_fixed3.nc &: data/normal.json scripts/fit_normal.py
-	-${PYTHON} scripts/fit_normal.py -f 3 $<  results/normal_fixed3.nc results/outlier_fixed3.nc
-
-results/normal_ncup.nc results/outlier_ncup.nc &: data/normal.json scripts/fit_normal.py
-	-${PYTHON} scripts/fit_normal.py -n $< results/normal_ncup.nc results/outlier_ncup.nc
 
 ################################################################################
 # Produce plots and analysis
@@ -70,7 +76,7 @@ results/normal_ncup.nc results/outlier_ncup.nc &: data/normal.json scripts/fit_n
 
 analysis: graphics results/results.csv
 
-graphics: plots/ plots/*.pdf
+graphics: plots/ ${CORNER_PLOTS}
 	cp plots/dag.pdf graphics/
 	cp plots/pdf_nu.pdf graphics/
 	cp plots/cdf_outlier_frac.pdf graphics/
@@ -81,10 +87,13 @@ plots:
 plots/dag.pdf: scripts/plot_dag.py
 	${PYTHON} scripts/plot_dag.py
 
-plots/corner_%.pdf: results/%.nc scripts/make_plots.py
-	${PYTHON} scripts/make_plots.py
+plots/corner_t.pdf: results/t_tcup.nc scripts/plot_corner.py
+	${PYTHON} scripts/plot_corner.py
 
-results/results.csv: ${MCMC}
+plots/corner_%.pdf: results/%.nc scripts/plot_corner.py
+	${PYTHON} scripts/plot_corner.py
+
+results/results.csv: ${MCMC} scripts/summarise_mcmc.py
 	${PYTHON} scripts/summarise_mcmc.py
 
 ################################################################################

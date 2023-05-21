@@ -1,22 +1,11 @@
 #!/usr/bin/env python
-import json
-
 import argparse
-import numpy as np
 from tcup import tcup
+from tcup_paper.data.io import load_dataset
 
 # Set up run parameters
 SEED = 24601
 N_SAMPLES = 5000
-
-
-def load_dataset(filename):
-    with open(filename, "r") as f:
-        dataset = json.load(f)
-
-    data = {key: np.array(val) for key, val in dataset["data"].items()}
-    params = dataset["info"]
-    return data, params
 
 
 if __name__ == "__main__":

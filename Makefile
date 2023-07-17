@@ -2,7 +2,7 @@ VENV := venv
 PYTHON := ${VENV}/bin/python
 PIP := ${VENV}/bin/pip
 
-DATASETS := t normal outlier gaussian_mix laplace lognormal kelly
+DATASETS := t normal outlier laplace lognormal kelly
 MODELS := tcup ncup fixed3
 CORNER_DATASETS := t gaussian_mix laplace lognormal kelly
 
@@ -87,8 +87,53 @@ plots:
 plots/dag.pdf: scripts/plot_dag.py
 	${PYTHON} scripts/plot_dag.py
 
-plots/corner_t.pdf: results/t_tcup.nc scripts/plot_corner.py
-	${PYTHON} scripts/plot_corner.py
+plots/corner_t.pdf: results/t_tcup.nc results/t_fixed3.nc
+	${PYTHON} scripts/plot_corner.py \
+	    --dataset data/t.json \
+		--mcmc-file results/t_tcup.nc \
+		--mcmc-file results/t_fixed3.nc \
+		--var-names alpha beta sigma nu \
+		--range alpha 2.7 3.6 \
+		--range beta 1.82 2.1 \
+		--range sigma 0 0.6 \
+		--range nu 0 50 \
+		--output plots/corner_t.pdf
+
+plots/corner_outlier_ncup.pdf: results/normal_tcup.nc results/outlier_tcup.nc results/outlier_ncup.nc
+	${PYTHON} scripts/plot_corner.py \
+	    --dataset data/t.json \
+		--mcmc-file results/outlier_tcup.nc \
+		--mcmc-file results/outlier_ncup.nc \
+		--mcmc-file results/normal_ncup.nc \
+		--var-names alpha beta sigma \
+		--range alpha 0 7 \
+		--range beta 1 2.5 \
+		--range sigma 0 2 \
+		--output plots/corner_outlier_ncup.pdf
+
+plots/corner_outlier_tcup.pdf: results/normal_tcup.nc results/outlier_tcup.nc
+	${PYTHON} scripts/plot_corner.py \
+	    --dataset data/t.json \
+		--mcmc-file results/normal_tcup.nc \
+		--mcmc-file results/outlier_tcup.nc \
+		--var-names alpha beta sigma outlier_frac \
+		--range alpha 0 4 \
+		--range beta 1 2.5 \
+		--range sigma 0 8 \
+		--output plots/corner_outlier_tcup.pdf
+
+plots/corner_gaussian_mix.pdf: results/gaussian_mix_tcup.nc results/gaussian_mix_ncup.nc
+	${PYTHON} scripts/plot_corner.py \
+	    --dataset data/gaussian_mix.json \
+		--mcmc-file results/gaussian_mix_tcup.nc \
+		--mcmc-file results/gaussian_mix_ncup.nc \
+		--var-names alpha beta sigma outlier_frac \
+		--range alpha 1 8 \
+		--range beta_0 2.6 5 \
+		--range beta_1 -2.8 -0.2 \
+		--range sigma 0 3.5 \
+		--range outlier_frac 0 0.12 \
+		--output plots/corner_gaussian_mix.pdf
 
 plots/corner_%.pdf: results/%.nc scripts/plot_corner.py
 	${PYTHON} scripts/plot_corner.py

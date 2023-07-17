@@ -44,7 +44,7 @@ if __name__ == "__main__":
     t_mcmc = az.from_netcdf(f"results/{args.dataset}_tcup.nc")
     n_mcmc = az.from_netcdf(f"results/{args.dataset}_ncup.nc")
 
-    x_axis = np.linspace(0, 10, 200)
+    x_axis = np.linspace(-1, 13, 200)
 
     rng = np.random.default_rng(SEED)
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
             data["dx"],
             "k+",
         )
-        ax_i.set_xlim((0, 10))
+        ax_i.set_xlim((-1, 13))
 
     plt.tight_layout()
-    plt.savefig(f"plots/regression_{args.dataset}.pdf", backend="pgf")
+    plt.savefig(f"plots/regression_{args.dataset}.svg")

@@ -1,10 +1,10 @@
-from pathlib import Path
+import argparse
+import warnings
 
 import arviz as az
 import numpy as np
 import pandas as pd
 from tqdm import trange
-
 
 # This is an implementation of the half-sample mode algorithm
 # Translated from an R function in Statomics
@@ -38,16 +38,33 @@ def hsm(x):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", required=True)
+    parser.add_argument("--model", required=True)
+    parser.add_argument("-n", "--num-repeats", default=1000)
+    args = parser.parse_args()
+
     var_names = [
         "alpha_rescaled",
         "beta_rescaled",
-        "sigma_68",
-        "nu",
+        "sigma_rescaled",
     ]
+    if args.model == "tcup":
+        var_names += ["sigma_68", "nu"]
+    elif args.model == "fixed3":
+        var_names += ["sigma_68"]
+
     results = pd.DataFrame(columns=["r_hat", "diverging"] + var_names)
 
-    for idx in trange(550):
-        mcmc = az.from_netcdf(f"results/repeats/laplace_tcup_{idx}.nc")
+    for idx in trange(args.num_repeats):
+        try:
+            mcmc = az.from_netcdf(
+                f"results/repeats/{args.dataset}_{args.model}_{idx}.nc"
+            )
+        except FileNotFoundError:
+            warnings.warn("File not found")
+            continue
+
         diagnostics = az.summary(mcmc, kind="diagnostics")
         summary = az.summary(
             mcmc, var_names=var_names, stat_funcs={"map": hsm}
@@ -59,8 +76,9 @@ if __name__ == "__main__":
             np.sum(mcmc.sample_stats["diverging"].values),
             summary["map"].get("alpha_rescaled", None),
             summary["map"].get("beta_rescaled", None),
+            summary["map"].get("sigma_rescaled", None),
             summary["map"].get("sigma_68", None),
             summary["map"].get("nu", None),
         ]
 
-    results.to_csv("results/laplace_tcup_many.csv")
+    results.to_csv(f"results/{args.dataset}_{args.model}_many.csv")

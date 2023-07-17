@@ -88,7 +88,7 @@ if __name__ == "__main__":
                     if "ncup" in mcmc_file:
                         var_names.append("sigma_rescaled")
                     else:
-                        var_names.append("sigma_68")
+                        var_names.append("sigma_rescaled")
                 elif var_name == "nu":
                     if "tcup" in mcmc_file:
                         var_names.append("nu")
@@ -104,8 +104,8 @@ if __name__ == "__main__":
         var_labels = {
             "alpha_rescaled": r"Intercept $\alpha$",
             "beta_rescaled": r"Gradient $\beta$",
-            "sigma_rescaled": r"Int. scatter $\sigma_{68}$",
-            "sigma_68": r"Int. scatter $\sigma_{68}$",
+            "sigma_rescaled": r"Int. scatter $\sigma_{\rm int}$",
+            "sigma_68": r"Int. scatter $\sigma_{\rm int}$",
             "nu": r"Shape param. $\nu$",
             "outlier_frac": r"Outlier frac. $\omega$",
         }
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         # Set styles for different datasets
         if mcmc_file.split("/")[-1][:6] == "normal":
             ncup_kwargs = {"color": "cornflowerblue", "linestyle": "dashed"}
-            tcup_kwargs = {"color": "orange", "linestyle": "dashed"}
+            fixed3_kwargs = {"color": "orange", "linestyle": "dashed"}
             tcup_kwargs = {"color": "lightcoral", "linestyle": "dashed"}
         else:
             ncup_kwargs = {"color": "midnightblue"}
@@ -163,17 +163,12 @@ if __name__ == "__main__":
         else:
             ax_vars += [var_name]
 
-    print(first_vars)
-    print(ax_vars)
-    print(bins.keys())
-
     for subplot_ax, var_name in zip(ax[-1, :], ax_vars):
         curr_bins = bins[var_name]
-        print(var_name, curr_bins.min(), curr_bins.max())
         subplot_ax.set_xlim(curr_bins.min(), curr_bins.max())
 
     for subplot_ax, var_name in zip(ax[1:, 0], ax_vars[1:]):
         curr_bins = bins[var_name]
         subplot_ax.set_ylim(curr_bins.min(), curr_bins.max())
 
-    plt.savefig(args.output, backend="pgf")
+    plt.savefig(args.output)

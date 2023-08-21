@@ -38,8 +38,8 @@ if __name__ == "__main__":
         samples = mcmc.posterior[var_name].values.flatten()
 
         # Thin samples to L
-        thinning_factor = samples.shape[0] // L
-        # print(f"{samples.shape=}, {thinning_factor=}, {az.ess(samples[::thinning_factor][:L])=}")
+        # Use thinning given in Section 5.1 of Talts et al. 2018
+        thinning_factor = int(np.ceil(samples.shape[0] / az.ess(samples)))
         samples = samples[::thinning_factor][:L]
         assert samples.shape == (L,), f"{samples.shape=} != {L}"
 

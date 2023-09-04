@@ -5,7 +5,8 @@ def draw_x_true(rng, N, D, K, theta_mix, mu_mix, sigma_mix):
     n_mix = sps.multinomial(N, theta_mix).rvs(random_state=rng).flatten()
     x_true = []
     for component_size, mu, sigma in zip(n_mix, mu_mix, sigma_mix):
-        x_true.append(sps.multivariate_normal(mu, sigma).rvs(size=component_size, random_state=rng))
+        component = sps.multivariate_normal(mu, sigma).rvs(size=component_size, random_state=rng)
+        x_true.append(component.reshape(component_size, D))
     return np.concatenate(x_true)
 
 def draw_params_from_prior(rng, dim_x=1):
@@ -58,7 +59,7 @@ def gen_dataset(seed, x_true_params, dist_params):
             epsilon[outlier_idx] -= 10 * sigma_scaled
             y_true = alpha_scaled + np.dot(x_true, beta_scaled) + epsilon
         case {
-            "name": "gaussian mix",
+            "name": "gaussian_mix",
             "outlier_prob": outlier_prob,
         }:
             outlier_mask = (
@@ -66,7 +67,6 @@ def gen_dataset(seed, x_true_params, dist_params):
                 .rvs(size=N, random_state=rng)
                 .astype(bool)
             )
-            info["outlier_mask"] = outlier_mask.tolist()
 
             int_scatter = sps.norm(scale=sigma_scaled).rvs(
                 size=N, random_state=rng
@@ -87,8 +87,7 @@ def gen_dataset(seed, x_true_params, dist_params):
             epsilon = sps.norm(scale=0.1 * sigma_scaled).rvs(
                 size=N, random_state=rng
             )
-            log_y_true = np.log10(mu) + epsilon
-            y_true = 10**log_y_true
+            y_true = mu + 10**epsilon
         case _:
             raise NotImplementedError
 
@@ -101,9 +100,12 @@ def gen_dataset(seed, x_true_params, dist_params):
         "nu": nu,
     }
 
+    if dist_params["name"] == "gaussian_mix":
+        info["outlier_mask"] = outlier_mask.tolist()
+
     # Observe data
     # Generate observational errors
-    cov_x_scaled = sps.wishart.rvs(dim_x + 1, np.diag([0.1] * dim_x), size=N)
+    cov_x_scaled = sps.wishart.rvs(dim_x + 1, np.diag([0.1] * dim_x), size=N, random_state=rng)
     dy_scaled = 10 ** sps.norm(-1, 0.1).rvs(size=N, random_state=rng)
 
     match dist_params:
@@ -112,13 +114,13 @@ def gen_dataset(seed, x_true_params, dist_params):
             **other_params,
         }:
             eps_x = np.array(
-                [sps.multivariate_t.rvs([0] * dim_x, cov) for cov in cov_x_scaled]
+                [sps.multivariate_t.rvs([0] * dim_x, cov, random_state=rng) for cov in cov_x_scaled]
             )
             x_scaled = x_true + eps_x
             y_scaled = sps.t(nu, loc=y_true, scale=dy_scaled).rvs(random_state=rng)
         case _:
             eps_x = np.array(
-                [sps.multivariate_normal.rvs([0] * dim_x, cov) for cov in cov_x_scaled]
+                [sps.multivariate_normal.rvs([0] * dim_x, cov, random_state=rng) for cov in cov_x_scaled]
             )
             x_scaled = x_true + eps_x
             y_scaled = sps.norm(loc=y_true, scale=dy_scaled).rvs(random_state=rng)

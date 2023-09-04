@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 
-import numpy as np
 from tcup_paper.data.io import write_dataset
 from tcup_paper.data.sbc import gen_dataset
 
@@ -13,19 +12,29 @@ if __name__ == "__main__":
     distribution = parser.add_mutually_exclusive_group(required=True)
     distribution.add_argument("--t-dist", action="store_true")
     distribution.add_argument("--fixed-nu", type=float)
+    distribution.add_argument("--normal", action="store_true")
     distribution.add_argument("--outlier", action="store_true")
     distribution.add_argument("--gaussian-mix", action="store_true")
     distribution.add_argument("--laplace", action="store_true")
     distribution.add_argument("--lognormal", action="store_true")
     args = parser.parse_args()
 
+    # x_true_params = {
+    #     "N": 12,
+    #     "D": 2,
+    #     "K": 2,
+    #     "theta_mix": [0.75, 0.25],
+    #     "mu_mix": [[0.5, -0.5], [-1.5, 1.5]],
+    #     "sigma_mix": [[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]]
+    # }
+
     x_true_params = {
         "N": 12,
         "D": 2,
-        "K": 2,
-        "theta_mix": [0.75, 0.25],
-        "mu_mix": [[0.5, -0.5], [-1.5, 1.5]],
-        "sigma_mix": [[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]]
+        "K": 1,
+        "theta_mix": [1],
+        "mu_mix": [[0, 0]],
+        "sigma_mix": [[[1, -0.1], [-0.1, 1]]]
     }
 
     if args.t_dist:
@@ -37,7 +46,7 @@ if __name__ == "__main__":
             "name": "fixed",
             "nu": args.fixed_nu,
         }
-    elif args.outlier:
+    elif args.normal:
         dist_params = {
             "name": "normal",
         }
@@ -64,4 +73,4 @@ if __name__ == "__main__":
 
     data, info = gen_dataset(args.seed, x_true_params, dist_params)
 
-    write_dataset(f"{dist_params['name']}_{args.seed}", data, info)
+    write_dataset(f"sbc/{dist_params['name']}/{args.seed}", data, info)

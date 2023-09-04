@@ -7,7 +7,8 @@ from tcup.stan import _get_model_src
 from tcup_paper.data.io import load_dataset
 
 MAX_SAMPLES = 200000
-SAFETY_MARGIN = 1.05
+SAFETY_MARGIN = 1.1
+PARAMS_OF_INTEREST = ["alpha_scaled", "beta_scaled", "sigma_scaled", "nu"]
 
 if __name__ == "__main__":
     # Parse arguments
@@ -27,9 +28,11 @@ if __name__ == "__main__":
     # Fit model
     if args.normal:
         model_src = _get_model_src("ncup")
+        PARAMS_OF_INTEREST.remove("nu")
     elif args.fixed:
         model_src = _get_model_src("fixed")
         data["nu"] = args.fixed
+        PARAMS_OF_INTEREST.remove("nu")
     else:
         model_src = _get_model_src("tcup")
 
@@ -44,7 +47,7 @@ if __name__ == "__main__":
                 num_chains=1,
             )
 
-            min_ess = az.ess(fit).to_array().min()
+            min_ess = az.ess(fit, var_names=PARAMS_OF_INTEREST).to_array().min()
 
             if min_ess > 1023:
                 break

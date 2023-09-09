@@ -225,6 +225,27 @@ like to see in our regression model:
 \section{Formalism}
 \label{sec:formalism}
 
+Let us say that we have $N$ objects, each with some associated independent
+variables $\{\boldsymbol{x}_i\}$ and a dependent variable $\{y_i\}$. We assume
+that the variables are related by the equations
+\begin{align}
+    y_i &=& \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i + \epsilon_i, \\
+    \epsilon_i &\sim& \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
+\end{align}
+where $\mathcal{P}_int$ is an unknown probability distribution with parameters
+$\boldsymbol{\theta}_{\text{int}}$.
+
+These objects are then observed by astronomers, resulting in the measured
+data
+\begin{align}
+    \hat{\boldsymbol{x}}_i &=& \boldsymbol{x}_i + \boldsymbol{\epsilon}_{x,i}, \\
+    \hat{y}_i &=& y_i + \epsilon_{y,i}, \\
+    \boldsymbol{\epsilon}_{x,i} &\sim& \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right), \\
+    \epsilon_{y,i} &\sim& \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right),
+\end{align}
+where $\mathcal{P}_{\text{obs}}$ is an unknown probability distribution with
+parameters $\boldsymbol{\theta}_{\text{obs}}$.
+
 Let us observe $N$ objects, each with $\{\hat{x}_i, \hat{y}_i,
 \boldsymbol{\Sigma}_i\}$, representing the independent variable, the dependent
 variable, and the covariance matrix of the observed quantities.  We can further
@@ -497,6 +518,43 @@ is referred to as $n$-cup.
 
 \footnotetext{\url{https://github.com/wm1995/tcup}}
 
+\section{Validating the model}
+\label{sec:methods}
+
+We run two types of tests to validate the performance of $t$-cup under different
+types of model misspecification: simulation-based calibration tests
+\citep{Cook:2006, Talts:2018} and fixed value calibration tests.
+
+\subsection{Simulation-based calibration}
+\label{sec:methods.sbc}
+
+Simulation-based calibration tests \citep{Cook:2006, Talts:2018} are used to
+diagnose sampling issues. Parameters of interest $\theta_0$ are drawn from the
+model prior $\pi(\theta)$, and a dataset is drawn following the prescription of
+the model. We can then run a single MCMC chain on this dataset until we have
+drawn $L$ independent samples $\{\tilde{\theta}_{i}\}$ (see \citep{Talts:2018}
+for a discussion of independence criteria). We then compute the rank statistic
+\begin{equation}
+    r(\theta_0, \tilde{\boldsymbol{\theta}}_{\text{MCMC}})
+        = \sum_{i = 1}^{L} \mathbb I [\tilde{\theta}_i < \theta_0].
+\end{equation}
+If the generative model matches the sampling model and the sampling algorithm
+correctly draws samples from the posterior, the rank statistic will be uniformly
+distributed across the integers $[0, L]$. We can, therefore, repeat this process
+many times to build a histogram of rank statistics; any shortfalls in the
+sampling algorithm will manifest as deviations from uniformity.
+
+While this procedure has been developed to diagnose sampling issues, we can also
+use the method to build a heuristic measure of how robust a model is to
+misspecification. If the generative model and the sampling model no longer
+match, we would expect deviations from uniformity in the rank statistic
+histogram. We can compare how well different sampling models deal with model
+misspecifcation by building the rank statistic histogram and assessing the
+deviation from uniformity.
+
+\subsection{Fixed-value calibration}
+\label{sec:methods.fixed}
+
 % Normally the next section describes the techniques the authors used.
 % It is frequently split into subsections, such as Section~\ref{sec:maths} below.
 
@@ -535,6 +593,17 @@ reproduces the datasets in this section is available online\footnotemark.
 \subsection{\textit{t}-distributed data}
 \label{sec:results.t}
 
+\begin{figure*}
+    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/alpha_scaled.pdf}
+    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/beta_scaled.0.pdf}
+    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/beta_scaled.1.pdf}
+    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/sigma_scaled.pdf}
+    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/nu.pdf}
+    \caption{SBC runs for the t distribution under $t$-cup {\color{red} I know
+    there are several tweaks needed to these plots}}
+    \label{fig:results.t.sbc}
+\end{figure*}
+
 Our first test illustrates a dataset that matches our model perfectly, with $N =
 20$ datapoints drawn from the following distribution:
 \begin{eqnarray}
@@ -558,7 +627,7 @@ Note that $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
 \end{figure}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
+    \includegraphics[width=\columnwidth]{graphics/corner_t.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ for the \textit{t}-distributed dataset, with ground-truth
     values indicated by the black dashed lines.}
@@ -589,6 +658,26 @@ $x$\% of parameters and runs.
 \subsection{Normally-distributed data}
 \label{sec:results.outlier}
 
+\begin{figure*}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/alpha_scaled.pdf}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/beta_scaled.0.pdf}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/beta_scaled.1.pdf}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/sigma_scaled.pdf}
+    \caption{SBC runs for the outlier dataset under $n$-cup {\color{red} I know
+    there are several tweaks needed to these plots}}
+    \label{fig:results.t.sbc}
+\end{figure*}
+
+\begin{figure*}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/alpha_scaled.pdf}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/beta_scaled.0.pdf}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/beta_scaled.1.pdf}
+    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/sigma_scaled.pdf}
+    \caption{SBC runs for the outlier dataset under $t$-cup {\color{red} I know
+    there are several tweaks needed to these plots}}
+    \label{fig:results.t.sbc}
+\end{figure*}
+
 In this test, we compare $t$-cup with an equivalent model that employs normal
 distributions to illustrate that:
 \begin{enumerate}
@@ -614,7 +703,7 @@ We generated a dataset of $N = 12$ points using the model:
 \end{alignat}
 
 \begin{figure*}
-    \includegraphics[width=\linewidth]{example-image-a}
+    \includegraphics[width=\linewidth]{graphics/regression_outlier.pdf}
     \caption{{\color{red} 100} draws from the posterior of regression lines from
     the normal model (left panel, blue) and $t$-cup (right panel, red). The
     dataset is illustrated by the black points, with the ground-truth regression
@@ -623,7 +712,7 @@ We generated a dataset of $N = 12$ points using the model:
 \end{figure*}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
+    \includegraphics[width=\columnwidth]{graphics/corner_outlier_ncup.pdf}
     \caption{The posterior for each of the regression coefficients under the
     normal model with the outlier included (dark blue, solid) and excluded
     (light blue, dashed), and for $t$-cup with the outlier included (dark red,
@@ -632,7 +721,7 @@ We generated a dataset of $N = 12$ points using the model:
 \end{figure}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
+    \includegraphics[width=\columnwidth]{graphics/corner_outlier_tcup.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ under the $t$-cup model with the outlier included (dark red,
     solid) and excluded (light red, dashed).}
@@ -657,7 +746,7 @@ the $t$-cup model recovers consistent constraints whether the outlier is
 included or excluded.
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
+    \includegraphics[width=\columnwidth]{graphics/outlier_many.pdf}
     \caption{The distribution of maximum a posteriori (MAP) estimates for each
     of the regression parameters under the normal model (blue) and $t$-cup model
     (red).}
@@ -716,7 +805,7 @@ We generated a dataset of $N = 200$ points using the model:
 \end{alignat}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
+    \includegraphics[width=\columnwidth]{graphics/corner_gaussian_mix.pdf}
     \caption{The posterior for each of the regression coefficients and the
     outlier fraction $\omega$ for the normal mixture model dataset, with
     ground-truth values indicated by the black dashed lines. Note that, although
@@ -847,6 +936,13 @@ Eddington ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$.
 A simple demonstration on real data (Park is a possibility; another is an
 M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
 on the paper used by Kelly as can directly compare.
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{graphics/corner_kelly.pdf}
+    \caption{The posterior distributions for the data from \citet{Kelly:2007}
+    under the normal (blue) and $t$-cup (red) models.}
+    \label{fig:real-world.kelly.corner}
+\end{figure}
 
 % % Example figure
 % \begin{figure}

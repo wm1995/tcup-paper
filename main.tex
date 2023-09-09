@@ -73,7 +73,7 @@
 
 % Title of the paper, and the short title which is used in the headers.
 % Keep the title short and informative.
-\title[Robust regression for astronomy]{Robust regression with measurement errors in an astronomical context}
+\title[Robust regression in astronomy]{Robust Bayesian regression with measurement errors in astronomy}
 
 % The list of authors, and the short list which is used in the headers.
 % If you need two or more lines of authors, add an extra line using \newauthor
@@ -84,7 +84,7 @@ and Daniel Mortlock$^{1,2,3}$
 % List of institutions
 $^{1}$Department of Physics, Imperial College London, Blackett Laboratory, Prince Consort Road, London SW7 2AZ, UK\\
 $^{2}$Department of Mathematics, Imperial College London, London, SW7 2AZ, UK\\
-$^{3}$Department of Astronomy, The Oskar Klein Centre, Stockholm University, Albanova, SE-10691 Stockholm, Sweden
+$^{3}$Department of Physics, The Oskar Klein Centre, Stockholm University, Albanova, SE-10691 Stockholm, Sweden
 }
 
 % These dates will be filled out by the publisher
@@ -222,6 +222,14 @@ like to see in our regression model:
 	distributions for different problems, etc.)
 \end{itemize}
 
+We implement these ideas in this paper, beginning with a discussion of our model
+in Section \ref{sec:formalism}. In Section \ref{sec:methods}, we outline the
+methods that we use to validate our model; the results of these validation
+checks are presented in Section \ref{sec:results}. In Section
+\ref{sec:real-world}, we compare the performance of our model on real-world
+datasets with the models outlined in \citet{Kelly:2007, Park:2017}, before
+concluding remarks in Section \ref{sec:conclusions}.
+
 \section{Formalism}
 \label{sec:formalism}
 
@@ -229,19 +237,19 @@ Let us say that we have $N$ objects, each with some associated independent
 variables $\{\boldsymbol{x}_i\}$ and a dependent variable $\{y_i\}$. We assume
 that the variables are related by the equations
 \begin{align}
-    y_i &=& \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i + \epsilon_i, \\
-    \epsilon_i &\sim& \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
+    y_i =&\; \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i + \epsilon_i, \\
+    \epsilon_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
 \end{align}
-where $\mathcal{P}_int$ is an unknown probability distribution with parameters
+where $\mathcal{P}_{int}$ is an unknown probability distribution with parameters
 $\boldsymbol{\theta}_{\text{int}}$.
 
 These objects are then observed by astronomers, resulting in the measured
 data
 \begin{align}
-    \hat{\boldsymbol{x}}_i &=& \boldsymbol{x}_i + \boldsymbol{\epsilon}_{x,i}, \\
-    \hat{y}_i &=& y_i + \epsilon_{y,i}, \\
-    \boldsymbol{\epsilon}_{x,i} &\sim& \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right), \\
-    \epsilon_{y,i} &\sim& \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right),
+    \hat{\boldsymbol{x}}_i =&\; \boldsymbol{x}_i + \boldsymbol{\epsilon}_{x,i}, \\
+    \hat{y}_i =&\; y_i + \epsilon_{y,i}, \\
+    \boldsymbol{\epsilon}_{x,i} \sim&\; \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right), \\
+    \epsilon_{y,i} \sim&\; \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right),
 \end{align}
 where $\mathcal{P}_{\text{obs}}$ is an unknown probability distribution with
 parameters $\boldsymbol{\theta}_{\text{obs}}$.
@@ -251,10 +259,10 @@ Let us observe $N$ objects, each with $\{\hat{x}_i, \hat{y}_i,
 variable, and the covariance matrix of the observed quantities.  We can further
 assume that each observation represents a true-but-unobserved latent object
 $\{x_i, y_i\}$, with these quantities related by
-\begin{eqnarray}
-    y_i &=& \alpha x_i + \beta + \epsilon_i \\
-    \epsilon_i &\sim& \mathcal{P} \left( \sigma_{\text{int}} \right)
-\end{eqnarray}
+\begin{align}
+    y_i =&\; \alpha x_i + \beta + \epsilon_i \\
+    \epsilon_i \sim&\; \mathcal{P} \left( \sigma_{\text{int}} \right)
+\end{align}
 for regression parameters $\boldsymbol{\theta} = \left\{\alpha, \beta,
 \sigma_{\mathrm{int}}\right\}$ and some probability distribution $P\left(
 \hat{\mathbf{x}}, \hat{\mathbf{y}} \mid \mathbf{x}, \mathbf{y}, \Sigma \right)$
@@ -508,9 +516,10 @@ to within 3\% and provides an analytic derivative for HMC.
 \subsection{Implementation}
 \label{sec:formalism.implementation}
 
-The chosen statistical model is implemented in Stan \citep{Stan}, which is used
-to draw samples via a HMC No U-Turn Sampler. The implementation is packaged as
-$t$-cup, available as a Python package\footnotemark.
+The model described in Section \ref{sec:formalism.model} is implemented in Stan
+\citep{Stan}, which is used to draw samples via a HMC No U-Turn Sampler. The
+implementation is packaged as $t$-cup, available as a Python
+package\footnotemark.
 
 For the purposes of comparison, we have also implemented a model that mirrors
 the above structure, but uses normal distributions at each stage --- this model
@@ -518,7 +527,7 @@ is referred to as $n$-cup.
 
 \footnotetext{\url{https://github.com/wm1995/tcup}}
 
-\section{Validating the model}
+\section{Validation}
 \label{sec:methods}
 
 We run two types of tests to validate the performance of $t$-cup under different
@@ -606,16 +615,16 @@ reproduces the datasets in this section is available online\footnotemark.
 
 Our first test illustrates a dataset that matches our model perfectly, with $N =
 20$ datapoints drawn from the following distribution:
-\begin{eqnarray}
-    x_i &\sim& \mathcal N (\mu = 2, \sigma = 2) \\
-    y_i &\sim& t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1) \\
-    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -0.7, \sigma = 0.1) \\
-    \hat{x}_i &\sim& t_{3} (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i &\sim& t_{3} (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{eqnarray}
+\begin{align}
+    x_i \sim&\; \mathcal N (\mu = 2, \sigma = 2) \\
+    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1) \\
+    \log_{10} \sigma_{x, i} \sim&\; \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} \sim&\; \mathcal N (\mu = -0.7, \sigma = 0.1) \\
+    \hat{x}_i \sim&\; t_{3} (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i \sim&\; t_{3} (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{align}
 
-Note that $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
+The chosen value of $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
 \approx 5.8 \%$.
 
 \begin{figure}
@@ -989,6 +998,7 @@ on the paper used by Kelly as can directly compare.
 
 
 \section{Conclusions}
+\label{sec:conclusion}
 
 This paper has demonstrated a general-purpose approach to linear regression that
 is robust to model misspecification, with a model laid out in Section
@@ -1005,22 +1015,18 @@ ladder.
 
 \section*{Acknowledgements}
 
-The Acknowledgements section is not numbered. Here you can thank helpful
-colleagues, acknowledge funding agencies, telescopes and facilities used etc.
-Try to keep it short.
+The authors would like to thank Stephen Feeney, Boris Leistedt, Justin Alsing,
+Tamas Budavari and Chad Schafer for useful conversations. WM is supported by
+STFC grant {\color{red} ***fill in here***}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Data Availability}
 
 
-The inclusion of a Data Availability Statement is a requirement for articles
-published in MNRAS. Data Availability Statements provide a standardised format
-for readers to understand the availability of data underlying the research
-results described in the article. The statement may refer to original data
-generated in the course of the study or to third-party data analysed in the
-article. The statement should describe and provide means of access, where
-possible, by linking to the data or providing the required accession numbers for
-the relevant databases or DOIs.
+The data in this paper is sourced from \citet{Kelly:2007, Park:2017}. Scripts to
+generate the simulated datasets used to validate the model in Section
+\ref{sec:results} are available from the GitHub repository for this paper, at
+https://github.com/wm1995/tcup-paper.
 
 %%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
 
@@ -1035,12 +1041,12 @@ the relevant databases or DOIs.
 
 \section{Prior choice for shape parameter}
 
-Previous work that has employed the $t$-distributions has used different
+Works using the $t$-distributions for robust inference have used different
 priors for the shape parameter $\nu$, which controls how heavy-tailed the
-distribution is. Previous priors suggested include:
+distribution is. Priors suggested include:
 \begin{itemize}
-    \item priors of the form $\nu \sim {\rm Inv-}\Gamma(\alpha, \beta)$ for some
-          $\left\{\alpha, \beta\right\}$ -- e.g.
+    \item priors of the form $\nu \sim \text{Inv-}\Gamma(\alpha, \beta)$ for
+          some $\left\{\alpha, \beta\right\}$ -- e.g.
           \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 10\right\}$;
           \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 10\right\}$
     \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
@@ -1054,9 +1060,8 @@ These priors are illustrated in Figure \ref{fig:priors.pdf}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
-    \caption{This is an example figure. Captions appear below each figure.
-	Give enough detail for the reader to understand what they're looking at,
-	but leave detailed discussion to the main body of the text.}
+    \caption{A selection of different priors on $\nu$ in works that have used
+    $t$-distributions.}
     \label{fig:priors.pdf}
 \end{figure}
 
@@ -1083,17 +1088,18 @@ The cumulative distribution functions for the priors in terms of outlier
 fraction are illustrated in Figure \ref{fig:priors.outlier_frac}.
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/cdf_outlier_frac}
-    \caption{This is an example figure. Captions appear below each figure.
-	Give enough detail for the reader to understand what they're looking at,
-	but leave detailed discussion to the main body of the text.}
+    \caption{The CDF of priors on $\nu$ used in works that have used
+    $t$-distributions. The priors are expressed in terms of outlier fraction
+    $\omega$, which is the fraction of points in the distribution lying more
+    than 3$\sigma$ from the mean.}
     \label{fig:priors.outlier_frac}
 \end{figure}
 
 In this work, we use the prior
 \begin{equation}
-    \nu \sim {\rm Inv-}\Gamma(3, 10),
+    \nu \sim \text{Inv-}\Gamma(3, 10),
 \end{equation}
-where ${\rm Inv-}\Gamma(\alpha, \beta)$ is an inverse gamma distribution with
+where $\text{Inv-}\Gamma(\alpha, \beta)$ is an inverse gamma distribution with
 {\color{red} shape parameter $\alpha$ and scale parameter $\beta$}.
 
 This prior was chosen for two reasons:

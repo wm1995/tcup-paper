@@ -136,39 +136,38 @@ Characterise as an example of robust inference (i.e., don't need to know the act
 Then say presenting practical methodology and implementation here.
 }
 
-There are multiple approaches to the problem of linear regression in astronomy
-where all variables are measured with error.  \citet{Kelly:2007} illustrates
-that ad-hoc estimators such as \textsc{fitexy} \citep{Press:1992, Tremaine:2002}
-and \textsc{bces} \citep{Akritas:1996} suffer from biases and can underestimate
-intrinsic scatter. As an alternative, Kelly presents a Bayesian hierarchical
-model for linear regression with measurement errors as an alternative. However,
-the model is designed to be sampled using Gibbs sampling, which limits the
-choice of distributions for variables within the model and the number of
-parameters that can be fit simultaneously. As a result of the former, the model
-assumes random variables are normally distributed throughout; however, inference
-that relies on normal distributions can be unduly affected by outliers (see
-\citet{Berger:1994} for a review of robust Bayesian inference).  One possible
-alternative is to use Student's $t$-distributions, which have heavier tails and
-are, therefore, less affected by the presence of outliers \citep{Berger:1994};
-Student's $t$-distributions have seen use in astronomical
-\citep[][e.g.]{Park:2017} and cosmological \citep[][e.g.]{Feeney:2018}
-inference.
+Linear regression is a common problem in astronomy, cropping up in fields as
+diverse as {\color{red} galaxy formation and evolution (e.g. the black hole
+mass -- stellar velocity dispersion correlation), stellar physics (e.g. the
+Leavitt law linking the luminosity and variation period for Cepheid variable
+stars), and...}. For this reason, there are a plethora of techniques used by
+astronomers for linear regression when both the dependent and independent
+variables are measured with error \citep[e.g.][]{Press:1992, Akritas:1996,
+Tremaine:2002, Kelly:2007}.
 
-Bayesian hierarchical models (BHMs) are a natural way to deal with datasets with
-measurement errors, selection effects, interlinked parameters, censored data,
-and many other effects common to astronomical problems. BHMs have seen
-increasing use in astrophysics over the past 30 years, from the
-distance-redshift relation in cosmology \citep[e.g.][]{Feeney:2018,
-Avelino:2019} and photometric redshift estimation \citep[e.g.][]{Leistedt:2016}
-to exoplanet characterisation \citep[e.g.][]{Sestovic:2018} and population-level
-inference \citep[e.g.][]{Kelly:2009} --- see \citet{Feigelson:2021} for a recent
-review of statistical methods in astrophysics, including further examples of
-BHMs.
+\citet{Kelly:2007} illustrates that common ad-hoc
+estimators such as \textsc{fitexy} \citep{Press:1992, Tremaine:2002} and
+\textsc{bces} \citep{Akritas:1996} suffer from biases and can underestimate
+intrinsic scatter.
+Similar algorithms exist for removing
+outliers from data \citep[e.g.][Sigma clipping]{xxxx} have been used previously
+\citep[e.g.][]{Riess:xxxx}, but these can
+lead to controversy \citep[e.g.][]{Efstathiou:2013}. A more principled approach
+is to model the entire measurement process.
 
-\citet{Kelly:2007} formulated a Bayesian linear regression model under the
-assumption of Gaussianity and compared it with other common regression methods
-in astronomy, including ordinary least squares, \textsc{bces}
-\citep{Akritas:1996}, and \textsc{fitexy} \citep{Press:1992, Tremaine:2002}.
+Bayesian hierarchical models (BHMs) are a natural way to model such datasets ---
+this allows astronomers to account for, e.g., measurement errors, selection
+effects, interlinked parameters, censored data, and many other effects common to
+astronomical problems. BHMs have seen increasing use in astrophysics over the
+past 30 years, from the distance-redshift relation in cosmology
+\citep[e.g.][]{Feeney:2018, Avelino:2019} and photometric redshift estimation
+\citep[e.g.][]{Leistedt:2016} to exoplanet characterisation
+\citep[e.g.][]{Sestovic:2018} and population-level inference
+\citep[e.g.][]{Kelly:2009} --- see \citet{Feigelson:2021} for a recent review
+including further examples of BHMs.
+
+\citet{Kelly:2007} presented a general Bayesian hierarchical
+model for linear regression with measurement errors and censored data.
 \citeauthor{Kelly:2007} found that the Bayesian approach had several advantages
 over the other methods considered: no bootstrapping was required to obtain
 uncertainties on parameters; the Bayesian approach was easily extensible to
@@ -176,29 +175,29 @@ truncated or censored data; and other methods would sometimes severely
 underestimate intrinsic scatter in the data. This formulation of Bayesian
 regression, sometimes known as \textsc{linmix\_err}, is now commonly used in
 astronomy \citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
+% However, the model is designed to be sampled using Gibbs sampling, which limits
+% the choice of distributions for variables within the model and the number of
+% parameters that can be fit simultaneously.
+The model assumes random variables are normally distributed throughout; however,
+inference that relies on normal distributions can be unduly affected by outliers
+(see Section \ref{sec:results} for an exploration of this effect).
 
-When we have a dataset that has a large number of outliers, our inference of
-certain parameters can be drawn off by the presence of those outliers. Robust
-inference refers to a body of techniques to fit in an outlier-resistant way so
-that we can recover the parameters of interest while not being unduly affected
-by the outliers.  For example, ordinary least squares regression is based on the
-assumption that datapoints are normally distributed about a true regression
-line; however, normal distributions have exponential tails, which means that
-this approach is often heavily affected by the presence of outliers (see Section
-\ref{sec:results} for an exploration of this effect). An alternative approach is
-to use heavier-tailed distributions.  Examples of this include least absolute
-deviation regression, where the data is assumed to be Laplace-distributed about
-the regression line.  Another distribution that can be used is Student's
-$t$-distribution \citep[e.g.][]{Berger:1994, Gelman:2013}, which also has
-heavier tails than a normal distribution --- see Section \ref{sec:results} for a
-comparison of regression using normal distributions and $t$-distributions.
+The problem of outliers within datasets can be thought of as model
+misspecification: these objects do not fit the distributions used to model them.
+The ideas behind robust inference can prove useful for this problem; in robust
+inference, methods are designed to work irrespective of the actual generative
+distribution {\color{red} \citep{Berger:1994}}. One approach is the use of
+Student's $t$-distributions, which are leptokurtic (i.e. have heavier tails than
+a normal distribution) and can, therefore, lead to more robust results in the
+case of model misspecification \citep[e.g.][]{Berger:1994, Gelman:2013}.
+Student's $t$-distributions have seen use in bespoke astronomical
+\citep[e.g.][]{Park:2017} and cosmological \citep[e.g.][]{Feeney:2018}
+inference, but there is not currently a generic robust method for Bayesian
+astronomical data analysis.
 
-There are several approaches to robust inference in a Bayesian context
---- see \citet{Berger:1994} for a review. Examples of applications of robust
-inference in astronomy include \citet{Park:2017, Feeney:2018}.
-
-From the review of previous methods, we can identify properties that we would
-like to see in our regression model:
+We propose a development of a generic approach for robust astronomical data
+analysis. From the review of previous methods, we can identify properties that
+we would like to see in our regression model:
 
 \begin{itemize}
 	\item A Bayesian hierarchical model -- we favour a hierarchical approach

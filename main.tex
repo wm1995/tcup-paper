@@ -368,24 +368,26 @@ different units or datasets (though these priors can be revised to incorporate
 prior information).
 
 Our priors on the regression parameters $\{\tilde{\intercept},
-\tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ are \begin{align}
-\tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
-\tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
-\tilde{\sigma}_{\text{int}} \sim&\; {\color{red}\Gamma(2, 2)}. \\ \end{align} The motivation
-behind the prior on $\tilde{\intercept}$ is that, as the data is pre-scaled to
-have zero mean and the relationship between variables is assumed to be linear,
-we would expect the data to have zero intercept.  {\color{red} There's not a
-particularly strong motivation behind the $\tilde{\covariate}$, other than it's
-broad and symmetric. A more motivated prior would be $\text{Cauchy}(0, 1)$,
-which is equivalent to a uniform prior on the angle the line makes with the axis
-for $\dim x = 1$... but might overly weight a regression for $\dim x \geq 2$,
-when we might want something uniform on the unit sphere?} The prior on
-$\tilde{\sigma}_{\text{int}}$ is following the suggestion of \citet{Chung:2015},
-who demonstrate that a prior with density at $\tilde{\sigma}_{\text{int}} = 0$
-will lead to a prediction of no intrinsic scatter in datasets where intrinsic
-scatter is present. The prior recommended in their paper is {\color{red}
-$\Gamma(2, 2)$}; however, as we have pre-scaled our data to have unit variance,
-we adopt a more concentrated prior.
+\tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ are
+\begin{align}
+    \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
+    \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
+    \tilde{\sigma}_{\text{int}} \sim&\; {\color{red}\Gamma(2, 2)}. \\
+\end{align}
+The motivation behind the prior on $\tilde{\intercept}$ is that, as the data is
+pre-scaled to have zero mean and the relationship between variables is assumed
+to be linear, we would expect the data to have zero intercept.  {\color{red}
+There's not a particularly strong motivation behind the $\tilde{\covariate}$,
+other than it's broad and symmetric. A more motivated prior would be
+$\text{Cauchy}(0, 1)$, which is equivalent to a uniform prior on the angle the
+line makes with the axis for $\dim x = 1$... but might overly weight a
+regression for $\dim x \geq 2$, when we might want something uniform on the unit
+sphere?} The prior on $\tilde{\sigma}_{\text{int}}$ is following the suggestion
+of \citet{Chung:2015}, who demonstrate that a prior with density at
+$\tilde{\sigma}_{\text{int}} = 0$ will lead to a prediction of no intrinsic
+scatter in datasets where intrinsic scatter is present. The prior recommended in
+their paper is {\color{red} $\Gamma(2, 2)$}; however, as we have pre-scaled our
+data to have unit variance, we adopt a more concentrated prior.
 
 The prior on the latent values of the independent variables $\{\indepvars\}$ is
 a Gaussian mixture model prior, similar to that used in \citet{Kelly:2007}.

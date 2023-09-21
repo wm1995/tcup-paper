@@ -528,13 +528,13 @@ Our first test illustrates a dataset that matches our model perfectly, with $N =
 The chosen value of $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
 \approx 5.8 \%$.
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{{\color{red} 100} draws from the posterior of regression lines
-    (red) for the \textit{t}-distributed dataset (black points). The ground
-    truth regression line is illustrated by the black dashed line.}
-    \label{fig:results.t.regression}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{{\color{red} 100} draws from the posterior of regression lines
+%     (red) for the \textit{t}-distributed dataset (black points). The ground
+%     truth regression line is illustrated by the black dashed line.}
+%     \label{fig:results.t.regression}
+% \end{figure}
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/corner_t.pdf}
@@ -558,12 +558,12 @@ finding that the true parameter value was contained within the interval for
 $x$\% of parameters and runs.
 }
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{The distribution of maximum a posteriori (MAP) estimates for each
-    of the regression parameters, as well as the shape parameter $\nu$.}
-    \label{fig:results.t.map}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{The distribution of maximum a posteriori (MAP) estimates for each
+%     of the regression parameters, as well as the shape parameter $\nu$.}
+%     \label{fig:results.t.map}
+% \end{figure}
 
 \subsection{Normally-distributed data}
 \label{sec:results.outlier}
@@ -743,21 +743,21 @@ We generate $N = 25$ datapoints under the following model:
     \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
 \end{eqnarray}
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{{\color{red} 100} draws from the posterior of regression lines
-    (red) for the Laplace-distributed dataset (black points). The ground
-    truth regression line is illustrated by the black dashed line.}
-    \label{fig:results.laplace.regression}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{{\color{red} 100} draws from the posterior of regression lines
+%     (red) for the Laplace-distributed dataset (black points). The ground
+%     truth regression line is illustrated by the black dashed line.}
+%     \label{fig:results.laplace.regression}
+% \end{figure}
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{The posterior for each of the regression coefficients and the shape
-    parameter $\nu$ for the Laplace-distributed dataset, with ground-truth
-    values indicated by the black dashed lines.}
-    \label{fig:results.laplace.corner}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{The posterior for each of the regression coefficients and the shape
+%     parameter $\nu$ for the Laplace-distributed dataset, with ground-truth
+%     values indicated by the black dashed lines.}
+%     \label{fig:results.laplace.corner}
+% \end{figure}
 
 As we can see in Figures \ref{fig:results.laplace.regression} and
 \ref{fig:results.laplace.corner}, we recover the values of the parameters that were
@@ -773,12 +773,12 @@ finding that the true parameter value was contained within the interval for
 $x$\% of parameters and runs.
 }
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{The distribution of maximum a posteriori (MAP) estimates for each
-    of the regression parameters, as well as the shape parameter $\nu$.}
-    \label{fig:results.laplace.map}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{The distribution of maximum a posteriori (MAP) estimates for each
+%     of the regression parameters, as well as the shape parameter $\nu$.}
+%     \label{fig:results.laplace.map}
+% \end{figure}
 
 
 \subsection{Lognormally-distributed data}
@@ -797,21 +797,21 @@ We generate $N = 25$ datapoints under the following model:
     \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
 \end{eqnarray}
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{{\color{red} 100} draws from the posterior of regression lines
-    (red) for the lognormally-distributed dataset (black points). The ground
-    truth regression line is illustrated by the black dashed line.}
-    \label{fig:results.lognormal.regression}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{{\color{red} 100} draws from the posterior of regression lines
+%     (red) for the lognormally-distributed dataset (black points). The ground
+%     truth regression line is illustrated by the black dashed line.}
+%     \label{fig:results.lognormal.regression}
+% \end{figure}
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{The posterior for each of the regression coefficients and the shape
-    parameter $\nu$ for the lognormally-distributed dataset, with ground-truth
-    values indicated by the black dashed lines.}
-    \label{fig:results.lognormal.corner}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{The posterior for each of the regression coefficients and the shape
+%     parameter $\nu$ for the lognormally-distributed dataset, with ground-truth
+%     values indicated by the black dashed lines.}
+%     \label{fig:results.lognormal.corner}
+% \end{figure}
 
 As we can see in Figures \ref{fig:results.lognormal.regression} and
 \ref{fig:results.lognormal.corner}, we recover the values of the parameters that were
@@ -827,31 +827,71 @@ finding that the true parameter value was contained within the interval for
 $x$\% of parameters and runs.
 }
 
-\begin{figure}
-    \includegraphics[width=\columnwidth]{example-image-a}
-    \caption{The distribution of maximum a posteriori (MAP) estimates for each
-    of the regression parameters, as well as the shape parameter $\nu$.}
-    \label{fig:results.lognormal.map}
-\end{figure}
+% \begin{figure}
+%     \includegraphics[width=\columnwidth]{example-image-a}
+%     \caption{The distribution of maximum a posteriori (MAP) estimates for each
+%     of the regression parameters, as well as the shape parameter $\nu$.}
+%     \label{fig:results.lognormal.map}
+% \end{figure}
 
 
 \section{Demonstration on real-world data}
 \label{sec:real-world}
 
-In this section, we compare the performance of the $t$-cup model with that of
-\textsc{linmix\_err} \citep{Kelly:2007}. We use the same dataset that is used in
-Section 8 of \citet{Kelly:2007} -- a dataset of $N = 39$ quasars with measured
-Eddington ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$.
+% A simple demonstration on real data (Park is a possibility; another is an
+% M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
+% on the paper used by Kelly as can directly compare.
 
-A simple demonstration on real data (Park is a possibility; another is an
-M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
-on the paper used by Kelly as can directly compare.
+In this section, we compare the performance of the $t$-cup model with a generic
+astronomical Bayesian linear regression model
+\citep[\textsc{linmix\_err}][]{Kelly:2007} and a tailored approach using
+$t$-distributions \citep{Park:2017}.
+
+\subsection{\textsc{linmix\_err}}
+
+We use the same dataset that is used in Section 8 of \citet{Kelly:2007} -- a
+dataset of $N = 39$ quasars with measured Eddington ratio $L / L_{\text{Edd}}$
+and X-ray spectral index $\Gamma$. Performance is compared with a Python
+implementation\footnotemark of the original \textsc{linmix\_err} paper proposed
+by \citeauthor{Kelly:2007}.
+
+\footnotetext{https://github.com/jmeyers314/linmix}
+
+Results are consistent with those from \textsc{linmix\_err} --- see Figure
+\ref{fig:real-world.kelly.corner}. {\color{red} This bit needs updating with
+comparison with the Python version of linmix.}
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/corner_kelly.pdf}
     \caption{The posterior distributions for the data from \citet{Kelly:2007}
-    under the normal (blue) and $t$-cup (red) models.}
+    under the normal (blue) and $t$-cup (red) models. {\color{red} This figure
+    needs updating with comparison with the Python version of linmix.}}
     \label{fig:real-world.kelly.corner}
+\end{figure}
+
+\subsection{\citet{Park:2017}}
+
+This dataset consists of $N = 31$ AGN with reverberation-mapped mass estimates
+$M_{\text{BH}}$, \textsc{Civ} emission line width $\Delta V$, and continuum
+luminosity $\lambda L_{\lambda}$.
+
+We recover constraints on the regression relation
+\begin{equation}
+    \log_{10} \left( \frac{M_{\text{BH}}}{10^8 M_\odot} \right) =
+        \alpha +
+        \beta_0 \log_{10} \left( \frac{\lambda L_{\lambda}}{10^{44} \text{erg s}^{-1}} \right) +
+        \beta_1 \log_{10} \left( \frac{\Delta V}{10^3 \text{km s}^{-1}} \right)
+\end{equation}
+consistent with those of \citet{Park:2017} --- see Figure
+\ref{fig:real-world.park.corner}. {\color{red} This needs rerunning with the
+latest version of the code.}
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{graphics/corner_park.pdf}
+    \caption{The posterior distributions for the data from \citet{Park:2007}
+    under the $t$-cup model. {\color{red} This figure
+    needs updating with the latest version of this model.}}
+    \label{fig:real-world.park.corner}
 \end{figure}
 
 % % Example figure

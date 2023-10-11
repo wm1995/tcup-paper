@@ -93,6 +93,7 @@ if __name__ == "__main__":
             "range": jnp.logspace(-3, 3, 500),
             "xscale": "log",
             "yscale": "log",
+            "xlim": (1e-3, 1e3),
             "ylim": (1e-6, 1e2),
         },
         {
@@ -103,6 +104,7 @@ if __name__ == "__main__":
             "range": jnp.linspace(0, 1, 1000),
             "xscale": "linear",
             "yscale": "linear",
+            "xlim": (0, 1),
         },
         {
             "name": "outlier_frac",
@@ -112,6 +114,7 @@ if __name__ == "__main__":
             "range": jnp.linspace(0.002700, 1, 1000),
             "xscale": "linear",
             "yscale": "log",
+            "xlim": (0, 1),
             "ylim": (1e-3, 1e2),
         },
     ]
@@ -163,6 +166,7 @@ if __name__ == "__main__":
                     plt.yscale("log")
                     plt.ylim(1e-3, 1)
             plt.xscale(coord["xscale"])
+            plt.xlim(coord.get("xlim"))
             if plot == "pdf":
                 plt.yscale(coord["yscale"])
                 plt.ylim(coord.get("ylim"))

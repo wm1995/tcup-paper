@@ -74,11 +74,11 @@
 
 % Title of the paper, and the short title which is used in the headers.
 % Keep the title short and informative.
-\title[Robust regression in astronomy]{Robust Bayesian regression with measurement errors in astronomy}
+\title[Robust regression in astronomy]{Robust Bayesian regression in astronomy}
 
 % The list of authors, and the short list which is used in the headers.
 % If you need two or more lines of authors, add an extra line using \newauthor
-\author[W. Martin et al.]{
+\author[W. Martin \& D. Mortlock]{
 William Martin$^{1}$\thanks{E-mail: w.martin19@imperial.ac.uk}
 and Daniel Mortlock$^{1,2,3}$
 \\
@@ -137,10 +137,10 @@ methods: statistical -- methods: data analysis -- software: data analysis
 % Then say presenting practical methodology and implementation here.
 % }
 
-Linear regression is a common problem in astronomy, cropping up in fields as
+Linear regression is a common problem in astronomy, arising in fields as
 diverse as {\color{red} galaxy formation and evolution (e.g. the black hole
 mass -- stellar velocity dispersion correlation), stellar physics (e.g. the
-Leavitt law linking the luminosity and variation period for Cepheid variable
+Leavitt law linking the luminosity and pulsation period for Cepheid variable
 stars), and...}. For this reason, there are a plethora of techniques used by
 astronomers for linear regression when both the dependent and independent
 variables are measured with error \citep[e.g.][]{Press:1992, Akritas:1996,
@@ -179,7 +179,7 @@ astronomy \citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
 % However, the model is designed to be sampled using Gibbs sampling, which limits
 % the choice of distributions for variables within the model and the number of
 % parameters that can be fit simultaneously.
-The model assumes random variables are normally distributed throughout; however,
+The model assumes parameters are normally distributed throughout; however,
 inference that relies on normal distributions can be unduly affected by outliers
 (see Section \ref{sec:results} for an exploration of this effect).
 
@@ -227,16 +227,16 @@ in Section \ref{sec:formalism}. In Section \ref{sec:methods}, we outline the
 methods that we use to validate our model; the results of these validation
 checks are presented in Section \ref{sec:results}. In Section
 \ref{sec:real-world}, we compare the performance of our model on real-world
-datasets with the models outlined in \citet{Kelly:2007, Park:2017}, before
-concluding remarks in Section \ref{sec:conclusions}.
+datasets with the models outlined in \citet{Kelly:2007} and \citet{Park:2017},
+before concluding remarks in Section \ref{sec:conclusions}.
 
 \section{Formalism}
 \label{sec:formalism}
 
-Let us begin by establishing notation for a generic astronomical dataset. We
-have $N$ objects, each with some associated independent variables
-$\{\boldsymbol{x}_i\}$ and a dependent variable $\{y_i\}$. We assume that the
-variables are related by the equations
+In this section, we establish notation and set out our model. We
+have $N$ objects, each with some associated independent quantities
+$\{\boldsymbol{x}_i\}$ and a dependent quantity $\{y_i\}$. We assume that these
+quantities are related by the equations
 \begin{align}
     y_i =&\; \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i + \epsilon_i, \\
     \epsilon_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
@@ -360,7 +360,7 @@ and variance
 \label{sec:formalism.prior}
 
 To ensure that our model is generically applicable to astronomical linear
-regression, we ensure that both independent and dependent variables are scaled
+regression, we ensure that both independent and dependent quantities are scaled
 to have zero mean and unit variance. This allows us to set generic priors on the
 scaled intercept, gradients and scatter $\{\tilde{\intercept},
 \tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ that do not require rescaling for
@@ -372,10 +372,10 @@ Our priors on the regression parameters $\{\tilde{\intercept},
 \begin{align}
     \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
     \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
-    \tilde{\sigma}_{\text{int}} \sim&\; {\color{red}\Gamma(2, 2)}. \\
+    \tilde{\sigma}_{\text{int}} \sim&\; {\color{red}\Gamma(2, 2)}.
 \end{align}
 The motivation behind the prior on $\tilde{\intercept}$ is that, as the data is
-pre-scaled to have zero mean and the relationship between variables is assumed
+pre-scaled to have zero mean and the relationship between quantities is assumed
 to be linear, we would expect the data to have zero intercept.  {\color{red}
 There's not a particularly strong motivation behind the $\tilde{\covariate}$,
 other than it's broad and symmetric. A more motivated prior would be
@@ -389,7 +389,7 @@ scatter in datasets where intrinsic scatter is present. The prior recommended in
 their paper is {\color{red} $\Gamma(2, 2)$}; however, as we have pre-scaled our
 data to have unit variance, we adopt a more concentrated prior.
 
-The prior on the latent values of the independent variables $\{\indepvars\}$ is
+The prior on the latent values of the independent quantities $\{\indepvars\}$ is
 a Gaussian mixture model prior, similar to that used in \citet{Kelly:2007}.
 While \citeauthor{Kelly:2007} infers the complete prior as part of the model, we
 found that such a prior led to sampling issues as a result of the lack of
@@ -406,7 +406,7 @@ this prior was chosen to balance flexibility (such that the model could
 accommodate both heavily leptokurtic distributions --- e.g. the Cauchy
 distribution --- and normally-distributed data) and sampling issues (as $\nu
 \leftarrow \infty$, different values of $\nu$ become rapidly indistinguishable).
-The reasoning behind choosing this prior is expanded upon in Appendix
+The reasoning behind this choice of prior is expanded upon in Appendix
 \ref{sec:t-prior}.
 
 \subsection{Asymptotic normality}
@@ -431,9 +431,11 @@ is referred to as $n$-cup.
 \section{Validation}
 \label{sec:methods}
 
-We run two types of tests to validate the performance of $t$-cup under different
-types of model misspecification: simulation-based calibration tests
-\citep{Cook:2006, Talts:2018} and fixed value calibration tests.
+In this section, we outline the methods used to validate the model set out in
+the previous section. We run two types of tests to validate the performance of
+$t$-cup under different types of model misspecification: simulation-based
+calibration tests \citep{Cook:2006, Talts:2018} and fixed value calibration
+tests.
 
 \subsection{Simulation-based calibration}
 \label{sec:methods.sbc}
@@ -540,7 +542,9 @@ The chosen value of $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu 
     \includegraphics[width=\columnwidth]{graphics/corner_t.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ for the \textit{t}-distributed dataset, with ground-truth
-    values indicated by the black dashed lines.}
+    values indicated by the black dashed lines. Contours indicate 39.3\% and
+    86.5\% highest posterior density regions, corresponding to 1$\sigma$ and
+    2$\sigma$ contours for a bivariate normal distribution.}
     \label{fig:results.t.corner}
 \end{figure}
 
@@ -550,12 +554,12 @@ used to generate the dataset.
 
 We then generated 1000 datasets from the same ground-truth parameters, and
 calculated the maximum a posteriori (MAP) values of the regression coefficients
-and shape parameter $\nu$. The results (illustrated in Figure
-\ref{fig:results.t.map}) indicate that the estimate of true parameter values is
+and shape parameter $\nu$. The results shown in Figure
+\ref{fig:results.t.map} indicate that the estimate of true parameter values is
 unbiased.{
-\color{red} We also calculated the 95\% credible intervals for each parameter,
-finding that the true parameter value was contained within the interval for
-$x$\% of parameters and runs.
+\color{red} The true parameter values were contained in the 95\% highest
+posterior density credible intervals $x$\% of the time across all parameters and
+runs.
 }
 
 % \begin{figure}
@@ -617,7 +621,8 @@ We generated a dataset of $N = 12$ points using the model:
     \caption{{\color{red} 100} draws from the posterior of regression lines from
     the normal model (left panel, blue) and $t$-cup (right panel, red). The
     dataset is illustrated by the black points, with the ground-truth regression
-    line illustrated by the black dashed line.}
+    line illustrated by the black dashed line. {\color{red} I need to add axis
+    labels to this figure - ``Observed $\hat{x}$'' and ``Observed $\hat{y}$''.}}
     \label{fig:results.outlier.regression}
 \end{figure*}
 
@@ -634,7 +639,8 @@ We generated a dataset of $N = 12$ points using the model:
     \includegraphics[width=\columnwidth]{graphics/corner_outlier_tcup.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ under the $t$-cup model with the outlier included (dark red,
-    solid) and excluded (light red, dashed).}
+    solid) and excluded (light red, dashed). {\color{red} To do: fix contours
+    that don't close at the bottom - I think this is an ArviZ issue.}}
     \label{fig:results.outlier.tcup}
 \end{figure}
 
@@ -657,21 +663,21 @@ included or excluded.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/outlier_many.pdf}
-    \caption{The distribution of maximum a posteriori (MAP) estimates for each
+    \caption{The distribution of MAP estimates for each
     of the regression parameters under the normal model (blue) and $t$-cup model
     (red).}
     \label{fig:results.outlier.map}
 \end{figure}
 
-We then generated 1000 datasets using the same procedure, and
-calculated the maximum a posteriori (MAP) values of the regression coefficients
-for both the normal model and for $t$-cup. The results (illustrated in Figure
+We then generated 1000 datasets using the same procedure, and calculated the
+maximum a posteriori (MAP) values of the regression coefficients for both the
+normal model and for $t$-cup. The results (illustrated in Figure
 \ref{fig:results.outlier.map}) indicate that {\color{red} constraints under
 $t$-cup are significantly less biased than those calculated under the normal
-model. We also compared the 95\% credible intervals for each parameter,
-finding that the true parameter value was contained within the interval for
-$x$\% of parameters and runs.
-}
+model. We also compared the 95\% highest-posterior density credible intervals
+for each parameter,finding that the true parameter value was contained within
+the interval for $x$\% of parameters and runs. }
+
 
 \subsection{2D Normal Mixture Model with outlier fraction}
 \label{sec:results.gmm}
@@ -681,7 +687,7 @@ of outliers. The intrinsic scatter distribution is a mixture of two normal
 distributions with zero mean; 90\% of points are drawn from a core distribution
 with standard deviation $\sigma_\textrm{int}$, and 10\% of points are drawn from
 an outlier distribution with standard deviation $10 \sigma_\textrm{int}$. We
-introduce the random variable $O_i$ to indicate whether the $i$th datapoint is
+introduce the parameter $O_i$ to indicate whether the $i$th datapoint is
 drawn from the core distribution (in which case, $O_i = 0$) or from the outlier
 distribution (for which $O_i = 1$).
 
@@ -718,20 +724,20 @@ We generated a dataset of $N = 200$ points using the model:
     \includegraphics[width=\columnwidth]{graphics/corner_gaussian_mix.pdf}
     \caption{The posterior for each of the regression coefficients and the
     outlier fraction $\omega$ for the normal mixture model dataset, with
-    ground-truth values indicated by the black dashed lines. Note that, although
-    there is not a one-to-one correspondence between the outlier fraction
-    $\omega$ and the $p = 0.1$ outlier fraction in the Bernoulli distribution,
-    {\color{red} insert observation here}.}
+    ground-truth values indicated by the black dashed lines. {\color{red} To do:
+    recalculate the outlier fraction shown on this plot - the $p = 0.1$ value
+    (plotted) is not defined in the same way as outlier fraction $\omega$, so
+    this isn't a fair comparison.}}
     \label{fig:results.gmm.corner}
 \end{figure}
 
 \subsection{Laplace-distributed data}
 \label{sec:results.laplace}
 
-For this dataset, a Laplace distribution was used as the noise distribution, as
-it is heavy-tailed but does not fall within the family of $t$ distributions and,
-therefore, gives an example of performance under explicit model
-misspecification.
+For this test, we compare model performance on a symmetric, heavy-tailed
+distribution that does not fall into the family of $t$-distributions. Therefore,
+we use a Laplace distribution as the noise distribution, giving an example of
+performance under explicit model misspecification.
 
 We generate $N = 25$ datapoints under the following model:
 \begin{eqnarray}
@@ -766,12 +772,10 @@ used to generate the dataset.
 We then generated 1000 datasets from the same ground-truth parameters, and
 calculated the maximum a posteriori (MAP) values of the regression coefficients
 and shape parameter $\nu$. The results (illustrated in Figure
-\ref{fig:results.laplace.map}) indicate that the estimate of true parameter values is
-unbiased.{
-\color{red} We also calculated the 95\% credible intervals for each parameter,
-finding that the true parameter value was contained within the interval for
-$x$\% of parameters and runs.
-}
+\ref{fig:results.laplace.map}) indicate that the estimate of true parameter
+values is unbiased.{ \color{red} We also calculated the 95\% highest-posterior
+density credible intervals for each parameter, finding that the true parameter
+value was contained within the interval for $x$\% of parameters and runs.  }
 
 % \begin{figure}
 %     \includegraphics[width=\columnwidth]{example-image-a}
@@ -814,8 +818,8 @@ We generate $N = 25$ datapoints under the following model:
 % \end{figure}
 
 As we can see in Figures \ref{fig:results.lognormal.regression} and
-\ref{fig:results.lognormal.corner}, we recover the values of the parameters that were
-used to generate the dataset.
+\ref{fig:results.lognormal.corner}, {\color{red} this needs to be rerun and
+discussed.}
 
 We then generated 1000 datasets from the same ground-truth parameters, and
 calculated the maximum a posteriori (MAP) values of the regression coefficients
@@ -835,17 +839,17 @@ $x$\% of parameters and runs.
 % \end{figure}
 
 
-\section{Demonstration on real-world data}
+\section{Demonstration on real data}
 \label{sec:real-world}
 
 % A simple demonstration on real data (Park is a possibility; another is an
 % M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
 % on the paper used by Kelly as can directly compare.
 
-In this section, we compare the performance of the $t$-cup model with a generic
-astronomical Bayesian linear regression model
-\citep[\textsc{linmix\_err}][]{Kelly:2007} and a tailored approach using
-$t$-distributions \citep{Park:2017}.
+Having seen $t$-cup's performance on simulated data in the previous section, we
+now compare the performance of the $t$-cup model with a generic astronomical
+Bayesian linear regression model \citep[\textsc{linmix\_err};][]{Kelly:2007} and
+a tailored approach using $t$-distributions \citep{Park:2017}.
 
 \subsection{\textsc{linmix\_err}}
 
@@ -983,9 +987,16 @@ https://github.com/wm1995/tcup-paper.
 \section{Prior choice for shape parameter}
 \label{sec:t-prior}
 
-It can be informative to reparameterise the shape parameter $\nu$ in a few
-different ways. Following \citet{Feeney:2018}, we can define the peak height
-ratio $t$ as
+As our model relies on Student's $t$-distributions, we review notation and
+priors used by previous works and justify our reasoning for our prior choice. It
+can be informative to reparameterise the shape parameter $\nu$ in a few
+different ways.
+
+\citet{Feeney:2018} introduced the concept of the ``peak height ratio'' $t$ ---
+the ratio of central peak height of a $t$-distribution with shape parameter $nu$
+to that of a normal distribution. A normal distribution has, by definition,
+$t(\nu = \infty) = 1$; a Cauchy distribution has $t(\nu = 1) = \sqrt{\frac2\pi}
+\approx 0.80$. For general $\nu$, peak height ratio $t$ is
 \begin{eqnarray}
     t(\nu) &=& \frac{
         \studentt{x = \mu; \mu}{\sigma}
@@ -999,8 +1010,8 @@ ratio $t$ as
         \Gamma\left(\frac{\nu}{2}\right)
     }.
 \end{eqnarray}
-As can be seen in Figure \ref{fig:model.peak_height}, the behaviour of $t(\nu)$
-is highly non-linear, reflecting that, for $\nu \gtrsim 10$, the Student's
+As shown in Figure \ref{fig:model.peak_height}, the behaviour of $t(\nu)$ is
+highly non-linear, reflecting that, for $\nu \gtrsim 10$, the Student's
 $t$-distribution rapidly approaches a normal distribution.
 
 % \begin{figure}
@@ -1027,7 +1038,7 @@ where $F_\nu(x)$ is the cumulative distribution function for Student's
 $t$-distribution with shape parameter $\nu$. Figure \ref{fig:model.outlier_frac}
 shows the relationship between outlier fraction $\omega$ and shape parameter
 $\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
-distribution --- i.e., as $\nu \rightarrow \infty$. We would, therefore, expect
+distribution, i.e., as $\nu \rightarrow \infty$. We would, therefore, expect
 that approximately 1 in 370 datapoints would be outliers for data that follows a
 normal distribution; for Cauchy-distributed data (i.e. $\nu = 1$),
 we would expect every fifth datapoint to be an outlier.
@@ -1041,11 +1052,11 @@ we would expect every fifth datapoint to be an outlier.
 %     \label{fig:model.outlier_frac}
 % \end{figure}
 
-Using Student's $t$-distributions for robust Bayesian inference means that we
-have to specify a prior on the shape parameter $\nu$. One approach is to adopt a
-fixed value of $\nu$, which is equivalent to setting a Dirac delta function
-prior: a common choice is $\nu = 4$ \citep[e.g.][]{Berger:1994, Gelman:2013}.
-Another approach is to adopt a more flexible approach by allowing $\nu$ to vary
+Using Student's $t$-distributions for Bayesian inference means that we have to
+specify a prior on the shape parameter $\nu$. One approach is to adopt a fixed
+value of $\nu$, which is equivalent to setting a Dirac delta function prior: a
+common choice is $\nu = 4$ \citep[e.g.][]{Berger:1994, Gelman:2013}.  Another
+approach is to adopt a more flexible approach by allowing $\nu$ to vary
 \citep[e.g.][]{Juarez:2010, Park:2017, Feeney:2018}.
 
 In \citet{Feeney:2018}, it is argued that, for common choices of prior, too
@@ -1072,8 +1083,8 @@ magnitude larger than $\sigma$. In theory, these unphysical regions of parameter
 space ought to be excluded during the process of inference. However, the use of
 Hamiltonian Monte Carlo (HMC) in such cases can lead to divergences in the
 sampling process or inefficient sampling as the sampler struggles with regions
-of high curvature --- see Section \ref{sec:model.model.reparam} for greater
-detail.
+of high curvature --- see the discussion of this phenomenon in
+\citet{Neal:2003}.
 
 Another possible prior is on outlier fraction $\omega$. It could be argued that
 the term outlier loses its meaning when the majority of a dataset is composed of
@@ -1097,21 +1108,6 @@ peak height $t$ or outlier fraction $\omega$.
 %     }
 %     \label{fig:model.t_approx}
 % \end{figure}
-
-After considering a range of priors, we have adopted a prior which is
-approximately uniform on peak height between Cauchy and normal distributions.
-We achieve this by rescaling peak height $t$ to $\tilde{t}$, such that
-$\tilde{t} = 0$ corresponds to a Cauchy distribution, and $\tilde{t} = 1$
-corresponds to a normal distribution. We adopt a uniform prior $\tilde{t} \sim
-U\left(0, 1\right)$, and then approximate the function
-\begin{equation}
-    \nu\left(\tilde{t}\right)
-        \approx
-    \sec \left(\frac{\pi}{2} \sqrt{\tilde{t}} \right);
-    \label{eqn:model.t_approx}
-\end{equation}
-this approximation (illustrated in Figure \ref{fig:model.t_approx}) is accurate
-to within 3\% and provides an analytic derivative for HMC.
 
 Works using the $t$-distributions for robust inference have used different
 priors for the shape parameter $\nu$, which controls how heavy-tailed the

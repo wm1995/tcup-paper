@@ -1,0 +1,48 @@
+# Sourced from https://iopscience.iop.org/0004-637X/839/2/93/suppdata/apjaa6a53t3_ascii.txt?doi=10.3847/1538-4357/aa6a53
+Table 3 
+Ultraviolet Spectral Properties from C IV SE Estimates
+
+
+Object	Telescope/Instrument	Date Observed	S/N	$E(B-V)$	$\mathrm{log}(\lambda {L}_{\lambda }/$erg s^-1)	${\mathrm{FWHM}}_{\mathrm{SE}}$	${\sigma }_{\mathrm{SE}}$	${\mathrm{MAD}}_{\mathrm{SE}}$	$\rho (W,X)$	$\rho (W,Y)$	$\rho (W,Z)$	
+			(1450 or 1700 Aring)		(1350 Aring)	(C IV)	(C IV)	(C IV)				
+			(pix^-1)	(mag)		(km s^-1)	(km s^-1)	(km s^-1)				
+(1)	(2)	(3)	(4)	(5)	(6)	(7)	(8)	(9)	(10)	(11)	(12)	
+												
+Sample Presented in P13 ^a												
+	
+3C 120	IUE/SWP	1994 Feb 19, 27; 1994 Mar 11	12	0.263	44.399 +or- 0.021	3093 +or- 291	3106 +or- 157	2280 +or- 74	-0.05	-0.35	-0.50	
+3C 390.3	HST/FOS	1996 Mar 31	18	0.063	43.869 +or- 0.003	5645 +or- 202	6154 +or- 65	4674 +or- 42	-0.11	-0.30	-0.32	
+Ark 120	HST/FOS	1995 Jul 29	17	0.114	44.400 +or- 0.005	3471 +or- 108	3219 +or- 53	2345 +or- 31	0.01	-0.30	-0.37	
+Fairall 9	HST/FOS	1993 Jan 22	24	0.023	44.442 +or- 0.004	2649 +or- 77	2694 +or- 20	1987 +or- 13	0.04	-0.21	-0.17	
+Mrk 279	HST/COS	2011 Jun 27	9	0.014	43.082 +or- 0.004	4093 +or- 388	2973 +or- 53	2202 +or- 18	0.01	-0.04	-0.11	
+Mrk 290	HST/COS	2009 Oct 28	24	0.014	43.611 +or- 0.002	2052 +or- 36	3531 +or- 32	2544 +or- 14	-0.00	-0.13	-0.20	
+Mrk 335	HST/COS	2009 Oct 31; 2010 Feb 08	29	0.032	43.953 +or- 0.001	1772 +or- 14	1876 +or- 12	1311 +or- 7	0.03	-0.02	0.02	
+Mrk 509	HST/COS	2009 Dec 10, 11	107	0.051	44.675 +or- 0.001	3872 +or- 18	3568 +or- 9	2601 +or- 6	0.02	-0.07	-0.03	
+Mrk 590	IUE/SWP	1991 Jan 14	17	0.033	44.094 +or- 0.007	5362 +or- 266	3479 +or- 165	2630 +or- 139	-0.09	-0.12	-0.05	
+Mrk 817	HST/COS	2009 Aug 04; 2009 Dec 28	38	0.006	44.326 +or- 0.001	4580 +or- 48	3692 +or- 23	2756 +or- 14	-0.01	-0.25	-0.21	
+NGC 3516	HST/COS	2010 Oct 04; 2011 Jan 22	20	0.038	42.615 +or- 0.002	2658 +or- 34	4006 +or- 49	2864 +or- 29	-0.03	0.07	0.06	
+NGC 3783	HST/COS	2011 May 26	29	0.105	43.400 +or- 0.001	2656 +or- 444	2774 +or- 91	2014 +or- 9	-0.01	-0.01	-0.17	
+NGC 4593	HST/STIS	2002 Jun 23, 24	10	0.022	43.761 +or- 0.005	2952 +or- 166	2946 +or- 162	2135 +or- 33	-0.01	-0.00	-0.02	
+NGC 5548	HST/COS	2011 Jun 16, 17	36	0.018	43.822 +or- 0.001	1785 +or- 82	4772 +or- 80	3528 +or- 102	0.02	-0.11	-0.02	
+NGC 7469	HST/COS	2010 Oct 16	32	0.061	43.909 +or- 0.001	2725 +or- 66	2849 +or- 237	2060 +or- 15	-0.02	-0.01	-0.14	
+PG 0026+129	HST/FOS	1994 Nov 27	25	0.063	45.236 +or- 0.005	1604 +or- 50	4965 +or- 113	3610 +or- 77	-0.04	-0.11	-0.22	
+PG 0052+251	HST/FOS	1993 Jul 22	21	0.042	45.292 +or- 0.004	5380 +or- 87	4648 +or- 50	3463 +or- 30	-0.12	-0.54	-0.61	
+PG 0804+761	HST/COS	2010 Jun 12	34	0.031	45.493 +or- 0.001	3429 +or- 23	2585 +or- 20	1932 +or- 13	0.04	0.14	0.17	
+PG 0953+414	HST/FOS	1991 Jun 18	18	0.012	45.629 +or- 0.005	3021 +or- 74	3448 +or- 55	2472 +or- 35	-0.02	-0.43	-0.48	
+PG 1226+023	HST/FOS	1991 Jan 14, 15	93	0.018	46.309 +or- 0.001	3609 +or- 29	3513 +or- 29	2595 +or- 19	-0.18	-0.52	-0.60	
+PG 1229+204	IUE/SWP	1982 May 01, 02	28	0.024	44.609 +or- 0.009	4023 +or- 163	2621 +or- 90	1989 +or- 62	-0.29	-0.48	-0.49	
+PG 1307+085	HST/FOS	1993 Jul 21	14	0.030	45.113 +or- 0.006	3604 +or- 111	4237 +or- 80	3010 +or- 54	-0.13	-0.57	-0.58	
+PG 1426+015	IUE/SWP	1985 Mar 01, 02	45	0.028	45.263 +or- 0.004	4220 +or- 258	4808 +or- 305	3549 +or- 95	-0.10	-0.23	-0.42	
+PG 1613+658	HST/COS	2010 Apr 08, 09, 10	37	0.023	45.488 +or- 0.001	6398 +or- 51	4204 +or- 17	3286 +or- 13	-0.01	-0.10	-0.04	
+PG 2130+099	HST/COS	2010 Oct 28	22	0.039	44.447 +or- 0.001	2147 +or- 18	2225 +or- 47	1554 +or- 21	0.02	-0.06	-0.07	
+												
+New Sample Presented Here												
+	
+Arp 151	HST/STIS	2013 Apr 29	6	0.012	41.791 +or- 0.017	1489 +or- 26	2900 +or- 61	1864 +or- 35	-0.03	-0.38	-0.46	
+Mrk 1310	HST/STIS	2013 Jun 07	5	0.027	41.715 +or- 0.025	1434 +or- 78	2447 +or- 108	1603 +or- 54	0.00	-0.25	-0.31	
+Mrk 50	HST/STIS	2012 Dec 12	19	0.015	43.213 +or- 0.003	2807 +or- 63	4443 +or- 160	3140 +or- 115	0.02	-0.13	-0.10	
+NGC 6814	HST/STIS	2013 May 07	6	0.164	41.105 +or- 0.021	2651 +or- 264	2804 +or- 103	2096 +or- 59	0.02	-0.07	-0.11	
+SBS 1116+583A	HST/STIS	2013 Jul 12	13	0.010	42.867 +or- 0.005	3253 +or- 302	3315 +or- 231	2302 +or- 121	-0.04	-0.13	-0.15	
+Zw 229-015	HST/STIS	2013 Jul 23	17	0.064	43.129 +or- 0.007	2573 +or- 71	2608 +or- 56	1891 +or- 33	-0.05	-0.20	-0.18	
+Note. Col. (1) Name. Col. (2) Telescope/instrument from which archival UV spectra were obtained. Note that the new COS spectra were obtained after 2009. Col. (3) Observation date for combined spectra. Col. (4) S/N per pixel at 1450 or 1700 Aring in the rest frame. Col. (5) Value of $E(B-V)$ from the NED based on the recalibration of Schlafly & Finkbeiner (2011). Col. (6) Continuum luminosity measured at 1350 Aring. Col. (7) FWHM measured from SE spectra. Col. (8) Line dispersion (${\sigma }_{\mathrm{line}}$) measured from SE spectra. Col. (9) MAD (mean absolute deviation around weighted median) measured from SE spectra. Col. (10) Correlation coefficient between measurement errors of W and X, where $W=\mathrm{log}\lambda {L}_{\lambda }$ at 1350 Aring and $X={\mathrm{logFWHM}}_{\mathrm{SE}}$. Col. (11) Correlation coefficient between measurement errors of W and Y, where $Y=\mathrm{log}{\sigma }_{\mathrm{SE}}$. Col. (12) Correlation coefficient between measurement errors of W and Z, where $Z={\mathrm{logMAD}}_{\mathrm{SE}}$.
+^a Note that the sample and measurements are from P13. One difference here is that measurements for MAD and error correlations have been included.

@@ -1,0 +1,47 @@
+# Sourced from https://iopscience.iop.org/0004-637X/839/2/93/suppdata/apjaa6a53t1_ascii.txt?doi=10.3847/1538-4357/aa6a53
+Table 1 
+Optical Spectral Properties from Hbeta Reverberation Mapping
+
+
+Object	z	${\tau }_{\mathrm{cent}}$	${\sigma }_{\mathrm{rms}}$	$\mathrm{log}({M}_{\mathrm{BH}}$/${M}_{\odot }$)	References	
+		(Hbeta)	(Hbeta)	(RM)		
+		(days)	(km s^-1)			
+(1)	(2)	(3)	(4)	(5)	(6)	
+Sample Presented in P13 ^a						
+	
+3C 120	0.03301	${27.2}_{-1.1}^{+1.1}$	1514 +or- 65	7.80 +or- 0.31	6	
+3C 390.3	0.05610	${23.60}_{-6.45}^{+6.45}$	3105 +or- 81	8.43 +or- 0.33	1	
+Ark 120	0.03230	${39.05}_{-4.57}^{+4.57}$	1896 +or- 44	8.14 +or- 0.32	1	
+Fairall 9	0.04702	${17.40}_{-3.75}^{+3.75}$	3787 +or- 197	8.38 +or- 0.32	1	
+Mrk 279	0.03045	${16.70}_{-3.90}^{+3.90}$	1420 +or- 96	7.51 +or- 0.33	1	
+Mrk 290	0.02958	${8.72}_{-1.02}^{+1.21}$	1609 +or- 47	7.36 +or- 0.32	4	
+Mrk 335	0.02578	${14.1}_{-0.4}^{+0.4}$	1293 +or- 64	7.37 +or- 0.31	6	
+Mrk 509	0.03440	${79.60}_{-5.75}^{+5.75}$	1276 +or- 28	8.12 +or- 0.31	1	
+Mrk 590	0.02638	${24.23}_{-2.11}^{+2.11}$	1653 +or- 40	7.65 +or- 0.32	1	
+Mrk 817	0.03145	${19.05}_{-2.45}^{+2.45}$	1636 +or- 57	7.66 +or- 0.32	1	
+NGC 3516	0.00884	${11.68}_{-1.53}^{+1.02}$	1591 +or- 10	7.47 +or- 0.31	4	
+NGC 3783	0.00973	${10.20}_{-2.80}^{+2.80}$	1753 +or- 141	7.44 +or- 0.32	1	
+NGC 4593	0.00900	${3.73}_{-0.75}^{+0.75}$	1561 +or- 55	6.96 +or- 0.32	2	
+NGC 5548	0.01717	${4.18}_{-1.30}^{+0.86}$	3900 +or- 266	7.80 +or- 0.34	3, 5	
+NGC 7469	0.01632	${4.50}_{-0.75}^{+0.75}$	1456 +or- 207	7.05 +or- 0.31	1	
+PG 0026+129	0.14200	${111.00}_{-26.20}^{+26.20}$	1773 +or- 285	8.56 +or- 0.33	1	
+PG 0052+251	0.15500	${89.80}_{-24.30}^{+24.30}$	1783 +or- 86	8.54 +or- 0.32	1	
+PG 0804+761	0.10000	${146.90}_{-18.85}^{+18.85}$	1971 +or- 105	8.81 +or- 0.31	1	
+PG 0953+414	0.23410	${150.10}_{-22.10}^{+22.10}$	1306 +or- 144	8.41 +or- 0.32	1	
+PG 1226+023	0.15830	${306.80}_{-79.70}^{+79.70}$	1777 +or- 150	8.92 +or- 0.32	1	
+PG 1229+204	0.06301	${37.80}_{-21.45}^{+21.45}$	1385 +or- 111	7.83 +or- 0.38	1	
+PG 1307+085	0.15500	${105.60}_{-41.30}^{+41.30}$	1820 +or- 122	8.61 +or- 0.33	1	
+PG 1426+015	0.08647	${95.00}_{-33.50}^{+33.50}$	3442 +or- 308	9.08 +or- 0.34	1	
+PG 1613+658	0.12900	${40.10}_{-15.10}^{+15.10}$	2547 +or- 342	8.42 +or- 0.38	1	
+PG 2130+099	0.06298	${12.8}_{-0.9}^{+1.2}$	1825 +or- 65	7.63 +or- 0.31	6	
+						
+New Sample Presented Here						
+	
+Arp 151	0.02109	${3.99}_{-0.68}^{+0.49}$	1295 +or- 37	6.83 +or- 0.32	3, 5	
+Mrk 1310	0.01956	${3.66}_{-0.61}^{+0.59}$	921 +or- 135	6.50 +or- 0.34	3, 5	
+Mrk 50	0.02343	${10.64}_{-0.93}^{+0.82}$	1740 +or- 101	7.50 +or- 0.32	7	
+NGC 6814	0.00521	${6.64}_{-0.90}^{+0.87}$	1697 +or- 224	7.28 +or- 0.34	3, 5	
+SBS 1116+583A	0.02787	${2.31}_{-0.49}^{+0.62}$	1550 +or- 310	6.74 +or- 0.38	3, 5	
+Zw 229-015	0.02788	${3.86}_{-0.90}^{+0.69}$	1590 +or- 47	6.99 +or- 0.32	8	
+Note. Col. (1) Name. Col. (2) Redshifts are from the NASA/IPAC Extragalactic Database (NED). Col. (3) Rest-frame Hbeta time lag measurements. Col. (4) Line dispersion (${\sigma }_{\mathrm{line}}$) measured from rms spectra. Col. (5) The ${M}_{\mathrm{BH}}$ estimates from reverberation mapping: ${M}_{\mathrm{BH}}(\mathrm{RM})=f{\mathrm{VP}}_{\mathrm{BH}}={fc}{\tau }_{\mathrm{cent}}{\sigma }_{\mathrm{rms}}^{2}/G$, where the virial factor f with its uncertainty is adopted from Park et al. (2012a) and Woo et al. (2010; i.e., $\mathrm{log}f=0.71\pm 0.31$). Col. (6) References: 1. Peterson et al. (2004); 2. Denney et al. (2006); 3. Bentz et al. (2009b); 4. Denney et al. (2010); 5. Park et al. (2012b); 6. Grier et al. (2012); 7. Barth et al. (2011b); 8. Barth et al. (2011a).
+^a Note that the sample and measurements are from P13. One difference here is that the adopted uncertainty for the virial factor (i.e., 0.31 dex) has been added in quadrature to the final RM BH mass uncertainties, although this homoscedastic uncertainty addition to the dependent variables does not alter any of the calibration results in this work, except for the values of intrinsic scatter term and slight changes in the constrained uncertainty ranges of regression coefficients.

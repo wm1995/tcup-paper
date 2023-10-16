@@ -210,6 +210,10 @@ data/kelly.json: scripts/preprocess_Kelly.py plots/
 	cd data/kelly/ && curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
 	${PYTHON} scripts/preprocess_Kelly.py
 
+data/real/park_FWHM.json data/real/park_line_disp.json data/real/park_MAD.json &:
+	-mkdir -p data/real/park/
+	${PYTHON} scripts/preprocess_Park.py
+
 ################################################################################
 # Fit MCMC models to datasets
 ################################################################################

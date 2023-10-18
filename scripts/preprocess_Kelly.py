@@ -14,7 +14,7 @@ XLIMS = (-3, 1)
 YLIMS = (-1, 4)
 
 if __name__ == "__main__":
-    with open("data/kelly/f10a.ps", "r") as f:
+    with open("data/real/kelly/f10a.ps", "r") as f:
         filetext = f.read()
 
     matches = re.findall(
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         "dy": df["dGamma_X"].values.tolist(),
     }
 
-    with open("data/kelly.json", "w") as f:
+    with open("data/real/kelly.json", "w") as f:
         json.dump(
             {
                 "data": data,

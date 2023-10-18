@@ -14,7 +14,10 @@ SBC_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also 
 
 # Fixed run parameters
 NUM_FIXED_DATASETS := 10
-FIXED_DATASETS = t normal outlier gaussian_mix laplace lognormal kelly
+FIXED_DATASETS = t normal outlier gaussian_mix laplace lognormal
+
+# Real datasets
+REAL_DATASETS := kelly park_FWHM park_line_disp park_MAD
 
 ################################################################################
 # Makefile variables
@@ -32,7 +35,7 @@ SBC_PLOT_DIRS := $(foreach dataset, $(SBC_DATASETS), $(foreach model, ${MODELS},
 SBC_PLOTS := $(foreach dir, ${SBC_PLOT_DIRS}, $(foreach plot, ${SBC_PLOT_TYPES}, ${dir}/${plot}.pdf)) plots/sbc/tcup/t/nu.pdf
 
 FIXED_RANDOM_SEEDS := $(shell seq ${NUM_FIXED_DATASETS})
-FIXED_DATASET_DEPENDENCIES := scripts/gen_dataset.py tcup-paper/data/io.py # and the dataset-specific file in tcup-paper.data
+FIXED_DATASET_DEPENDENCIES := scripts/gen_dataset.py tcup-paper/data/io.py
 FIXED_DATA_DIRS := $(foreach dataset, ${FIXED_DATASETS}, data/fixed/${dataset})
 FIXED_DATASETS_JSON := $(foreach dir, ${FIXED_DATA_DIRS}, $(foreach seed, ${FIXED_RANDOM_SEEDS}, ${dir}/${seed}.json))
 FIXED_MCMC_DIRS := $(foreach dataset, $(FIXED_DATASETS), $(foreach model, ${MODELS}, results/fixed/${model}/${dataset}))
@@ -40,6 +43,13 @@ FIXED_MCMC := $(foreach dir, ${FIXED_MCMC_DIRS}, $(foreach seed, ${FIXED_RANDOM_
 # FIXED_PLOT_DIRS := $(foreach dataset, $(FIXED_DATASETS), $(foreach model, ${MODELS}, plots/fixed/${model}/${dataset}))
 # FIXED_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also nu but only for tcup/t
 # FIXED_PLOTS := $(foreach dir, ${FIXED_PLOT_DIRS}, $(foreach plot, ${FIXED_PLOT_TYPES}, ${dir}/${plot}.pdf))
+
+REAL_DATA_DIRS := results/real results/real/kelly results/real/park
+REAL_DATASETS_JSON := $(foreach dir, ${REAL_DATA_DIRS}, $(foreach dataset, ${REAL_DATASETS}, ${dir}/${dataset}.json))
+REAL_MCMC_DIRS := $(foreach model, ${MODELS}, results/real/${model})
+REAL_MCMC := $(foreach dir, ${REAL_MCMC_DIRS}, $(foreach dataset, ${REAL_DATASETS}, ${dir}/${dataset}.nc))
+# SBC_PLOT_DIRS := $(foreach dataset, $(SBC_DATASETS), $(foreach model, ${MODELS}, plots/sbc/${model}/${dataset}))
+# SBC_PLOTS := $(foreach dir, ${SBC_PLOT_DIRS}, $(foreach plot, ${SBC_PLOT_TYPES}, ${dir}/${plot}.pdf)) plots/sbc/tcup/t/nu.pdf
 
 DATASETS := t normal outlier gaussian_mix laplace lognormal kelly
 CORNER_DATASETS := t gaussian_mix laplace lognormal kelly
@@ -185,34 +195,62 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/lognormal/${plot}.pdf) &: $(
 # Generate mock datasets
 ################################################################################
 
-datasets: data/ ${DATASETS_JSON}
+fixed-datasets: ${FIXED_DATASETS_JSON}
+	echo ${FIXED_DATA_DIRS}
 
-data:
-	mkdir data
+${FIXED_DATA_DIRS}:
+	-mkdir -p $@
 
-data/t.json: fixed3-paper/data/t.py
-	${PYTHON} scripts/gen_dataset.py --t-dist
+data/fixed/t/%.json: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/t.py | data/fixed/t
+	${PYTHON} scripts/gen_dataset.py --t-dist --seed $*
 
-data/normal.json data/outlier.json &: tcup-paper/data/outlier.py
-	${PYTHON} scripts/gen_dataset.py --outlier
+data/fixed/outlier/%.json data/fixed/normal/%.json &: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/outlier data/fixed/normal
+	${PYTHON} scripts/gen_dataset.py --outlier --seed $*
 
-data/gaussian_mix.json: tcup-paper/data/gaussian_mix.py
-	${PYTHON} scripts/gen_dataset.py --gaussian-mix
+data/fixed/gaussian_mix/%.json: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/gaussian_mix
+	${PYTHON} scripts/gen_dataset.py --gaussian-mix --seed $*
 
-data/laplace.json: tcup-paper/data/laplace.py
-	${PYTHON} scripts/gen_dataset.py --laplace
+data/fixed/laplace/%.json: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/laplace
+	${PYTHON} scripts/gen_dataset.py --laplace --seed $*
 
-data/lognormal.json: tcup-paper/data/lognormal.py
-	${PYTHON} scripts/gen_dataset.py --lognormal
+data/fixed/lognormal/%.json: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/lognormal
+	${PYTHON} scripts/gen_dataset.py --lognormal --seed $*
 
-data/kelly.json: scripts/preprocess_Kelly.py plots/
-	-mkdir data/kelly/
-	cd data/kelly/ && curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
+################################################################################
+# Prepare real datasets
+################################################################################
+
+real-datasets: ${REAL_DATASETS_JSON}
+
+${REAL_DATA_DIRS}:
+	-mkdir -p $@
+
+data/real/kelly.json: scripts/preprocess_Kelly.py plots/
+	-mkdir data/real/kelly/
+	cd data/real/kelly/ && curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
 	${PYTHON} scripts/preprocess_Kelly.py
 
 data/real/park_FWHM.json data/real/park_line_disp.json data/real/park_MAD.json &:
 	-mkdir -p data/real/park/
 	${PYTHON} scripts/preprocess_Park.py
+
+################################################################################
+# Fit MCMC models to real datasets
+################################################################################
+
+real-mcmc: ${REAL_MCMC}
+
+${REAL_MCMC_DIRS}:
+	-mkdir -p $@
+
+results/real/tcup/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
+	-${PYTHON} scripts/fit_model.py $< $@
+
+results/real/fixed3/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
+	-${PYTHON} scripts/fit_model.py -f 3 $< $@
+
+results/real/ncup/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
+	-${PYTHON} scripts/fit_model.py -n $< $@
 
 ################################################################################
 # Fit MCMC models to datasets

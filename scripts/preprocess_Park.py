@@ -35,7 +35,7 @@ def write_dataset(filename, df, line_width):
         json.dump(
             {
                 "data": {
-                    "x": x.tolist(),
+                    "x": x.T.tolist(),
                     "cov_x": cov,
                     "y": y.tolist(),
                     "dy": dy.tolist(),
@@ -48,7 +48,7 @@ def write_dataset(filename, df, line_width):
 
 if __name__ == "__main__":
     rm_masses = pd.read_table(
-        "data/fixed/park/table1.dat",
+        "data/real/park/table1.dat",
         skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 36, 37, 38, 45, 46],
         on_bad_lines="warn",
         skip_blank_lines=True,
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     )
 
     spectra = pd.read_table(
-        "data/fixed/park/table3.dat",
+        "data/real/park/table3.dat",
         skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 37, 38, 39, 46, 47],
         on_bad_lines="warn",
         skip_blank_lines=True,

@@ -8,7 +8,7 @@ from tcup_paper.data.io import write_dataset
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser(description="Fit a model to data")
-    parser.add_argument("--seed", type="int", default=0)
+    parser.add_argument("--seed", type=int, default=0)
     distribution = parser.add_mutually_exclusive_group(required=True)
     distribution.add_argument("--t-dist", action="store_true")
     distribution.add_argument("--outlier", action="store_true")
@@ -27,7 +27,7 @@ if __name__ == "__main__":
             "dx": dx.tolist(),
             "dy": dy.tolist(),
         }
-        write_dataset(f"t_{args.seed}", data, info)
+        write_dataset(f"fixed/t/{args.seed}", data, info)
 
     if args.outlier:
         from tcup_paper.data.outlier import gen_dataset
@@ -39,7 +39,7 @@ if __name__ == "__main__":
             "dx": dx.tolist(),
             "dy": dy.tolist(),
         }
-        write_dataset(f"outlier_{args.seed}", data, info)
+        write_dataset(f"fixed/outlier/{args.seed}", data, info)
 
         # Exclude outlier and save
         idx = info["outlier_idx"]
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             "dx": dx[mask].tolist(),
             "dy": dy[mask].tolist(),
         }
-        write_dataset(f"normal_{args.seed}", no_outlier_data, info)
+        write_dataset(f"fixed/normal/{args.seed}", no_outlier_data, info)
 
     if args.gaussian_mix:
         from tcup_paper.data.gaussian_mix import gen_dataset
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             "cov_x": dx.tolist(),
             "dy": dy.tolist(),
         }
-        write_dataset(f"gaussian_mix_{args.seed}", data, info)
+        write_dataset(f"fixed/gaussian_mix/{args.seed}", data, info)
 
     if args.laplace:
         from tcup_paper.data.laplace import gen_dataset
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             "dx": dx.tolist(),
             "dy": dy.tolist(),
         }
-        write_dataset(f"laplace_{args.seed}", data, info)
+        write_dataset(f"fixed/laplace/{args.seed}", data, info)
 
     if args.lognormal:
         from tcup_paper.data.lognormal import gen_dataset
@@ -87,4 +87,4 @@ if __name__ == "__main__":
             "dx": dx.tolist(),
             "dy": dy.tolist(),
         }
-        write_dataset(f"lognormal_{args.seed}", data, info)
+        write_dataset(f"fixed/lognormal/{args.seed}", data, info)

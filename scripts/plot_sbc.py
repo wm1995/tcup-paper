@@ -29,6 +29,22 @@ def pool_bins(bins, pooling_factor):
         return pool_bins(new_bins, pooling_factor // 2)
 
 
+def labeller(var_name):
+    match var_name:
+        case "alpha_scaled":
+            latex_var = r"\tilde{\alpha}"
+        case "beta_scaled.0":
+            latex_var = r"\tilde{\beta}_0"
+        case "beta_scaled.1":
+            latex_var = r"\tilde{\beta}_1"
+        case "sigma_scaled":
+            latex_var = r"\tilde{\sigma}"
+        case "nu":
+            latex_var = r"\nu"
+
+    return rf"Normalised rank statistic $r\left({latex_var}\right)$"
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     model_type = parser.add_mutually_exclusive_group(required=True)
@@ -141,20 +157,33 @@ if __name__ == "__main__":
         # Increment number of datasets
         N += 1
 
-    confidence_level = 1 - 1 / 16
-    cdf_vals = [0.5 - confidence_level / 2, 0.5 + confidence_level / 2]
-    lower, upper = sps.binom.ppf(cdf_vals, N, 1 / B)
-    print(f"{N=}, {B=}, {N / B=:.2f}")
-    print(
-        f"{confidence_level * 100:.0f}% confidence interval: [{lower}, {upper}]"
-    )
+    confidence_levels = [1 - 1 / B, 1 - 1 / (len(var_names) * B)]
+    confidence_intervals = []
+    for confidence_level in confidence_levels:
+        cdf_vals = [0.5 - confidence_level / 2, 0.5 + confidence_level / 2]
+        lower, upper = sps.binom.ppf(cdf_vals, N, 1 / B)
+        confidence_intervals.append((lower, upper))
+        print(f"{N=}, {B=}, {N / B=:.2f}")
+        print(
+            f"{confidence_level * 100:.0f}% confidence interval: [{lower}, {upper}]"
+        )
 
     apply_matplotlib_style()
     for var_name, curr_bins in zip(var_names, bins):
         pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
-        plt.fill_between([0, B - 1], lower, upper, alpha=0.1, color="k")
-        edges = np.linspace(0, 1, B)
-        plt.bar(edges, pooled_bins)
-        plt.xlabel(var_name)
+        for lower, upper in confidence_intervals:
+            plt.fill_between([-0.05, 1.05], lower, upper, alpha=0.1, color="k")
+        edges = np.linspace(0, 1 - 1 / B, B)
+        plt.bar(edges, pooled_bins, width=1 / B, align="edge")
+        plt.hlines(
+            [N / B],
+            xmin=-0.05,
+            xmax=1.05,
+            colors="k",
+            linestyles="dashed",
+        )
+        plt.xlabel(labeller(var_name))
+        plt.xlim(-0.02, 1.02)
+        plt.yticks([])
         plt.savefig(f"{plots_path}{var_name}.pdf")
         plt.close()

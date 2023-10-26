@@ -13,7 +13,7 @@ SBC_DATASETS := t fixed normal outlier gaussian_mix laplace lognormal
 SBC_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also nu but only for tcup/t
 
 # Fixed run parameters
-NUM_FIXED_DATASETS := 10
+NUM_FIXED_DATASETS := 3
 FIXED_DATASETS = t normal outlier gaussian_mix laplace lognormal
 
 # Real datasets
@@ -256,18 +256,18 @@ results/real/ncup/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
 # Fit MCMC models to datasets
 ################################################################################
 
-mcmc: datasets results/ ${MCMC}
+fixed-mcmc: ${FIXED_MCMC}
 
-results:
-	mkdir results
+${FIXED_MCMC_DIRS}:
+	-mkdir -p $@
 
-results/%_tcup.nc: data/%.json
+results/fixed/tcup/%.nc: data/fixed/%.json ${FIXED_MCMC_DEPENDENCIES} | ${FIXED_MCMC_DIRS}
 	-${PYTHON} scripts/fit_model.py $< $@
 
-results/%_fixed3.nc: data/%.json
+results/fixed/fixed3/%.nc: data/fixed/%.json ${FIXED_MCMC_DEPENDENCIES} | ${FIXED_MCMC_DIRS}
 	-${PYTHON} scripts/fit_model.py -f 3 $< $@
 
-results/%_ncup.nc: data/%.json
+results/fixed/ncup/%.nc: data/fixed/%.json ${FIXED_MCMC_DEPENDENCIES} | ${FIXED_MCMC_DIRS}
 	-${PYTHON} scripts/fit_model.py -n $< $@
 
 ################################################################################

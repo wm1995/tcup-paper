@@ -34,8 +34,16 @@ if __name__ == "__main__":
         data["nu"] = args.fixed
         PARAMS_OF_INTEREST.remove("nu")
     else:
-        model_src = _get_model_src("tcup")
-
+        # model_src = _get_model_src("tcup", nu_prior="pareto(1, 4)")
+        model_src = _get_model_src(
+            "tcup",
+            reparam={
+                "params": "real<lower=0> nu_less_one;",
+                "transformed_params": "real nu = 1 + nu_less_one;",
+                "half_nu": "real half_nu = nu / 2;",
+                "prior": "nu_less_one ~ gamma(2, 1);",
+            },
+        )
 
     for seed in range(20):
         sampler = stan.build(model_src, data, random_seed=seed)
@@ -47,7 +55,9 @@ if __name__ == "__main__":
                 num_chains=1,
             )
 
-            min_ess = az.ess(fit, var_names=PARAMS_OF_INTEREST).to_array().min()
+            min_ess = (
+                az.ess(fit, var_names=PARAMS_OF_INTEREST).to_array().min()
+            )
 
             if min_ess > 1023:
                 break
@@ -66,6 +76,6 @@ if __name__ == "__main__":
             break
         else:
             # Chain length maxed out, save for diagnostic purposes
-            filename = args.outfile.split(".")[:-1].join(".")
+            filename = ".".join(args.outfile.split(".")[:-1])
             filename += f"_run_{sampler.random_seed}.nc"
             mcmc.to_netcdf(filename)

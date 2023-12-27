@@ -409,6 +409,14 @@ distribution --- and normally-distributed data) and sampling issues (as $\nu
 The reasoning behind this choice of prior is expanded upon in Appendix
 \ref{sec:t-prior}.
 
+The exact choice of prior for $\nu$ is unimportant, as the model is designed to
+be robust to model misspecification; the only key element is that nu is allowed
+to vary to accommodate both normal and heavy-tailed distributions. By virtue of
+this, difficulties in sampling $\nu$ according to this prior distribution do not
+invalidate the results of the model, as long as there is coverage at both small
+and large values of $\nu$. In Section \ref{sec:results.t}, we shall discuss sampling issues in
+greater detail.
+
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}
 
@@ -464,8 +472,28 @@ histogram. We can compare how well different sampling models deal with model
 misspecifcation by building the rank statistic histogram and assessing the
 deviation from uniformity.
 
+As our priors are defined in a scaled space, our simulation-based calibration
+tests are also conducted in this scaled space; in this way, we are solely
+testing the performance of the MCMC models, and not of the scaling before
+fitting the models.
+
 \subsection{Fixed-value calibration}
 \label{sec:methods.fixed}
+
+For our fixed-value calibration tests, we simulate datasets from known models
+with true fixed values for our regression parameters. The purpose of these tests
+is to demonstrate accurate recovery of these values, and to compare with the
+results given when using normal distributions.
+
+We generate multiple datasets with the same ground-truth parameters to verify
+the results across multiple runs, producing plots of the cumulative distribution
+function of the posterior medians calculated by the sampler. In each instance,
+full specifications of the data models are specified in Appendix
+\ref{sec:data-models}.
+
+We aim to do a full end-to-end test of our inference pipeline in the fixed-value
+calibration tests; therefore, these datasets are generated in the unscaled space
+and are a test not only of the MCMC model but also of the scaling.
 
 % Normally the next section describes the techniques the authors used.
 % It is frequently split into subsections, such as Section~\ref{sec:maths} below.
@@ -516,16 +544,19 @@ reproduces the datasets in this section is available online\footnotemark.
     \label{fig:results.t.sbc}
 \end{figure*}
 
-Our first test illustrates a dataset that matches our model perfectly, with $N =
-20$ datapoints drawn from the following distribution:
-\begin{align}
-    x_i \sim&\; \mathcal N (\mu = 2, \sigma = 2) \\
-    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1) \\
-    \log_{10} \sigma_{x, i} \sim&\; \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} \sim&\; \mathcal N (\mu = -0.7, \sigma = 0.1) \\
-    \hat{x}_i \sim&\; t_{3} (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i \sim&\; t_{3} (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{align}
+For our first test, we start with a dataset that matches our model perfectly
+(i.e.\ $\mathcal P_{\text{int}} = \mathcal P_{\text{obs}} = t_\nu$). The
+simulation-based calibration tests show that, while we are accurately inferring
+$\alpha$ and $\boldsymbol{\beta}$, our inference for $\sigma_{int}$ and $\nu$ is
+biased. The bias in $\nu$ arises because of the lack of identifiability for
+larger values of $\nu$, which biases the MCMC estimates of $\nu$ to be lower
+than the true values. The bias in $\sigma$ is a byproduct of this - if $\nu$ is
+underestimated, then $\sigma$ will be underestimated as well.
+
+For our fixed-value tests, we drew $N = 20$ datapoints with $\{\alpha, \beta,
+\sigma_{\rm int}, \nu\} = \{3, 2, 0.1, 3\}$; the full model used to generate the
+data is specified in Appendix \ref{sec:data-models.t}.
+
 
 The chosen value of $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
 \approx 5.8 \%$.
@@ -599,22 +630,13 @@ distributions to illustrate that:
     \item $t$-cup is able to give less biased results when an extreme outlier is
           introduced.
 \end{enumerate}
-
-We generated a dataset of $N = 12$ points using the model:
-\begin{alignat}{1}
-    x_i& \sim \mathcal N (\mu = 5, \sigma = 3) \\
-    y_i& \sim
-    \begin{cases}
-        \mathcal N (\mu = 3 + 2 x_i - 10, \sigma = 0.2) &
-            \text{for the second-largest $x_i$} \\
-        \mathcal N (\mu = 3 + 2 x_i, \sigma = 0.2) &
-            \text{otherwise} \\
-    \end{cases}\\
-    \log_{10} \sigma_{x, i}& \sim \mathcal N (\mu = -0.5, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -0.3, \sigma = 0.1) \\
-    \hat{x}_i& \sim \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{alignat}
+A dataset of $N = 12$ points was generated with $\{\alpha, \beta, \sigma_{\rm
+int}\} = \{3, 2, 0.2\}$, and one of the points was modified to be a
+$\sim20~\sigma$ outlier (the full generative model is given in Appendix
+\ref{sec:data-models.outlier}). While such an extreme outlier can easily be
+spotted and removed, the purpose here is to demonstrate that $t$-cup does not
+require this to give {\color{red} unbiased} estimates of the regression
+parameters.
 
 \begin{figure*}
     \includegraphics[width=\linewidth]{graphics/regression_outlier.pdf}
@@ -682,43 +704,22 @@ the interval for $x$\% of parameters and runs. }
 \subsection{2D Normal Mixture Model with outlier fraction}
 \label{sec:results.gmm}
 
-This test examines how the model performs when there is a significant fraction
-of outliers. The intrinsic scatter distribution is a mixture of two normal
-distributions with zero mean; 90\% of points are drawn from a core distribution
-with standard deviation $\sigma_\textrm{int}$, and 10\% of points are drawn from
-an outlier distribution with standard deviation $10 \sigma_\textrm{int}$. We
-introduce the parameter $O_i$ to indicate whether the $i$th datapoint is
-drawn from the core distribution (in which case, $O_i = 0$) or from the outlier
-distribution (for which $O_i = 1$).
+This test is designed to further explore how $t$-cup performs when the model is
+misspecified. In this case, we are looking at a normally-distributed population
+which has a 10\% contamination rate with another normally-distributed population
+of the same mean but 10 times the standard deviation. Equivalently, this test
+can be thought of as investigating how the model performs when there is a
+significant fraction of outliers.
 
-We generated a dataset of $N = 200$ points using the model:
-\begin{alignat}{1}
-    \boldsymbol{x}_i& \sim
-    \begin{cases}
-        \mathcal N \left(
-            \mu = \begin{pmatrix} -3 \\ 2 \end{pmatrix},
-            \sigma = \begin{pmatrix} 0.5 & -1 \\ -1 & 4 \end{pmatrix}
-        \right) &
-            1 \leqslant i \leqslant 140 \\
-        \mathcal N \left(
-            \mu = \begin{pmatrix} -1 \\ -1 \end{pmatrix},
-            \sigma = \begin{pmatrix} 1 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}
-        \right) &
-            140 < i \leqslant 200 \\
-    \end{cases}\\
-    O_i& \sim \mathrm{Bernoulli}(0.1) \\
-    y_i& \sim
-    \begin{cases}
-        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 0.4) &
-            O_i = 0 \\
-        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 4.0) &
-            O_i = 1 \\
-    \end{cases}\\
-    \Sigma_{x, i}& \sim \mathcal W_2 (\boldsymbol{V} = 0.1 \mathbb{I}, n = 3) \\
-    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \sigma = \Sigma_{x, i}) \\
-    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{alignat}
+The intrinsic scatter distribution $\mathcal P_{\rm int}$ is a mixture of two
+normal distributions with zero mean; 90\% of points are drawn from a core
+distribution with standard deviation $\sigma_\textrm{int}$, and 10\% of points
+are drawn from an outlier distribution with standard deviation $10
+\sigma_\textrm{int}$. The observation distribution $\mathcal P_{\rm obs}$ is a
+normal distribution. For fixed-value tests, the true values of the regression
+parameters were fixed to $\{\alpha, \beta_0, \beta_1, \sigma_{\rm int}\} = \{2,
+3, 1, 0.4\}$. The full generative model for fixed-value tests is given in
+Appendix \ref{sec:data-models.gmm}.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/corner_gaussian_mix.pdf}
@@ -734,20 +735,16 @@ We generated a dataset of $N = 200$ points using the model:
 \subsection{Laplace-distributed data}
 \label{sec:results.laplace}
 
-For this test, we compare model performance on a symmetric, heavy-tailed
+For this test, we compare model performance on a symmetric, heavy-tailed, cuspy
 distribution that does not fall into the family of $t$-distributions. Therefore,
-we use a Laplace distribution as the noise distribution, giving an example of
-performance under explicit model misspecification.
+we use a Laplace distribution as $\mathcal P_{\rm int}$, giving another example
+of performance under explicit model misspecification.
 
-We generate $N = 25$ datapoints under the following model:
-\begin{eqnarray}
-    x_i &\sim& \mathcal U (-5, 5) \\
-    y_i &\sim& \mathrm{Laplace} (\mu = -1 + 0.8 x_i, b = 0.2) \\
-    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{eqnarray}
+We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
+(i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$) and normally distributed observation
+noise (i.e.\ $\mathcal P_{\rm obs} = \mathcal N$). For the fixed-value tests, we
+set $\{\alpha, \beta, \sigma_{\rm int}\} = \{-1, 0.8, 0.2\}$. The full
+generative model can be found in Appendix \ref{sec:data-models.laplace}.
 
 % \begin{figure}
 %     \includegraphics[width=\columnwidth]{example-image-a}
@@ -788,18 +785,13 @@ value was contained within the interval for $x$\% of parameters and runs.  }
 \subsection{Lognormally-distributed data}
 \label{sec:results.lognormal}
 
-For the final test in this section, we used an asymmetric distribution to assess
-performance of the model in this regime.
+For the final test in this section, we look at model performance for an
+intrinsic scatter distribution that is asymmetric. For this reason, we choose
+$\mathcal P_{\rm int}$ to be a lognormal distribution.
 
-We generate $N = 25$ datapoints under the following model:
-\begin{eqnarray}
-    x_i &\sim& \mathcal U (-5, 5) \\
-    \log_{10} y_i &\sim& \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
-    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{eqnarray}
+For the fixed-value datasets, generate $N = 25$ datapoints with $\{\alpha,
+\beta\} = \{4, 8\}$; the full generative model is given in Appendix
+\ref{sec:data-models.lognormal}.
 
 % \begin{figure}
 %     \includegraphics[width=\columnwidth]{example-image-a}
@@ -962,7 +954,7 @@ ladder.
 
 The authors would like to thank Stephen Feeney, Boris Leistedt, Justin Alsing,
 Tamas Budavari and Chad Schafer for useful conversations. WM is supported by
-STFC grant {\color{red} ***fill in here***}
+STFC grant ST/T506151/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Data Availability}
@@ -1179,6 +1171,108 @@ This prior was chosen for two reasons:
           at unrealistically high outlier fractions, in contrast with the prior
           in \citet{Feeney:2018}.
 \end{itemize}
+
+\section{Fixed-value calibration data models}
+\label{sec:data-models}
+
+In this section, we fully specify the dataset models used for fixed-value
+calibration tests in Section \ref{sec:results}.
+
+\subsection{\textit{t}-distributed data}
+\label{sec:data-models.t}
+
+The fixed-value test datasets have $N = 20$ datapoints drawn from the following
+distribution:
+\begin{align}
+    x_i \sim&\; \mathcal N (\mu = 2, \sigma = 2) \\
+    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1) \\
+    \log_{10} \sigma_{x, i} \sim&\; \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} \sim&\; \mathcal N (\mu = -0.7, \sigma = 0.1) \\
+    \hat{x}_i \sim&\; t_{3} (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i \sim&\; t_{3} (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{align}
+
+\subsection{Normally-distributed data with an outlier}
+\label{sec:data-models.outlier}
+
+We generated datasets of $N = 12$ points using the model:
+\begin{alignat}{1}
+    x_i& \sim \mathcal N (\mu = 5, \sigma = 3) \\
+    y_i& \sim
+    \begin{cases}
+        \mathcal N (\mu = 3 + 2 x_i - 10, \sigma = 0.2) &
+            \text{for the second-largest $x_i$} \\
+        \mathcal N (\mu = 3 + 2 x_i, \sigma = 0.2) &
+            \text{otherwise} \\
+    \end{cases}\\
+    \log_{10} \sigma_{x, i}& \sim \mathcal N (\mu = -0.5, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -0.3, \sigma = 0.1) \\
+    \hat{x}_i& \sim \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{alignat}
+
+\subsection{2D Normal Mixture Model}
+\label{sec:data-models.gmm}
+
+We introduce the parameter $O_i$ to indicate whether the $i$th datapoint is
+drawn from the core distribution (in which case, $O_i = 0$) or from the outlier
+distribution (for which $O_i = 1$).
+
+We generated a dataset of $N = 200$ points using the model:
+\begin{alignat}{1}
+    \boldsymbol{x}_i& \sim
+    \begin{cases}
+        \mathcal N \left(
+            \mu = \begin{pmatrix} -3 \\ 2 \end{pmatrix},
+            \sigma = \begin{pmatrix} 0.5 & -1 \\ -1 & 4 \end{pmatrix}
+        \right) &
+            1 \leqslant i \leqslant 140 \\
+        \mathcal N \left(
+            \mu = \begin{pmatrix} -1 \\ -1 \end{pmatrix},
+            \sigma = \begin{pmatrix} 1 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}
+        \right) &
+            140 < i \leqslant 200 \\
+    \end{cases}\\
+    O_i& \sim \mathrm{Bernoulli}(0.1) \\
+    y_i& \sim
+    \begin{cases}
+        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 0.4) &
+            O_i = 0 \\
+        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 4.0) &
+            O_i = 1 \\
+    \end{cases}\\
+    \Sigma_{x, i}& \sim \mathcal W_2 (\boldsymbol{V} = 0.1 \mathbb{I}, n = 3) \\
+    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \sigma = \Sigma_{x, i}) \\
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{alignat}
+
+\subsection{Laplace-distributed data}
+\label{sec:data-models.laplace}
+
+We generate $N = 25$ datapoints under the following model:
+\begin{eqnarray}
+    x_i &\sim& \mathcal U (-5, 5) \\
+    y_i &\sim& \mathrm{Laplace} (\mu = -1 + 0.8 x_i, b = 0.2) \\
+    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{eqnarray}
+
+\subsection{Lognormally-distributed data}
+\label{sec:data-models.lognormal}
+
+We generate $N = 25$ datapoints under the following model:
+\begin{eqnarray}
+    x_i &\sim& \mathcal U (-5, 5) \\
+    \log_{10} y_i &\sim& \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
+    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+\end{eqnarray}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

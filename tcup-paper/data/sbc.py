@@ -1,26 +1,33 @@
 import numpy as np
 import scipy.stats as sps
 
+
 def draw_x_true(rng, N, D, K, theta_mix, mu_mix, sigma_mix):
     n_mix = sps.multinomial(N, theta_mix).rvs(random_state=rng).flatten()
     x_true = []
     for component_size, mu, sigma in zip(n_mix, mu_mix, sigma_mix):
-        component = sps.multivariate_normal(mu, sigma).rvs(size=component_size, random_state=rng)
+        component = sps.multivariate_normal(mu, sigma).rvs(
+            size=component_size, random_state=rng
+        )
         x_true.append(component.reshape(component_size, D))
     return np.concatenate(x_true)
+
 
 def draw_params_from_prior(rng, dim_x=1):
     alpha_scaled = sps.norm(scale=3).rvs(random_state=rng)
     beta_scaled = sps.norm(scale=3).rvs(size=dim_x, random_state=rng)
-    gamma_scaled = sps.gamma(a=2, scale=1/2).rvs(random_state=rng)
-    nu = sps.invgamma(a=3, scale=10).rvs(random_state=rng)
+    gamma_scaled = sps.gamma(a=2, scale=1 / 2).rvs(random_state=rng)
+    nu = 1 + sps.gamma(a=2).rvs(random_state=rng)
     return alpha_scaled, beta_scaled, gamma_scaled, nu
+
 
 def gen_dataset(seed, x_true_params, dist_params):
     rng = np.random.default_rng(seed)
     N = x_true_params["N"]
     dim_x = x_true_params["D"]
-    alpha_scaled, beta_scaled, sigma_scaled, nu = draw_params_from_prior(rng, dim_x)
+    alpha_scaled, beta_scaled, sigma_scaled, nu = draw_params_from_prior(
+        rng, dim_x
+    )
     x_true = draw_x_true(rng, **x_true_params)
 
     # Generate latent y
@@ -105,7 +112,9 @@ def gen_dataset(seed, x_true_params, dist_params):
 
     # Observe data
     # Generate observational errors
-    cov_x_scaled = sps.wishart.rvs(dim_x + 1, np.diag([0.1] * dim_x), size=N, random_state=rng)
+    cov_x_scaled = sps.wishart.rvs(
+        dim_x + 1, np.diag([0.1] * dim_x), size=N, random_state=rng
+    )
     dy_scaled = 10 ** sps.norm(-1, 0.1).rvs(size=N, random_state=rng)
 
     match dist_params:
@@ -114,16 +123,28 @@ def gen_dataset(seed, x_true_params, dist_params):
             **other_params,
         }:
             eps_x = np.array(
-                [sps.multivariate_t.rvs([0] * dim_x, cov, random_state=rng) for cov in cov_x_scaled]
+                [
+                    sps.multivariate_t.rvs([0] * dim_x, cov, random_state=rng)
+                    for cov in cov_x_scaled
+                ]
             )
             x_scaled = x_true + eps_x
-            y_scaled = sps.t(nu, loc=y_true, scale=dy_scaled).rvs(random_state=rng)
+            y_scaled = sps.t(nu, loc=y_true, scale=dy_scaled).rvs(
+                random_state=rng
+            )
         case _:
             eps_x = np.array(
-                [sps.multivariate_normal.rvs([0] * dim_x, cov, random_state=rng) for cov in cov_x_scaled]
+                [
+                    sps.multivariate_normal.rvs(
+                        [0] * dim_x, cov, random_state=rng
+                    )
+                    for cov in cov_x_scaled
+                ]
             )
             x_scaled = x_true + eps_x
-            y_scaled = sps.norm(loc=y_true, scale=dy_scaled).rvs(random_state=rng)
+            y_scaled = sps.norm(loc=y_true, scale=dy_scaled).rvs(
+                random_state=rng
+            )
 
     data = {
         # Data

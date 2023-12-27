@@ -29,12 +29,12 @@ if __name__ == "__main__":
     # }
 
     x_true_params = {
-        "N": 12,
+        "N": 100,
         "D": 2,
         "K": 1,
         "theta_mix": [1],
         "mu_mix": [[0, 0]],
-        "sigma_mix": [[[1, -0.1], [-0.1, 1]]]
+        "sigma_mix": [[[1, -0.1], [-0.1, 1]]],
     }
 
     if args.t_dist:

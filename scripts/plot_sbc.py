@@ -29,7 +29,7 @@ def pool_bins(bins, pooling_factor):
         return pool_bins(new_bins, pooling_factor // 2)
 
 
-def labeller(var_name):
+def get_latex_var(var_name):
     match var_name:
         case "alpha_scaled":
             latex_var = r"\tilde{\alpha}"
@@ -42,6 +42,11 @@ def labeller(var_name):
         case "nu":
             latex_var = r"\nu"
 
+    return latex_var
+
+
+def labeller(var_name):
+    latex_var = get_latex_var(var_name)
     return rf"Normalised rank statistic $r\left({latex_var}\right)$"
 
 
@@ -67,6 +72,13 @@ if __name__ == "__main__":
         "beta_scaled.1",
         "sigma_scaled",
         "nu",
+    ]
+    var_cdfs = [
+        sps.norm(scale=3).cdf,
+        sps.norm(scale=3).cdf,
+        sps.norm(scale=3).cdf,
+        sps.gamma(a=2, scale=1 / 2).cdf,
+        sps.gamma(a=2).cdf,
     ]
     if not (args.tcup and args.t_dist):
         var_names.remove("nu")
@@ -147,6 +159,11 @@ if __name__ == "__main__":
             samples = samples[::thinning_factor][:L]
             assert samples.shape == (L,), f"{samples.shape=} != {L}"
 
+            # # For nu, invert to get 1/nu
+            # if var_name == "nu":
+            #     samples = 1 / samples
+            #     dataset_value = 1 / dataset_value
+
             # Calculate rank statistic and add to histogram
             rank = (samples < dataset_value).sum()
             curr_bins[rank] += 1
@@ -169,7 +186,7 @@ if __name__ == "__main__":
         )
 
     apply_matplotlib_style()
-    for var_name, curr_bins in zip(var_names, bins):
+    for var_name, curr_bins, cdf in zip(var_names, bins, var_cdfs):
         pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
         for lower, upper in confidence_intervals:
             plt.fill_between([-0.05, 1.05], lower, upper, alpha=0.1, color="k")
@@ -186,4 +203,35 @@ if __name__ == "__main__":
         plt.xlim(-0.02, 1.02)
         plt.yticks([])
         plt.savefig(f"{plots_path}{var_name}.pdf")
+        plt.close()
+
+        # Produce a residual plot to visualise which regions are problematic
+        data = np.array(ranks[var_name])
+        plt.scatter(data[:, 0], data[:, 2] - data[:, 0], c=data[:, 1] / L)
+        cbar = plt.colorbar()
+        latex_var = get_latex_var(var_name)
+        plt.xlabel(rf"Dataset ${latex_var}$")
+        plt.ylabel(rf"Residual $\hat{{{latex_var}}} - {latex_var}$")
+        cbar.set_label(labeller(var_name))
+        plt.savefig(f"{plots_path}{var_name}_residuals.pdf")
+        plt.close()
+
+        # Produce a plot of CDF(true_val) vs CDF(median_value)
+        data = np.array(ranks[var_name])
+        plt.scatter(cdf(data[:, 0]), cdf(data[:, 2]), c=data[:, 1] / L)
+        cbar = plt.colorbar()
+        latex_var = get_latex_var(var_name)
+        plt.xlabel(rf"CDF of dataset ${latex_var}$")
+        plt.ylabel(rf"CDF of median $\hat{{{latex_var}}}$")
+        plt.text(
+            0.02,
+            0.98,
+            f"R = {sps.pearsonr(cdf(data[:, 0]), cdf(data[:, 2])).statistic:.3f}",
+            horizontalalignment="left",
+            verticalalignment="top",
+        )
+        plt.xlim((0, 1))
+        plt.ylim((0, 1))
+        cbar.set_label(labeller(var_name))
+        plt.savefig(f"{plots_path}{var_name}_correlation.pdf")
         plt.close()

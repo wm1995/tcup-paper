@@ -5,11 +5,11 @@
 VENV := venv
 
 # List of models to be tested
-MODELS := tcup ncup fixed3
+MODELS := tcup
 
 # SBC dataset parameters
 NUM_SBC_DATASETS := 400
-SBC_DATASETS := t fixed normal outlier gaussian_mix laplace lognormal
+SBC_DATASETS := t
 SBC_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also nu but only for tcup/t
 
 # Fixed run parameters
@@ -80,25 +80,25 @@ sbc-datasets: ${SBC_DATASETS_JSON}
 ${SBC_DATA_DIRS}:
 	-mkdir -p $@
 
-data/sbc/t/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/t/
+data/sbc/t/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/t
 	${PYTHON} scripts/gen_sbc_dataset.py --t-dist --seed $*
 
-data/sbc/fixed/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/fixed/
+data/sbc/fixed/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/fixed
 	${PYTHON} scripts/gen_sbc_dataset.py --fixed 3 --seed $*
 
-data/sbc/normal/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/normal/
+data/sbc/normal/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/normal
 	${PYTHON} scripts/gen_sbc_dataset.py --normal --seed $*
 
-data/sbc/outlier/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/outlier/
+data/sbc/outlier/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/outlier
 	${PYTHON} scripts/gen_sbc_dataset.py --outlier --seed $*
 
-data/sbc/gaussian_mix/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/gaussian_mix/
+data/sbc/gaussian_mix/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/gaussian_mix
 	${PYTHON} scripts/gen_sbc_dataset.py --gaussian-mix --seed $*
 
-data/sbc/laplace/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/laplace/
+data/sbc/laplace/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/laplace
 	${PYTHON} scripts/gen_sbc_dataset.py --laplace --seed $*
 
-data/sbc/lognormal/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/lognormal/
+data/sbc/lognormal/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/lognormal
 	${PYTHON} scripts/gen_sbc_dataset.py --lognormal --seed $*
 
 ################################################################################

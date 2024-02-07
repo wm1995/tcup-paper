@@ -5,6 +5,7 @@ import arviz as az
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as sps
+from tcup.utils import sigma_68
 from tcup_paper.data.io import load_dataset
 from tcup_paper.plot.style import apply_matplotlib_style
 
@@ -41,6 +42,8 @@ def get_latex_var(var_name):
             latex_var = r"\tilde{\sigma}"
         case "nu":
             latex_var = r"\nu"
+        case "sigma_68":
+            latex_var = r"\tilde{\sigma}_{68}"
 
     return latex_var
 
@@ -72,6 +75,7 @@ if __name__ == "__main__":
         "beta_scaled.1",
         "sigma_scaled",
         "nu",
+        "sigma_68",
     ]
     var_cdfs = [
         sps.norm(scale=3).cdf,
@@ -79,9 +83,11 @@ if __name__ == "__main__":
         sps.cauchy().cdf,
         sps.gamma(a=2, scale=1 / 2).cdf,
         sps.invgamma(a=3, scale=10).cdf,
+        None,
     ]
     if not (args.tcup and args.t_dist):
         var_names.remove("nu")
+        var_names.remove("sigma_68")
 
     if args.tcup:
         model = "tcup"
@@ -151,6 +157,11 @@ if __name__ == "__main__":
                     .flatten()
                 )
                 dataset_value = info[raw_var_name][var_dim]
+            elif var_name == "sigma_68":
+                nu = mcmc.posterior["nu"].values.flatten()
+                sigma = mcmc.posterior["sigma_scaled"].values.flatten()
+                samples = sigma_68(nu) * sigma
+                dataset_value = sigma_68(info["nu"]) * info["sigma_scaled"]
             else:
                 samples = mcmc.posterior[var_name].values.flatten()
                 dataset_value = info[var_name]
@@ -204,6 +215,9 @@ if __name__ == "__main__":
         plt.yticks([])
         plt.savefig(f"{plots_path}{var_name}.pdf")
         plt.close()
+
+        if cdf is None:
+            continue
 
         # Produce a residual plot to visualise which regions are problematic
         data = np.array(ranks[var_name])

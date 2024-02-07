@@ -75,10 +75,10 @@ if __name__ == "__main__":
     ]
     var_cdfs = [
         sps.norm(scale=3).cdf,
-        sps.norm(scale=3).cdf,
-        sps.norm(scale=3).cdf,
+        sps.cauchy().cdf,
+        sps.cauchy().cdf,
         sps.gamma(a=2, scale=1 / 2).cdf,
-        sps.gamma(a=2).cdf,
+        sps.invgamma(a=3, scale=10).cdf,
     ]
     if not (args.tcup and args.t_dist):
         var_names.remove("nu")

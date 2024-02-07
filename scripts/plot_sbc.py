@@ -140,12 +140,12 @@ if __name__ == "__main__":
             .to_array()
             .min()
         )
-        thinning_factor = int(np.ceil(mcmc.posterior.num_samples / min_ess))
-        if mcmc.posterior.num_samples // thinning_factor < L:
+        thinning_factor = int(np.ceil(len(mcmc.posterior.draw) / min_ess))
+        if len(mcmc.posterior.draw) // thinning_factor < L:
             # In this case, the thinning prescribed by Talts doesn't leave
             # enough samples to actually do SBC, so use this prescription that's
             # guaranteed to work
-            thinning_factor = mcmc.posterior.num_samples // L
+            thinning_factor = len(mcmc.posterior.draw) // L
 
         for var_name, curr_bins in zip(var_names, bins):
             if "." in var_name:

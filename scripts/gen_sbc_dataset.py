@@ -19,23 +19,23 @@ if __name__ == "__main__":
     distribution.add_argument("--lognormal", action="store_true")
     args = parser.parse_args()
 
-    # x_true_params = {
-    #     "N": 12,
-    #     "D": 2,
-    #     "K": 2,
-    #     "theta_mix": [0.75, 0.25],
-    #     "mu_mix": [[0.5, -0.5], [-1.5, 1.5]],
-    #     "sigma_mix": [[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]]
-    # }
-
     x_true_params = {
-        "N": 100,
+        "N": 12,
         "D": 2,
-        "K": 1,
-        "theta_mix": [1],
-        "mu_mix": [[0, 0]],
-        "sigma_mix": [[[1, -0.1], [-0.1, 1]]],
+        "K": 2,
+        "theta_mix": [0.75, 0.25],
+        "mu_mix": [[0.5, -0.5], [-1.5, 1.5]],
+        "sigma_mix": [[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]]
     }
+
+    # x_true_params = {
+    #     "N": 100,
+    #     "D": 2,
+    #     "K": 1,
+    #     "theta_mix": [1],
+    #     "mu_mix": [[0, 0]],
+    #     "sigma_mix": [[[1, -0.1], [-0.1, 1]]],
+    # }
 
     if args.t_dist:
         dist_params = {

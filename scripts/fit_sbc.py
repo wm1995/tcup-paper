@@ -1,14 +1,29 @@
 #!/usr/bin/env python
 import argparse
 import arviz as az
+import jax
+import jax.numpy as jnp
 import numpy as np
-import stan
-from tcup.stan import _get_model_src
+import numpyro
+import numpyro.distributions as dist
+from tcup.numpyro import model_builder
 from tcup_paper.data.io import load_dataset
 
 MAX_SAMPLES = 200000
 SAFETY_MARGIN = 1.1
 PARAMS_OF_INTEREST = ["alpha_scaled", "beta_scaled", "sigma_scaled", "nu"]
+
+def mixture_prior():
+    weights = jnp.array([0.75, 0.25])
+    means = jnp.array([[0.5, -0.5], [-1.5, 1.5]])
+    vars = jnp.array([[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]])
+    return dist.MixtureSameFamily(
+        dist.CategoricalProbs(weights),
+        dist.MultivariateNormal(
+            loc=means,
+            covariance_matrix=vars,
+        ),
+    )
 
 if __name__ == "__main__":
     # Parse arguments
@@ -27,55 +42,40 @@ if __name__ == "__main__":
 
     # Fit model
     if args.normal:
-        model_src = _get_model_src("ncup")
-        PARAMS_OF_INTEREST.remove("nu")
+        raise NotImplementedError("Not implemented for numpyro yet")
     elif args.fixed:
-        model_src = _get_model_src("fixed")
-        data["nu"] = args.fixed
-        PARAMS_OF_INTEREST.remove("nu")
-    else:
-        # model_src = _get_model_src("tcup", nu_prior="pareto(1, 4)")
-        model_src = _get_model_src(
-            "tcup",
-            reparam={
-                "params": "real<lower=0> nu_less_one;",
-                "transformed_params": "real nu = 1 + nu_less_one;",
-                "half_nu": "real half_nu = nu / 2;",
-                "prior": "nu_less_one ~ gamma(2, 1);",
-            },
+        raise NotImplementedError("Not implemented for numpyro yet")
+
+    rng_key = jax.random.PRNGKey(0)
+    tcup_model = model_builder(mixture_prior())
+    kernel = numpyro.infer.NUTS(tcup_model)
+    mcmc = numpyro.infer.MCMC(kernel, num_chains=1, num_warmup=1000, num_samples=1000)
+
+    samples = None
+    while True:
+        mcmc.run(rng_key, x_scaled=data["x_scaled"], y_scaled=data["y_scaled"], cov_x_scaled=data["cov_x_scaled"], dy_scaled=data["dy_scaled"],)
+        new_samples = mcmc.get_samples(group_by_chain=True)
+
+        if samples is None:
+            samples = new_samples
+        else:
+            for key, value in new_samples.items():
+                samples[key] = np.concatenate([samples[key], value], axis=1)
+
+        min_ess = (
+            az.ess(samples, var_names=PARAMS_OF_INTEREST).to_array().min().item()
         )
 
-    for seed in range(20):
-        sampler = stan.build(model_src, data, random_seed=seed)
-        n_samples = 5000
-
-        for repeats in range(5):
-            fit = sampler.sample(
-                num_samples=n_samples,
-                num_chains=1,
-            )
-
-            min_ess = (
-                az.ess(fit, var_names=PARAMS_OF_INTEREST).to_array().min()
-            )
-
-            if min_ess > 1023:
-                break
-            else:
-                n_samples = n_samples * (1023 / min_ess) * SAFETY_MARGIN
-                n_samples = int(np.ceil(n_samples))
-                if n_samples > MAX_SAMPLES:
-                    # If the sampling will take too long, give up
-                    break
-
-        mcmc = az.from_pystan(fit)
-
         if min_ess > 1023:
-            # Successful run - save output
-            mcmc.to_netcdf(args.outfile)
             break
-        else:
-            # Chain length maxed out, save for diagnostic purposes
-            filename = ".".join(args.outfile.split(".")[:-1])
-            filename += f"_run_{sampler.random_seed}.nc"
-            mcmc.to_netcdf(filename)
+
+        curr_samples = samples["alpha_scaled"].shape[1]
+        required_samples = np.ceil(curr_samples * 1023 / min_ess).astype(int) - curr_samples
+        print(min_ess, curr_samples, required_samples)
+        mcmc.num_samples = np.clip(required_samples, 1000, 10000)
+        mcmc.post_warmup_state = mcmc.last_state
+        rng_key = mcmc.post_warmup_state.rng_key
+
+    mcmc = az.convert_to_inference_data(samples)
+
+    mcmc.to_netcdf(args.outfile)

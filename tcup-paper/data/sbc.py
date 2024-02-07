@@ -15,10 +15,10 @@ def draw_x_true(rng, N, D, K, theta_mix, mu_mix, sigma_mix):
 
 def draw_params_from_prior(rng, dim_x=1):
     alpha_scaled = sps.norm(scale=3).rvs(random_state=rng)
-    beta_scaled = sps.norm(scale=3).rvs(size=dim_x, random_state=rng)
-    gamma_scaled = sps.gamma(a=2, scale=1 / 2).rvs(random_state=rng)
-    nu = 1 + sps.gamma(a=2).rvs(random_state=rng)
-    return alpha_scaled, beta_scaled, gamma_scaled, nu
+    beta_scaled = sps.cauchy().rvs(size=dim_x, random_state=rng)
+    sigma_scaled = sps.gamma(a=2, scale=1 / 2).rvs(random_state=rng)
+    nu = sps.invgamma(a=3, scale=10).rvs(random_state=rng)
+    return alpha_scaled, beta_scaled, sigma_scaled, nu
 
 
 def gen_dataset(seed, x_true_params, dist_params):

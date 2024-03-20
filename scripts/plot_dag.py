@@ -29,7 +29,7 @@ if __name__ == "__main__":
     pgm.add_node("alpha", r"$\alpha$", 3, 3, **param_style)
     pgm.add_node("beta", r"$\beta^j$", 4.5, 3, **param_style)
     pgm.add_node("sigma_int", r"$\sigma_{\rm int}$", 1.5, 3, **param_style)
-    pgm.add_node("t", r"$t$", 0.5, 2, **param_style)
+    pgm.add_node("t", r"$\nu$", 0.5, 2, **param_style)
     # pgm.add_node("xi", r"$\xi$", 6, 2.5, **param_style)
 
     # Latent variables.
@@ -55,8 +55,6 @@ if __name__ == "__main__":
     pgm.add_edge("y", "y_obs")
     pgm.add_edge("x", "x_obs")
     pgm.add_edge("t", "eps")
-    pgm.add_edge("t", "y_obs")
-    pgm.add_edge("t", "x_obs")
     pgm.add_edge("cov_x", "x_obs")
     pgm.add_edge("sigma_y", "y_obs")
 

@@ -13,17 +13,21 @@ MAX_SAMPLES = 200000
 SAFETY_MARGIN = 1.1
 PARAMS_OF_INTEREST = ["alpha_scaled", "beta_scaled", "sigma_scaled", "nu"]
 
-def mixture_prior():
-    weights = jnp.array([0.75, 0.25])
-    means = jnp.array([[0.5, -0.5], [-1.5, 1.5]])
-    vars = jnp.array([[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]])
-    return dist.MixtureSameFamily(
-        dist.CategoricalProbs(weights),
-        dist.MultivariateNormal(
-            loc=means,
-            covariance_matrix=vars,
-        ),
-    )
+def mixture_prior(weights, means, vars):
+    if weights.shape == (1,):
+        return dist.MultivariateNormal(
+            loc=means[0],
+            covariance_matrix=vars[0],
+        )
+    else:
+        return dist.MixtureSameFamily(
+            dist.CategoricalProbs(weights),
+            dist.MultivariateNormal(
+                loc=means,
+                covariance_matrix=vars,
+            ),
+        )
+
 
 if __name__ == "__main__":
     # Parse arguments
@@ -47,7 +51,12 @@ if __name__ == "__main__":
         raise NotImplementedError("Not implemented for numpyro yet")
 
     rng_key = jax.random.PRNGKey(0)
-    tcup_model = model_builder(mixture_prior())
+    true_x_prior = mixture_prior(
+        weights=data["theta_mix"],
+        means=data["mu_mix"],
+        vars=data["sigma_mix"],
+    )
+    tcup_model = model_builder(true_x_prior)
     kernel = numpyro.infer.NUTS(tcup_model)
     mcmc = numpyro.infer.MCMC(kernel, num_chains=1, num_warmup=1000, num_samples=1000)
 

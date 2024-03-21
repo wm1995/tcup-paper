@@ -7,6 +7,7 @@ import numpy as np
 import scipy.stats as sps
 from tcup.utils import sigma_68
 from tcup_paper.data.io import load_dataset
+from tcup_paper.model import prior
 from tcup_paper.plot.style import apply_matplotlib_style
 
 L = 1023
@@ -78,11 +79,11 @@ if __name__ == "__main__":
         "sigma_68",
     ]
     var_cdfs = [
-        sps.norm(scale=3).cdf,
-        sps.cauchy().cdf,
-        sps.cauchy().cdf,
-        sps.gamma(a=2, scale=1 / 2).cdf,
-        sps.invgamma(a=3, scale=10).cdf,
+        prior.alpha_prior.cdf,
+        prior.beta_prior.cdf,
+        prior.beta_prior.cdf,
+        prior.sigma_prior.cdf,
+        prior.nu_prior.cdf,
         None,
     ]
     if not (args.tcup and args.t_dist):

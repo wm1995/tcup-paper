@@ -85,6 +85,7 @@ if __name__ == "__main__":
         mcmc.post_warmup_state = mcmc.last_state
         rng_key = mcmc.post_warmup_state.rng_key
 
-    mcmc = az.convert_to_inference_data(samples)
+        mcmc_output = az.convert_to_inference_data(samples)
+        mcmc_output.to_netcdf(f"{args.outfile}.checkpoint")
 
-    mcmc.to_netcdf(args.outfile)
+    mcmc_output.to_netcdf(args.outfile)

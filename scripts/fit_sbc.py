@@ -58,7 +58,7 @@ if __name__ == "__main__":
     )
     tcup_model = model_builder(true_x_prior)
     kernel = numpyro.infer.NUTS(tcup_model)
-    mcmc = numpyro.infer.MCMC(kernel, num_chains=1, num_warmup=1000, num_samples=1000)
+    mcmc = numpyro.infer.MCMC(kernel, num_chains=1, num_warmup=1000, num_samples=1023)
 
     samples = None
     while True:

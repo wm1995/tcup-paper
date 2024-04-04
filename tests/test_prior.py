@@ -29,7 +29,7 @@ def tcup_samples():
     [
         ("alpha_scaled", prior.alpha_prior),
         ("beta_scaled", prior.beta_prior),
-        ("sigma_scaled", prior.sigma_prior),
+        ("sigma_68_scaled", prior.sigma_prior),
         ("nu", prior.nu_prior),
     ])
 def test_prior_dist(tcup_samples, param, prior):

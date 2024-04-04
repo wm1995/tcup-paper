@@ -12,7 +12,7 @@ import xarray
 
 MAX_SAMPLES = 200000
 SAFETY_MARGIN = 1.1
-PARAMS_OF_INTEREST = ["alpha_scaled", "beta_scaled", "sigma_scaled", "nu"]
+PARAMS_OF_INTEREST = ["alpha_scaled", "beta_scaled", "sigma_68_scaled", "nu"]
 
 def mixture_prior(weights, means, vars):
     if weights.shape == (1,):

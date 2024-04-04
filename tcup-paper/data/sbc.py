@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats as sps
+from tcup.utils import sigma_68
 
 from ..model.prior import draw_params_from_prior
 
@@ -30,7 +31,9 @@ def gen_dataset(seed, x_true_params, dist_params):
             "name": "fixed",
             "nu": fixed_nu,
         }:
-            nu = fixed_nu
+            nu = np.array([fixed_nu])
+            sigma_68_scaled = sigma_scaled
+            sigma_scaled = sigma_68_scaled / sigma_68(nu)
             epsilon = sps.t(nu, scale=sigma_scaled).rvs(
                 size=N, random_state=rng
             )
@@ -38,6 +41,8 @@ def gen_dataset(seed, x_true_params, dist_params):
         case {
             "name": "t",
         }:
+            sigma_68_scaled = sigma_scaled
+            sigma_scaled = sigma_68_scaled / sigma_68(nu)
             epsilon = sps.t(nu, scale=sigma_scaled).rvs(
                 size=N, random_state=rng
             )
@@ -95,10 +100,10 @@ def gen_dataset(seed, x_true_params, dist_params):
     info = {
         "true_x": x_true.tolist(),
         "true_y": y_true.tolist(),
-        "alpha_scaled": alpha_scaled,
+        "alpha_scaled": alpha_scaled.tolist(),
         "beta_scaled": beta_scaled.tolist(),
-        "sigma_scaled": sigma_scaled,
-        "nu": nu,
+        "sigma_scaled": sigma_scaled.tolist(),
+        "nu": nu.tolist(),
     }
 
     if dist_params["name"] == "gaussian_mix":

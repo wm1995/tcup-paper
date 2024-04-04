@@ -82,13 +82,13 @@ if __name__ == "__main__":
         prior.alpha_prior.cdf,
         prior.beta_prior.cdf,
         prior.beta_prior.cdf,
-        prior.sigma_prior.cdf,
-        prior.nu_prior.cdf,
         None,
+        prior.nu_prior.cdf,
+        prior.sigma_prior.cdf,
     ]
     if not (args.tcup and args.t_dist):
         var_names.remove("nu")
-        var_names.remove("sigma_68")
+        var_names.remove("sigma_scaled")
 
     if args.tcup:
         model = "tcup"

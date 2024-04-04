@@ -19,6 +19,9 @@ FIXED_DATASETS = t normal outlier gaussian_mix laplace lognormal
 # Real datasets
 REAL_DATASETS := kelly park_FWHM park_line_disp park_MAD
 
+# Linmix datasets
+REAL_LINMIX_DATASETS := kelly
+
 ################################################################################
 # Makefile variables
 ################################################################################
@@ -44,10 +47,14 @@ FIXED_MCMC := $(foreach dir, ${FIXED_MCMC_DIRS}, $(foreach seed, ${FIXED_RANDOM_
 # FIXED_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also nu but only for tcup/t
 # FIXED_PLOTS := $(foreach dir, ${FIXED_PLOT_DIRS}, $(foreach plot, ${FIXED_PLOT_TYPES}, ${dir}/${plot}.pdf))
 
-REAL_DATA_DIRS := results/real results/real/kelly results/real/park
-REAL_DATASETS_JSON := $(foreach dir, ${REAL_DATA_DIRS}, $(foreach dataset, ${REAL_DATASETS}, ${dir}/${dataset}.json))
+REAL_DATA_DIRS := data/real data/real/kelly data/real/park
+REAL_DATASETS_JSON := $(foreach dataset, ${REAL_DATASETS}, data/real/${dataset}.json)
 REAL_MCMC_DIRS := $(foreach model, ${MODELS}, results/real/${model})
 REAL_MCMC := $(foreach dir, ${REAL_MCMC_DIRS}, $(foreach dataset, ${REAL_DATASETS}, ${dir}/${dataset}.nc))
+
+REAL_LINMIX_DATASETS_JSON := $(foreach dataset, ${REAL_DATASETS}, data/real/${dataset}.json)
+REAL_LINMIX_DIRS := results/real/linmix
+REAL_LINMIX := $(foreach dir, ${REAL_LINMIX_DIRS}, $(foreach dataset, ${REAL_LINMIX_DATASETS}, ${dir}/${dataset}.json))
 # SBC_PLOT_DIRS := $(foreach dataset, $(SBC_DATASETS), $(foreach model, ${MODELS}, plots/sbc/${model}/${dataset}))
 # SBC_PLOTS := $(foreach dir, ${SBC_PLOT_DIRS}, $(foreach plot, ${SBC_PLOT_TYPES}, ${dir}/${plot}.pdf)) plots/sbc/tcup/t/nu.pdf
 
@@ -226,7 +233,7 @@ ${REAL_DATA_DIRS}:
 	-mkdir -p $@
 
 data/real/kelly.json: scripts/preprocess_Kelly.py plots/
-	-mkdir data/real/kelly/
+	-mkdir -p data/real/kelly/
 	cd data/real/kelly/ && curl https://arxiv.org/e-print/0705.2774 | tar zx f10a.ps f10b.ps
 	${PYTHON} scripts/preprocess_Kelly.py
 
@@ -251,6 +258,25 @@ results/real/fixed3/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
 
 results/real/ncup/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
 	-${PYTHON} scripts/fit_model.py -n $< $@
+
+################################################################################
+# Fit linmix to real datasets
+################################################################################
+
+real-linmix: linmix ${REAL_LINMIX}
+
+linmix: linmix/Dockerfile linmix/run_mcmc.py
+	docker build -t tcup-linmix linmix
+	touch linmix
+
+${REAL_LINMIX_DIRS}:
+	-mkdir -p $@
+
+results/real/linmix/%.json: data/real/%.json linmix | ${REAL_LINMIX_DIRS}
+	docker run \
+		--mount type=bind,source=$(shell pwd)/data,target=/mcmc/data \
+		--mount type=bind,source=$(shell pwd)/results,target=/mcmc/results \
+		--rm tcup-linmix --quiet -r 0 $< $@
 
 ################################################################################
 # Fit MCMC models to datasets

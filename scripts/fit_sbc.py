@@ -116,4 +116,7 @@ if __name__ == "__main__":
 
         results.to_netcdf(f"{args.outfile}.checkpoint")
 
+        if curr_samples > 1e6:
+            raise RuntimeError("Max sample size exceeded")
+
     results.to_netcdf(args.outfile)

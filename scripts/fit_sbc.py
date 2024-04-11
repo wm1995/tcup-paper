@@ -67,25 +67,32 @@ if __name__ == "__main__":
     # Load dataset
     data, params = load_dataset(args.dataset)
 
-    # Fit model
-    if args.normal:
-        raise NotImplementedError("Not implemented for numpyro yet")
-    elif args.fixed:
-        raise NotImplementedError("Not implemented for numpyro yet")
-
     rng_key = jax.random.PRNGKey(0)
     true_x_prior = mixture_prior(
         weights=data["theta_mix"],
         means=data["mu_mix"],
         vars=data["sigma_mix"],
     )
-    tcup_model = model_builder(true_x_prior)
+
+    # Fit model
+    if args.normal:
+        tcup_model = model_builder(true_x_prior, ncup=True)
+        nu = None
+        PARAMS_OF_INTEREST.remove("nu")
+    elif args.fixed:
+        tcup_model = model_builder(true_x_prior)
+        nu = args.fixed
+        PARAMS_OF_INTEREST.remove("nu")
+    else:
+        tcup_model = model_builder(true_x_prior)
+        nu = None
+
     kernel = numpyro.infer.NUTS(tcup_model)
     mcmc = numpyro.infer.MCMC(kernel, num_chains=1, num_warmup=1000, num_samples=1023)
 
     results = None
     while True:
-        mcmc.run(rng_key, x_scaled=data["x_scaled"], y_scaled=data["y_scaled"], cov_x_scaled=data["cov_x_scaled"], dy_scaled=data["dy_scaled"],)
+        mcmc.run(rng_key, x_scaled=data["x_scaled"], y_scaled=data["y_scaled"], cov_x_scaled=data["cov_x_scaled"], dy_scaled=data["dy_scaled"], nu=nu)
         new_results = az.from_numpyro(mcmc)
 
         if results is None:

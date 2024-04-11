@@ -65,6 +65,8 @@ if __name__ == "__main__":
     dataset_type.add_argument("--fixed-nu", action="store_true")
     dataset_type.add_argument("--normal", action="store_true")
     dataset_type.add_argument("--outlier", action="store_true")
+    dataset_type.add_argument("--random-outlier", type=float)
+    dataset_type.add_argument("--cauchy-mix", action="store_true")
     dataset_type.add_argument("--gaussian-mix", action="store_true")
     dataset_type.add_argument("--laplace", action="store_true")
     dataset_type.add_argument("--lognormal", action="store_true")
@@ -105,6 +107,10 @@ if __name__ == "__main__":
         dataset = "normal"
     elif args.outlier:
         dataset = "outlier"
+    elif args.random_outlier:
+        dataset = f"outlier{int(args.random_outlier)}"
+    elif args.cauchy_mix:
+        dataset = "cauchy_mix"
     elif args.gaussian_mix:
         dataset = "gaussian_mix"
     elif args.laplace:

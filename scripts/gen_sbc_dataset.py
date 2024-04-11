@@ -14,6 +14,8 @@ if __name__ == "__main__":
     distribution.add_argument("--fixed-nu", type=float)
     distribution.add_argument("--normal", action="store_true")
     distribution.add_argument("--outlier", action="store_true")
+    distribution.add_argument("--random-outlier", type=float)
+    distribution.add_argument("--cauchy-mix", action="store_true")
     distribution.add_argument("--gaussian-mix", action="store_true")
     distribution.add_argument("--laplace", action="store_true")
     distribution.add_argument("--lognormal", action="store_true")
@@ -55,6 +57,15 @@ if __name__ == "__main__":
             "name": "outlier",
             "outlier_idx": 10,
         }
+    elif args.random_outlier:
+        dist_params = {
+            "name": "random_outlier",
+            "outlier_sigma": args.random_outlier,
+        }
+    elif args.cauchy_mix:
+        dist_params = {
+            "name": "cauchy_mix",
+        }
     elif args.gaussian_mix:
         dist_params = {
             "name": "gaussian_mix",
@@ -73,4 +84,7 @@ if __name__ == "__main__":
 
     data, info = gen_dataset(args.seed, x_true_params, dist_params)
 
-    write_dataset(f"sbc/{dist_params['name']}/{args.seed}", data, info)
+    if dist_params["name"] == "random_outlier":
+        write_dataset(f"sbc/outlier{int(dist_params['outlier_sigma'])}/{args.seed}", data, info)
+    else:
+        write_dataset(f"sbc/{dist_params['name']}/{args.seed}", data, info)

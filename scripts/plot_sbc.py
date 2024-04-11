@@ -202,6 +202,10 @@ if __name__ == "__main__":
 
     apply_matplotlib_style()
     for var_name, curr_bins, cdf in zip(var_names, bins, var_cdfs):
+        # Check CDF of rank is uniform
+        ks_test = sps.kstest([x[1] for x in ranks[var_name]], sps.uniform(scale = L).cdf)
+        print(f"{var_name} has KS p={ks_test.pvalue:03f}")
+
         pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
         for lower, upper in confidence_intervals:
             plt.fill_between([-0.05, 1.05], lower, upper, alpha=0.1, color="k")

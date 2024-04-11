@@ -159,10 +159,13 @@ if __name__ == "__main__":
                 )
                 dataset_value = info[raw_var_name][var_dim]
             elif var_name == "sigma_68":
-                nu = mcmc.posterior["nu"].values.flatten()
+                if args.fixed:
+                    nu = 3
+                else:
+                    nu = mcmc.posterior["nu"].values.flatten()
                 sigma = mcmc.posterior["sigma_scaled"].values.flatten()
                 samples = sigma_68(nu) * sigma
-                dataset_value = sigma_68(info["nu"]) * info["sigma_scaled"]
+                dataset_value = sigma_68(np.array(info["nu"])) * np.array(info["sigma_scaled"])
             else:
                 samples = mcmc.posterior[var_name].values.flatten()
                 dataset_value = info[var_name]

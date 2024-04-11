@@ -1,9 +1,9 @@
 import scipy.stats as sps
 
 alpha_prior = sps.norm(scale=3)
-beta_prior = sps.cauchy()
-sigma_prior = sps.gamma(a = 2, scale = 1/2)
-nu_prior = sps.invgamma(a = 3, scale = 10)
+beta_prior = sps.norm(scale=3)
+sigma_prior = sps.gamma(a=2, scale=1 / 4)
+nu_prior = sps.invgamma(a=4, scale=15)
 
 def draw_params_from_prior(rng, dim_x=1):
     alpha_scaled = alpha_prior.rvs(random_state=rng)

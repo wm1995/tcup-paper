@@ -24,6 +24,19 @@ def tcup_samples():
         dy_scaled = jnp.array([[1]]),
     )
 
+@pytest.fixture
+def ncup_samples():
+    rng_key = jax.random.PRNGKey(0)
+    ncup_model = model_builder(Normal(), ncup=True)
+    ncup_sampler = Predictive(ncup_model, num_samples=100000)
+    return ncup_sampler(
+        rng_key,
+        x_scaled = jnp.array([[0]]),
+        y_scaled = jnp.array([[0]]),
+        cov_x_scaled = jnp.array([[[1]]]),
+        dy_scaled = jnp.array([[1]]),
+    )
+
 @pytest.mark.parametrize(
     "param,prior",
     [
@@ -47,3 +60,15 @@ def test_tcup_intrinsic_dist(tcup_samples):
     t = (y - mu) / sigma
 
     assert sps.kstest(sps.t.cdf(t, df=nu), sps.uniform.cdf).pvalue > THRESHOLD
+
+def test_ncup_intrinsic_dist(ncup_samples):
+    x = ncup_samples["x_true"].flatten()
+    y = ncup_samples["y_true"].flatten()
+    alpha = ncup_samples["alpha_scaled"].flatten()
+    beta = ncup_samples["beta_scaled"].flatten()
+    sigma = ncup_samples["sigma_scaled"].flatten()
+
+    mu = alpha + jnp.multiply(x, beta)
+    z = (y - mu) / sigma
+
+    assert sps.kstest(z, sps.norm.cdf).pvalue > THRESHOLD

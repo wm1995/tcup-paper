@@ -34,3 +34,16 @@ def tcup_samples():
     ])
 def test_prior_dist(tcup_samples, param, prior):
     assert sps.kstest(tcup_samples[param], prior.cdf).pvalue > THRESHOLD
+
+def test_tcup_intrinsic_dist(tcup_samples):
+    x = tcup_samples["x_true"].flatten()
+    y = tcup_samples["y_true"].flatten()
+    alpha = tcup_samples["alpha_scaled"].flatten()
+    beta = tcup_samples["beta_scaled"].flatten()
+    sigma = tcup_samples["sigma_scaled"].flatten()
+    nu = tcup_samples["nu"].flatten()
+
+    mu = alpha + jnp.multiply(x, beta)
+    t = (y - mu) / sigma
+
+    assert sps.kstest(sps.t.cdf(t, df=nu), sps.uniform.cdf).pvalue > THRESHOLD

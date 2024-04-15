@@ -9,7 +9,7 @@ MODELS := tcup ncup fixed3
 
 # SBC dataset parameters
 NUM_SBC_DATASETS := 400
-SBC_DATASETS := t fixed normal outlier outlier5 outlier10 outlier20 cauchy_mix gaussian_mix laplace lognormal
+SBC_DATASETS := outlier5 outlier10 outlier20 #cauchy_mix t fixed normal outlier gaussian_mix laplace lognormal
 SBC_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also nu but only for tcup/t
 
 # Fixed run parameters
@@ -162,6 +162,12 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier/${plot}.pdf) &: $(wild
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier5/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier5/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --tcup --random-outlier 5
 
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier10/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tcup --random-outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier20/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tcup --random-outlier 20
+
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/cauchy_mix/${plot}.pdf) &: $(wildcard data/sbc/tcup/cauchy_mix/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --tcup --cauchy-mix
 
@@ -189,6 +195,15 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier/${plot}.pdf) &: $(wild
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier5/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier5/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --ncup --random-outlier 5
 
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier10/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --ncup --random-outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier20/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --ncup --random-outlier 20
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/cauchy_mix/${plot}.pdf) &: $(wildcard data/sbc/ncup/cauchy_mix/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --ncup --cauchy-mix
+
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/gaussian_mix/${plot}.pdf) &: $(wildcard data/sbc/ncup/gaussian_mix/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --ncup --gaussian-mix
 
@@ -212,6 +227,15 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier/${plot}.pdf) &: $(wi
 
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier5/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier5/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --random-outlier 5
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier10/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --fixed --random-outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier20/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --fixed --random-outlier 20
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/cauchy_mix/${plot}.pdf) &: $(wildcard data/sbc/fixed3/cauchy_mix/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --fixed --cauchy-mix
 
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/gaussian_mix/${plot}.pdf) &: $(wildcard data/sbc/fixed3/gaussian_mix/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --gaussian-mix

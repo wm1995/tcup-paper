@@ -2,17 +2,16 @@ import numpy as np
 import scipy.stats as sps
 from tcup.utils import sigma_68
 
-from ..model.prior import draw_params_from_prior
+from ...model.prior import draw_params_from_prior
 
-
-def draw_x_true(rng, N, D, K, theta_mix, mu_mix, sigma_mix):
-    n_mix = sps.multinomial(N, theta_mix).rvs(random_state=rng).flatten()
+def draw_x_true(rng, n_data, dim_x, weights, means, vars):
+    n_mix = sps.multinomial(n_data, weights).rvs(random_state=rng).flatten()
     x_true = []
-    for component_size, mu, sigma in zip(n_mix, mu_mix, sigma_mix):
+    for component_size, mu, sigma in zip(n_mix, means, vars):
         component = sps.multivariate_normal(mu, sigma).rvs(
             size=component_size, random_state=rng
         )
-        x_true.append(component.reshape(component_size, D))
+        x_true.append(component.reshape(component_size, dim_x))
     return np.concatenate(x_true)
 
 
@@ -20,7 +19,7 @@ def gen_dataset(seed, x_true_params, dist_params):
     rng = np.random.default_rng(seed)
     N = x_true_params["N"]
     dim_x = x_true_params["D"]
-    alpha_scaled, beta_scaled, sigma_scaled, nu = draw_params_from_prior(
+    alpha_scaled, beta_scaled, sigma_68_scaled, nu = draw_params_from_prior(
         rng, dim_x
     )
     x_true = draw_x_true(rng, **x_true_params)

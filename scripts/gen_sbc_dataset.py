@@ -2,7 +2,7 @@
 import argparse
 
 from tcup_paper.data.io import write_dataset
-from tcup_paper.data.sbc import gen_dataset
+import tcup_paper.data.sbc as sbc_data
 
 
 if __name__ == "__main__":
@@ -11,80 +11,78 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0)
     distribution = parser.add_mutually_exclusive_group(required=True)
     distribution.add_argument("--t-dist", action="store_true")
+    distribution.add_argument("--t-obs", action="store_true")
     distribution.add_argument("--fixed-nu", type=float)
     distribution.add_argument("--normal", action="store_true")
-    distribution.add_argument("--outlier", action="store_true")
-    distribution.add_argument("--random-outlier", type=float)
-    distribution.add_argument("--cauchy-mix", action="store_true")
+    distribution.add_argument("--outlier", type=float)
     distribution.add_argument("--gaussian-mix", action="store_true")
     distribution.add_argument("--laplace", action="store_true")
     distribution.add_argument("--lognormal", action="store_true")
     args = parser.parse_args()
 
-    x_true_params = {
-        "N": 12,
-        "D": 2,
-        "K": 2,
-        "theta_mix": [0.75, 0.25],
-        "mu_mix": [[0.5, -0.5], [-1.5, 1.5]],
-        "sigma_mix": [[[0.25, -0.1], [-0.1, 0.25]], [[0.25, 0.1], [0.1, 0.25]]]
+    dataset_params = {
+        "n_data": 12 if args.outlier else 50,
+        "dim_x": 1,
+        "seed": args.seed,
     }
 
-    # x_true_params = {
-    #     "N": 100,
-    #     "D": 2,
-    #     "K": 1,
-    #     "theta_mix": [1],
-    #     "mu_mix": [[0, 0]],
-    #     "sigma_mix": [[[1, -0.1], [-0.1, 1]]],
-    # }
+    x_true_params = {
+        "n_data": dataset_params["n_data"],
+        "dim_x": 1,
+        "weights": [1],
+        "means": [[0]],
+        "vars": [[[1]]],
+    }
 
     if args.t_dist:
         dist_params = {
             "name": "t",
         }
+        dataset = sbc_data.StudentTDataset(**dataset_params)
+    elif args.t_obs:
+        dist_params = {
+            "name": "tobs",
+        }
+        dataset = sbc_data.TObsDataset(**dataset_params)
     elif args.fixed_nu:
         dist_params = {
             "name": "fixed",
             "nu": args.fixed_nu,
         }
+        dataset = sbc_data.StudentTDataset(nu=args.fixed_nu, **dataset_params)
     elif args.normal:
         dist_params = {
             "name": "normal",
         }
+        dataset = sbc_data.NormalDataset(**dataset_params)
     elif args.outlier:
         dist_params = {
             "name": "outlier",
-            "outlier_idx": 10,
+            "outlier_sigma": args.outlier,
         }
-    elif args.random_outlier:
-        dist_params = {
-            "name": "random_outlier",
-            "outlier_sigma": args.random_outlier,
-        }
-    elif args.cauchy_mix:
-        dist_params = {
-            "name": "cauchy_mix",
-        }
+        dataset = sbc_data.OutlierDataset(outlier_sigma=args.outlier, **dataset_params)
     elif args.gaussian_mix:
         dist_params = {
             "name": "gaussian_mix",
             "outlier_prob": 0.1,
         }
+        dataset = sbc_data.GaussianMixDataset(outlier_prob=0.1, **dataset_params)
     elif args.laplace:
         dist_params = {
             "name": "laplace",
         }
+        dataset = sbc_data.LaplaceDataset(**dataset_params)
     elif args.lognormal:
         dist_params = {
             "name": "lognormal",
         }
+        dataset = sbc_data.LognormalDataset(**dataset_params)
     else:
         raise RuntimeError("Something unexpected has gone wrong")
 
-    data, info = gen_dataset(args.seed, x_true_params, dist_params)
+    dataset.generate(x_true_params)
 
-    if dist_params["name"] == "random_outlier":
-        write_dataset(f"sbc/outlier{int(dist_params['outlier_sigma'])}/{args.seed}", data, info)
+    if dist_params["name"] == "outlier":
+        dataset.write(f"data/sbc/outlier{int(dist_params['outlier_sigma'])}/{args.seed}.json")
     else:
-        write_dataset(f"sbc/{dist_params['name']}/{args.seed}", data, info)
+        dataset.write(f"data/sbc/{dist_params['name']}/{args.seed}.json")

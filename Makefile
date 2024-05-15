@@ -5,12 +5,12 @@
 VENV := venv
 
 # List of models to be tested
-MODELS := tcup ncup fixed3
+MODELS := tcup ncup fixed3 tobs
 
 # SBC dataset parameters
 NUM_SBC_DATASETS := 400
-SBC_DATASETS := t fixed normal outlier outlier5 outlier10 outlier20 cauchy_mix gaussian_mix laplace lognormal
-SBC_PLOT_TYPES := alpha_scaled beta_scaled.0 beta_scaled.1 sigma_scaled  # also nu but only for tcup/t
+SBC_DATASETS := t tobs fixed normal outlier5 outlier10 outlier20 gaussian_mix laplace lognormal
+SBC_PLOT_TYPES := alpha_scaled beta_scaled sigma_scaled  # also nu but only for tcup/t
 
 # Fixed run parameters
 NUM_FIXED_DATASETS := 3
@@ -29,7 +29,7 @@ PYTHON := ${VENV}/bin/python
 PIP := ${VENV}/bin/pip
 
 SBC_RANDOM_SEEDS := $(shell seq ${NUM_SBC_DATASETS})
-SBC_DATASET_DEPENDENCIES := scripts/gen_sbc_dataset.py tcup-paper/data/sbc.py tcup-paper/data/io.py
+SBC_DATASET_DEPENDENCIES := scripts/gen_sbc_dataset.py tcup-paper/data/sbc/dataset.py
 SBC_DATA_DIRS := $(foreach dataset, ${SBC_DATASETS}, data/sbc/${dataset})
 SBC_DATASETS_JSON := $(foreach dir, ${SBC_DATA_DIRS}, $(foreach seed, ${SBC_RANDOM_SEEDS}, ${dir}/${seed}.json))
 SBC_MCMC_DIRS := $(foreach dataset, $(SBC_DATASETS), $(foreach model, ${MODELS}, results/sbc/${model}/${dataset}))
@@ -87,37 +87,34 @@ sbc-datasets: ${SBC_DATASETS_JSON}
 ${SBC_DATA_DIRS}:
 	-mkdir -p $@
 
-data/sbc/t/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/t
+data/sbc/t/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/t.py | data/sbc/t
 	${PYTHON} scripts/gen_sbc_dataset.py --t-dist --seed $*
 
-data/sbc/fixed/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/fixed
+data/sbc/tobs/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/tobs.py | data/sbc/t
+	${PYTHON} scripts/gen_sbc_dataset.py --t-obs --seed $*
+
+data/sbc/fixed/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/t.py | data/sbc/fixed
 	${PYTHON} scripts/gen_sbc_dataset.py --fixed 3 --seed $*
 
-data/sbc/normal/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/normal
+data/sbc/normal/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/normal.py | data/sbc/normal
 	${PYTHON} scripts/gen_sbc_dataset.py --normal --seed $*
 
-data/sbc/outlier/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/outlier
-	${PYTHON} scripts/gen_sbc_dataset.py --outlier --seed $*
+data/sbc/outlier5/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/outlier.py | data/sbc/outlier5
+	${PYTHON} scripts/gen_sbc_dataset.py --outlier 5 --seed $*
 
-data/sbc/outlier5/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/outlier5
-	${PYTHON} scripts/gen_sbc_dataset.py --random-outlier 5 --seed $*
+data/sbc/outlier10/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/outlier.py | data/sbc/outlier10
+	${PYTHON} scripts/gen_sbc_dataset.py --outlier 10 --seed $*
 
-data/sbc/outlier10/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/outlier10
-	${PYTHON} scripts/gen_sbc_dataset.py --random-outlier 10 --seed $*
+data/sbc/outlier20/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/outlier.py | data/sbc/outlier20
+	${PYTHON} scripts/gen_sbc_dataset.py --outlier 20 --seed $*
 
-data/sbc/outlier20/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/outlier20
-	${PYTHON} scripts/gen_sbc_dataset.py --random-outlier 20 --seed $*
-
-data/sbc/cauchy_mix/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/cauchy_mix
-	${PYTHON} scripts/gen_sbc_dataset.py --cauchy-mix --seed $*
-
-data/sbc/gaussian_mix/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/gaussian_mix
+data/sbc/gaussian_mix/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/gaussian_mix.py | data/sbc/gaussian_mix
 	${PYTHON} scripts/gen_sbc_dataset.py --gaussian-mix --seed $*
 
-data/sbc/laplace/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/laplace
+data/sbc/laplace/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/laplace.py | data/sbc/laplace
 	${PYTHON} scripts/gen_sbc_dataset.py --laplace --seed $*
 
-data/sbc/lognormal/%.json: ${SBC_DATASET_DEPENDENCIES} | data/sbc/lognormal
+data/sbc/lognormal/%.json: ${SBC_DATASET_DEPENDENCIES} tcup-paper/data/sbc/lognormal.py | data/sbc/lognormal
 	${PYTHON} scripts/gen_sbc_dataset.py --lognormal --seed $*
 
 ################################################################################
@@ -138,6 +135,9 @@ results/sbc/ncup/%.nc: data/sbc/%.json ${SBC_MCMC_DEPENDENCIES} | ${SBC_MCMC_DIR
 results/sbc/fixed3/%.nc: data/sbc/%.json ${SBC_MCMC_DEPENDENCIES} | ${SBC_MCMC_DIRS}
 	-${PYTHON} scripts/fit_sbc.py -f 3 $< $@
 
+results/sbc/tobs/%.nc: data/sbc/%.json ${SBC_MCMC_DEPENDENCIES} | ${SBC_MCMC_DIRS}
+	-${PYTHON} scripts/fit_sbc.py -o $< $@
+
 ################################################################################
 # Generate SBC plots
 ################################################################################
@@ -156,11 +156,14 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/fixed/${plot}.pdf) &: $(wildca
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/normal/${plot}.pdf) &: $(wildcard data/sbc/tcup/normal/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --tcup --normal
 
-$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier/*.nc) | ${SBC_PLOT_DIRS}
-	${PYTHON} scripts/plot_sbc.py --tcup --outlier
-
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier5/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier5/*.nc) | ${SBC_PLOT_DIRS}
-	${PYTHON} scripts/plot_sbc.py --tcup --random-outlier 5
+	${PYTHON} scripts/plot_sbc.py --tcup --outlier 5
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier10/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tcup --outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/outlier20/${plot}.pdf) &: $(wildcard data/sbc/tcup/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tcup --outlier 20
 
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/cauchy_mix/${plot}.pdf) &: $(wildcard data/sbc/tcup/cauchy_mix/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --tcup --cauchy-mix
@@ -174,6 +177,42 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/laplace/${plot}.pdf) &: $(wild
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/lognormal/${plot}.pdf) &: $(wildcard data/sbc/tcup/lognormal/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --tcup --lognormal
 
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tcup/tobs/${plot}.pdf) &: $(wildcard data/sbc/tcup/tobs/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tcup --t-obs
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/t/${plot}.pdf) plots/sbc/tobs/t/nu.pdf &: $(wildcard data/sbc/tcup/t/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --t-dist
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/fixed/${plot}.pdf) &: $(wildcard data/sbc/tobs/fixed/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --fixed-nu
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/normal/${plot}.pdf) &: $(wildcard data/sbc/tobs/normal/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --normal
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/outlier5/${plot}.pdf) &: $(wildcard data/sbc/tobs/outlier5/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --outlier 5
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/outlier10/${plot}.pdf) &: $(wildcard data/sbc/tobs/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/outlier20/${plot}.pdf) &: $(wildcard data/sbc/tobs/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --outlier 20
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/cauchy_mix/${plot}.pdf) &: $(wildcard data/sbc/tobs/cauchy_mix/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --cauchy-mix
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/gaussian_mix/${plot}.pdf) &: $(wildcard data/sbc/tobs/gaussian_mix/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --gaussian-mix
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/laplace/${plot}.pdf) &: $(wildcard data/sbc/tobs/laplace/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --laplace
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/lognormal/${plot}.pdf) &: $(wildcard data/sbc/tobs/lognormal/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --lognormal
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/tobs/tobs/${plot}.pdf) &: $(wildcard data/sbc/tobs/tobs/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --tobs --t-obs
+
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/t/${plot}.pdf) &: $(wildcard data/sbc/ncup/t/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --ncup --t-dist
 
@@ -183,11 +222,14 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/fixed/${plot}.pdf) &: $(wildca
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/normal/${plot}.pdf) &: $(wildcard data/sbc/ncup/normal/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --ncup --normal
 
-$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier/*.nc) | ${SBC_PLOT_DIRS}
-	${PYTHON} scripts/plot_sbc.py --ncup --outlier
-
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier5/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier5/*.nc) | ${SBC_PLOT_DIRS}
-	${PYTHON} scripts/plot_sbc.py --ncup --random-outlier 5
+	${PYTHON} scripts/plot_sbc.py --ncup --outlier 5
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier10/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --ncup --outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/outlier20/${plot}.pdf) &: $(wildcard data/sbc/ncup/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --ncup --outlier 20
 
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/gaussian_mix/${plot}.pdf) &: $(wildcard data/sbc/ncup/gaussian_mix/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --ncup --gaussian-mix
@@ -198,6 +240,9 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/laplace/${plot}.pdf) &: $(wild
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/lognormal/${plot}.pdf) &: $(wildcard data/sbc/ncup/lognormal/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --ncup --lognormal
 
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/ncup/tobs/${plot}.pdf) &: $(wildcard data/sbc/ncup/tobs/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --ncup --t-obs
+
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/t/${plot}.pdf) &: $(wildcard data/sbc/fixed3/t/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --t-dist
 
@@ -207,11 +252,14 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/fixed/${plot}.pdf) &: $(wild
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/normal/${plot}.pdf) &: $(wildcard data/sbc/fixed3/normal/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --normal
 
-$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier/*.nc) | ${SBC_PLOT_DIRS}
-	${PYTHON} scripts/plot_sbc.py --fixed --outlier
-
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier5/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier5/*.nc) | ${SBC_PLOT_DIRS}
-	${PYTHON} scripts/plot_sbc.py --fixed --random-outlier 5
+	${PYTHON} scripts/plot_sbc.py --fixed --outlier 5
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier10/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier10/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --fixed --outlier 10
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/outlier20/${plot}.pdf) &: $(wildcard data/sbc/fixed3/outlier20/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --fixed --outlier 20
 
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/gaussian_mix/${plot}.pdf) &: $(wildcard data/sbc/fixed3/gaussian_mix/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --gaussian-mix
@@ -221,6 +269,9 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/laplace/${plot}.pdf) &: $(wi
 
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/lognormal/${plot}.pdf) &: $(wildcard data/sbc/fixed3/lognormal/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --lognormal
+
+$(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/tobs/${plot}.pdf) &: $(wildcard data/sbc/fixed3/tobs/*.nc) | ${SBC_PLOT_DIRS}
+	${PYTHON} scripts/plot_sbc.py --fixed --t-obs
 
 ################################################################################
 # Generate mock datasets

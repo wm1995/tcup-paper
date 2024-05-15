@@ -9,6 +9,7 @@ from tcup.utils import sigma_68
 from tcup_paper.data.io import load_dataset
 from tcup_paper.model import prior
 from tcup_paper.plot.style import apply_matplotlib_style
+import xarray as xr
 
 L = 1023
 B = 16
@@ -35,6 +36,8 @@ def get_latex_var(var_name):
     match var_name:
         case "alpha_scaled":
             latex_var = r"\tilde{\alpha}"
+        case "beta_scaled":
+            latex_var = r"\tilde{\beta}"
         case "beta_scaled.0":
             latex_var = r"\tilde{\beta}_0"
         case "beta_scaled.1":
@@ -43,7 +46,7 @@ def get_latex_var(var_name):
             latex_var = r"\tilde{\sigma}"
         case "nu":
             latex_var = r"\nu"
-        case "sigma_68":
+        case "sigma_68_scaled":
             latex_var = r"\tilde{\sigma}_{68}"
 
     return latex_var
@@ -60,37 +63,20 @@ if __name__ == "__main__":
     model_type.add_argument("--tcup", action="store_true")
     model_type.add_argument("--fixed", action="store_true")
     model_type.add_argument("--ncup", action="store_true")
+    model_type.add_argument("--tobs", action="store_true")
     dataset_type = parser.add_mutually_exclusive_group(required=True)
     dataset_type.add_argument("--t-dist", action="store_true")
     dataset_type.add_argument("--fixed-nu", action="store_true")
     dataset_type.add_argument("--normal", action="store_true")
-    dataset_type.add_argument("--outlier", action="store_true")
-    dataset_type.add_argument("--random-outlier", type=float)
+    dataset_type.add_argument("--outlier", type=float)
     dataset_type.add_argument("--cauchy-mix", action="store_true")
     dataset_type.add_argument("--gaussian-mix", action="store_true")
     dataset_type.add_argument("--laplace", action="store_true")
     dataset_type.add_argument("--lognormal", action="store_true")
+    dataset_type.add_argument("--t-obs", action="store_true")
     args = parser.parse_args()
 
-    var_names = [
-        "alpha_scaled",
-        "beta_scaled.0",
-        "beta_scaled.1",
-        "sigma_scaled",
-        "nu",
-        "sigma_68",
-    ]
-    var_cdfs = [
-        prior.alpha_prior.cdf,
-        prior.beta_prior.cdf,
-        prior.beta_prior.cdf,
-        None,
-        prior.nu_prior.cdf,
-        prior.sigma_prior.cdf,
-    ]
-    if not (args.tcup and args.t_dist):
-        var_names.remove("nu")
-        var_names.remove("sigma_scaled")
+    var_names = None
 
     if args.tcup:
         model = "tcup"
@@ -98,6 +84,8 @@ if __name__ == "__main__":
         model = "ncup"
     elif args.fixed:
         model = "fixed3"
+    elif args.tobs:
+        model = "tobs"
 
     if args.t_dist:
         dataset = "t"
@@ -106,9 +94,7 @@ if __name__ == "__main__":
     elif args.normal:
         dataset = "normal"
     elif args.outlier:
-        dataset = "outlier"
-    elif args.random_outlier:
-        dataset = f"outlier{int(args.random_outlier)}"
+        dataset = f"outlier{int(args.outlier)}"
     elif args.cauchy_mix:
         dataset = "cauchy_mix"
     elif args.gaussian_mix:
@@ -117,13 +103,13 @@ if __name__ == "__main__":
         dataset = "laplace"
     elif args.lognormal:
         dataset = "lognormal"
+    elif args.t_obs:
+        dataset = "tobs"
 
     results_path = f"results/sbc/{model}/{dataset}/"
     data_path = f"data/sbc/{dataset}/"
     plots_path = f"plots/sbc/{model}/{dataset}/"
 
-    bins = np.zeros((len(var_names), L + 1))
-    ranks = {var_name: [] for var_name in var_names}
     N = 0
 
     for filename in glob(results_path + "*.nc"):
@@ -136,61 +122,54 @@ if __name__ == "__main__":
         except:
             continue
 
-        # Load mcmc samples
-        mcmc = az.from_netcdf(filename)
-        # Use thinning given in Section 5.1 of Talts et al. 2018
-        min_ess = (
-            az.ess(
-                mcmc,
-                var_names=[var_name.split(".")[0] for var_name in var_names],
-            )
-            .to_array()
-            .min()
-        )
-        thinning_factor = int(np.ceil(len(mcmc.posterior.draw) / min_ess))
-        if len(mcmc.posterior.draw) // thinning_factor < L:
-            # In this case, the thinning prescribed by Talts doesn't leave
-            # enough samples to actually do SBC, so use this prescription that's
-            # guaranteed to work
-            thinning_factor = len(mcmc.posterior.draw) // L
+        sbc_data = xr.load_dataset(filename)
+
+        if var_names is None:
+            var_names = []
+            var_cdfs = []
+            for x in sbc_data.keys():
+                if "rank_" in x:
+                    continue
+                elif "true_" in x:
+                    continue
+                elif "post_pred_" in x:
+                    continue
+                elif x == "beta_scaled":
+                    for idx in range(sbc_data.sizes["beta_scaled_dim_0"]):
+                        var_names.append(f"beta_scaled.{idx}")
+                        var_cdfs.append(prior.beta_prior.cdf)
+                else:
+                    var_names.append(x)
+                    if x == "alpha_scaled":
+                        var_cdfs.append(prior.alpha_prior.cdf)
+                    elif x == "sigma_68_scaled":
+                        var_cdfs.append(prior.sigma_68_prior.cdf)
+                    elif x == "nu":
+                        var_cdfs.append(prior.nu_prior.cdf)
+
+            ranks = {var_name: [] for var_name in var_names}
+            bins = np.zeros((len(var_names), L + 1))
 
         for var_name, curr_bins in zip(var_names, bins):
-            if "." in var_name:
-                raw_var_name, var_dim = var_name.split(".")
-                var_dim = int(var_dim)
-                samples = (
-                    mcmc.posterior[raw_var_name]
-                    .values[:, :, var_dim]
-                    .flatten()
-                )
-                dataset_value = info[raw_var_name][var_dim]
-            elif var_name == "sigma_68":
-                if args.fixed:
-                    nu = 3
-                else:
-                    nu = mcmc.posterior["nu"].values.flatten()
-                sigma = mcmc.posterior["sigma_scaled"].values.flatten()
-                samples = sigma_68(nu) * sigma
-                dataset_value = sigma_68(np.array(info["nu"])) * np.array(info["sigma_scaled"])
+            if "beta_scaled" in var_name:
+                idx = int(var_name.split(".")[-1])
+                # Save rank and dataset value to appropriate value
+                ranks[var_name].append((
+                    sbc_data["true_beta_scaled"].values[idx],
+                    sbc_data["rank_beta_scaled"].values[idx],
+                    sbc_data["beta_scaled"].median(axis=-1)[idx],
+                ))
+                bin_idx = int(sbc_data["rank_beta_scaled"].values[idx] * L)
+                curr_bins[bin_idx] += 1
             else:
-                samples = mcmc.posterior[var_name].values.flatten()
-                dataset_value = info[var_name]
-
-            # Thin samples to L
-            samples = samples[::thinning_factor][:L]
-            assert samples.shape == (L,), f"{samples.shape=} != {L}"
-
-            # # For nu, invert to get 1/nu
-            # if var_name == "nu":
-            #     samples = 1 / samples
-            #     dataset_value = 1 / dataset_value
-
-            # Calculate rank statistic and add to histogram
-            rank = (samples < dataset_value).sum()
-            curr_bins[rank] += 1
-
-            # Save rank and dataset value to appropriate value
-            ranks[var_name].append((dataset_value, rank, np.median(samples)))
+                # Save rank and dataset value to appropriate value
+                ranks[var_name].append((
+                    sbc_data[f"true_{var_name}"].values[()],
+                    sbc_data[f"rank_{var_name}"].values[()],
+                    sbc_data[var_name].median(axis=-1)[()],
+                ))
+                bin_idx = int(sbc_data[f"rank_{var_name}"].values[()] * L)
+                curr_bins[bin_idx] += 1
 
         # Increment number of datasets
         N += 1
@@ -207,9 +186,30 @@ if __name__ == "__main__":
         )
 
     apply_matplotlib_style()
+    fig, ax = plt.subplots(1, len(var_names), sharey=True, figsize=(8.5, 2.5))
+    for idx, (var_name, curr_bins) in enumerate(zip(var_names, bins)):
+        pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
+        for lower, upper in confidence_intervals:
+            ax[idx].fill_between([-0.05, 1.05], lower, upper, alpha=0.1, color="k")
+        edges = np.linspace(0, 1 - 1 / B, B)
+        ax[idx].bar(edges, pooled_bins, width=1 / B, align="edge")
+        ax[idx].hlines(
+            [N / B],
+            xmin=-0.05,
+            xmax=1.05,
+            colors="k",
+            linestyles="dashed",
+        )
+        ax[idx].set_xlabel(rf"$r({get_latex_var(var_name)})$")
+        ax[idx].set_xlim(-0.02, 1.02)
+        ax[idx].set_yticks([])
+    plt.tight_layout()
+    plt.savefig(f"{plots_path}sbc.pdf")
+    plt.close()
+
     for var_name, curr_bins, cdf in zip(var_names, bins, var_cdfs):
         # Check CDF of rank is uniform
-        ks_test = sps.kstest([x[1] for x in ranks[var_name]], sps.uniform(scale = L).cdf)
+        ks_test = sps.kstest([x[1] for x in ranks[var_name]], sps.uniform.cdf)
         print(f"{var_name} has KS p={ks_test.pvalue:03f}")
 
         pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
         # Produce a residual plot to visualise which regions are problematic
         data = np.array(ranks[var_name])
-        plt.scatter(data[:, 0], data[:, 2] - data[:, 0], c=data[:, 1] / L)
+        plt.scatter(data[:, 0], data[:, 2] - data[:, 0], c=data[:, 1])
         cbar = plt.colorbar()
         latex_var = get_latex_var(var_name)
         plt.xlabel(rf"Dataset ${latex_var}$")
@@ -246,7 +246,7 @@ if __name__ == "__main__":
 
         # Produce a plot of CDF(true_val) vs CDF(median_value)
         data = np.array(ranks[var_name])
-        plt.scatter(cdf(data[:, 0]), cdf(data[:, 2]), c=data[:, 1] / L)
+        plt.scatter(cdf(data[:, 0]), cdf(data[:, 2]), c=data[:, 1])
         cbar = plt.colorbar()
         latex_var = get_latex_var(var_name)
         plt.xlabel(rf"CDF of dataset ${latex_var}$")

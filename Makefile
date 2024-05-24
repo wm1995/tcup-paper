@@ -436,6 +436,17 @@ plots/corner_gaussian_mix.pdf: results/gaussian_mix_tcup.nc results/gaussian_mix
 		--range outlier_frac 0 0.12 \
 		--output plots/corner_gaussian_mix.pdf
 
+plots/corner_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/kelly.nc
+	${PYTHON} scripts/plot_corner.py \
+		--mcmc-file results/real/tcup/kelly.nc \
+		--mcmc-file results/real/linmix/kelly.nc \
+		--var-names alpha beta sigma_68 outlier_frac \
+		--range alpha 1 5 \
+		--range beta_0 -1 3.9 \
+		--range sigma_68 0 0.7 \
+		--range outlier_frac 0 0.15 \
+		--output plots/corner_kelly.pdf
+
 plots/corner_%.pdf: results/%.nc scripts/plot_corner.py
 	${PYTHON} scripts/plot_corner.py
 

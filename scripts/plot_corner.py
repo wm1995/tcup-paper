@@ -59,10 +59,9 @@ if __name__ == "__main__":
                 bins["sigma_68"] = var_bins
                 bins["sigma_rescaled"] = var_bins
             elif var_name[:4] == "beta":
-                beta_suffix = "_".join(var_name.split("_")[1:])
-                bins["beta_rescaled_" + beta_suffix] = var_bins
+                bins[var_name] = var_bins
             elif var_name == "alpha":
-                bins["alpha_rescaled"] = var_bins
+                bins["alpha"] = var_bins
             else:
                 bins[var_name] = var_bins
 
@@ -72,23 +71,16 @@ if __name__ == "__main__":
 
         if args.var_names is None:
             # Choose variables
-            var_names = ["alpha_rescaled", "beta_rescaled"]
-            if "sigma_68" in mcmc["posterior"]:
-                var_names.append("sigma_68")
-            else:
-                var_names.append("sigma_rescaled")
+            var_names = ["alpha", "beta", "sigma_68"]
         else:
             var_names = []
             for var_name in args.var_names:
                 if var_name == "alpha":
-                    var_names.append("alpha_rescaled")
+                    var_names.append("alpha")
                 elif var_name == "beta":
-                    var_names.append("beta_rescaled")
-                elif var_name == "sigma":
-                    if "ncup" in mcmc_file:
-                        var_names.append("sigma_rescaled")
-                    else:
-                        var_names.append("sigma_rescaled")
+                    var_names.append("beta")
+                elif var_name == "sigma_68":
+                    var_names.append("sigma_68")
                 elif var_name == "nu":
                     if "tcup" in mcmc_file:
                         var_names.append("nu")
@@ -102,10 +94,10 @@ if __name__ == "__main__":
             first_vars = var_names
 
         var_labels = {
-            "alpha_rescaled": r"Intercept $\alpha$",
-            "beta_rescaled": r"Gradient $\beta$",
+            "alpha": r"Intercept $\alpha$",
+            "beta": r"Gradient $\beta$",
             "sigma_rescaled": r"Int. scatter $\sigma_{\rm int}$",
-            "sigma_68": r"Int. scatter $\sigma_{\rm int}$",
+            "sigma_68": r"Int. scatter $\sigma_{68}$",
             "nu": r"Shape param. $\nu$",
             "outlier_frac": r"Outlier frac. $\omega$",
         }
@@ -119,10 +111,13 @@ if __name__ == "__main__":
             ncup_kwargs = {"color": "midnightblue"}
             fixed3_kwargs = {"color": "darkorange"}
             tcup_kwargs = {"color": "maroon"}
+            linmix_kwargs = {"color": "cornflowerblue"}
         if "tcup" in mcmc_file:
             mcmc_kwargs = tcup_kwargs
         elif "ncup" in mcmc_file:
             mcmc_kwargs = ncup_kwargs
+        elif "linmix" in mcmc_file:
+            mcmc_kwargs = linmix_kwargs
         elif "fixed3" in mcmc_file:
             mcmc_kwargs = fixed3_kwargs
 
@@ -154,12 +149,9 @@ if __name__ == "__main__":
     for var_name in first_vars:
         if "beta" in var_name:
             N_beta_plots = N_vars - len(first_vars) + 1
-            if N_beta_plots > 1:
-                ax_vars += [
-                    f"beta_rescaled_{idx}" for idx in range(N_beta_plots)
-                ]
-            else:
-                ax_vars += [var_name]
+            ax_vars += [
+                f"beta_{idx}" for idx in range(N_beta_plots)
+            ]
         else:
             ax_vars += [var_name]
 

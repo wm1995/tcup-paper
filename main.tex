@@ -853,15 +853,43 @@ by \citeauthor{Kelly:2007}.
 
 \footnotetext{https://github.com/jmeyers314/linmix}
 
-Results are consistent with those from \textsc{linmix\_err} --- see Figure
-\ref{fig:real-world.kelly.corner}. {\color{red} This bit needs updating with
-comparison with the Python version of linmix.}
+\begin{table}
+	\centering
+	\caption{A comparison of estimates for the intercept,
+    slope, and intrinsic scatter inferred for the relationship between Eddington
+    ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$. The parameter
+    estimates reported in \textcite{Kelly:2007} are the posterior median and ``a
+    robust estimate of the standard deviation''; for linmix and $t$-cup, we
+    report the posterior median and an estimate of the standard deviation as
+    $\sigma = 1.4826 MAD$.}
+	\label{tab:real-world.kelly.params}
+	\begin{tabular}{lccc} % four columns, alignment for each
+                               & \citet{Kelly:2007} & linmix   & $t$-cup       \\
+    Intercept $\alpha$         & 3.12 \pm 0.41 & 3.18 \pm 0.48 & 3.48 \pm 0.35 \\
+    Slope $\beta$              & 1.35 \pm 0.54 & 1.40 \pm 0.60 & 1.80 \pm 0.44 \\
+    Int. scatter $\sigma_{68}$ & 0.26 \pm 0.11 & 0.25 \pm 0.12 & 0.15 \pm 0.09 \\
+    Outlier fraction $\omega$  &      ---      &      ---      & 0.041 \pm 0.025 \\
+\end{tabular}
+\end{table}
+
+While the parameter estimates are broadly consistent (see Table
+\ref{tab:real-world.kelly.params}), the posterior distributions in Figure
+\ref{fig:real-world.kelly.corner} can be seen to differ, with the posterior
+inferred by \textsc{linmix} being more diffuse than that inferred by $t$-cup.
+The tighter constraints of $t$-cup suggest that the inference presented by
+\citet{Kelly:2007} may biased by the assumption of normally-distributed data,
+which may not hold true in this case.
+The explicit assumption of normality in \textsc{linmix} is in tension with the
+outlier fraction estimated by $t$-cup (68\% CI $\omega =
+0.041^{+0.032}_{-0.021}$). This showcases that analysing data with robust
+procedures gives materially different answers on real-world data, and highlights
+the importance of carefully considering the implications when assuming
+normality.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/corner_kelly.pdf}
     \caption{The posterior distributions for the data from \citet{Kelly:2007}
-    under the normal (blue) and $t$-cup (red) models. {\color{red} This figure
-    needs updating with comparison with the Python version of linmix.}}
+    under the linmix (blue) and $t$-cup (red) models.}
     \label{fig:real-world.kelly.corner}
 \end{figure}
 

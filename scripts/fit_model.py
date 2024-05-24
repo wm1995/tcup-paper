@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import arviz as az
-from tcup import tcup
+from tcup.numpyro import tcup
 from tcup_paper.data.io import load_dataset
 
 

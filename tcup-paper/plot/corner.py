@@ -47,7 +47,7 @@ def plot_corner(
 
     # Work out how many variables have multiple dimensions
     # and deduce corner plot size
-    dims = pooled_samples.dims
+    dims = pooled_samples.sizes
     var_indices = []
     var_names_unpacked = []
     for var_name in var_names:
@@ -95,6 +95,7 @@ def plot_corner(
                         pooled_samples[var_x][var_idx].values,
                         bins=bins[bins_key],
                         histtype="step",
+                        density=True,
                         **{
                             key: value
                             for key, value in marginal_kwargs.items()
@@ -105,6 +106,7 @@ def plot_corner(
                     _, curr_bins, _ = ax[ax_idy, ax_idx].hist(
                         pooled_samples[var_x][var_idx].values,
                         histtype="step",
+                        density=True,
                         **marginal_kwargs,
                     )
                     bins[bins_key] = curr_bins

@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def plot_kde(x, y, ax, kde_kwargs):
+    pass
+
+
 def plot_corner(
     mcmc: az.InferenceData,
     var_names: list[str],

@@ -238,12 +238,13 @@ have $N$ objects, each with some associated independent quantities
 $\{\boldsymbol{x}_i\}$ and a dependent quantity $\{y_i\}$. We assume that these
 quantities are related by the equations
 \begin{align}
-    y_i =&\; \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i + \epsilon_i, \\
+    y_i =&\; f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) + \epsilon_i, \\
     \epsilon_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
 \end{align}
-where $\mathcal{P}_{int}$ is an unknown probability distribution with parameters
-$\boldsymbol{\theta}_{\text{int}}$. {\color{red} Should I further genericise
-this model so that it's $y = f(x)$?}
+where $f(\boldsymbol{x}_i; \boldsymbol{\theta}_f)$ is a function relating
+$\{\boldsymbol{x}_i\}$ to $\{y_i\}$, with parameters $\boldsymbol{\theta}_f$,
+and $\mathcal{P}_{\text{int}}$ is an unknown probability distribution with
+parameters $\boldsymbol{\theta}_{\text{int}}$.
 
 These objects are then observed by astronomers, resulting in the measured
 data
@@ -261,43 +262,25 @@ data or selection effects, but this is beyond the scope of the current work ---
 see \citet{Kelly:2007} for an overview of an approach that would incorporate
 these effects.
 
-\subsection{Regression model}
-\label{sec:formalism.model}
+\subsection{Building a robust model}
+\label{sec:formalism.robust}
 
-Similarly to \citet{Kelly:2007}, we define a Bayesian hierarchical model to
-reflect the nature of the regression problem. Firstly, we assume that we can
-represent the probability distribution $\mathcal P_{\text{int}}$ with a
-Student's $t$-distribution with shape parameter $\nu$ and scale parameter
-$\sigma_{\text{int}}$ --- i.e.
-\begin{equation}
-\depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr}.
-\end{equation}
-We use a Student's $t$-distribution here not because we believe that the data
-intrinsically follows this distribution, but because the resulting model is
-robust to model misspecification at the object level -- such as if a galaxy were
-to be an outlier from a particular relation as a result of a recent merger.
+In the setup outlined above, we do not know what the distributions
+$\mathcal{P}_{\text{int}}$ and $\boldsymbol{\theta}_{\text{obs}}$ are. A common
+assumption in analysis is to use normal distributions to model both of these
+distributions. However, in the case of model misspecification (where, e.g., we
+assume $\mathcal{P}_{\text{int}}$ is a normal distribution but it is a different
+distribution), the results obtained under this assumption can be biased.
+Making the assumption that $\mathcal{P}_{\text{int}}$ follows a different
+distribution, such as a Student's $t$-distribution \citep{??} or a Gaussian
+mixture model \citep{??}, can give results that are robust to this model
+misspecification. This means that, even though we do not believe that the
+distribution we choose to model $\mathcal{P}_{\text{int}}$ is the same as the
+underlying, unknown $\mathcal{P}_{\text{int}}$, we can be confident in the
+results achieved.
 
-Similarly, we assume that we can represent the porbability distribution
-$\mathcal P_{\text{obs}}$ as a Student's $t$-distribution with the same shape
-parameter $\nu$ and scale parameter given by the error associated with the
-measured quantity. These measurements are modelled as
-\begin{align}
-    \obsindep \sim&\; \studentt{\indepvars}{\indepcov} \\
-    \obsdep \sim&\; \studentt{\indepvars}{\deperr}.
-\end{align}
-
-Once again, we use a Student's $t$-distribution because the resulting model is
-more robust to model misspecification -- in this case, misspecification in the
-error measurement.
-
-This model structure is represented as a directed acyclic graph in Figure
-\ref{fig:formalism.dag}.
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{graphics/dag.pdf}
-    \caption{A directed acyclic graph representing the $t$-cup model.}
-    \label{fig:formalism.dag}
-\end{figure}
+In this paper, we use Student's $t$-distributions to build a model that is
+robust to model misspecification.
 
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}
@@ -318,9 +301,10 @@ parameter.
 % nuisance parameter: its exact value is unimportant, and its inclusion in the
 % model is solely to ensure that inference is robust to outliers.
 
-The Student's $t$-distribution has probability density function
+The Student's $t$-distribution, with location $\mu$ and scale $\sigma$, has
+the probability density function
 \begin{equation}
-    \studentt{\mu}{\sigma}
+    t_{\nu} \left(x; {\mu}, {\sigma}\right)
         =
     \frac{1}{\sqrt{\pi \nu} \sigma}
     \frac{
@@ -355,6 +339,67 @@ and variance
         \textrm{undefined} & \textrm{otherwise.}
     \end{cases}
 \end{equation}
+
+In this paper, we have found it useful to define two quantities for comparison
+with normal distributions. The first, $\sigma_{68}(\nu)$, is the width of the
+highest density interval for a $t$-distribution with scale parameter
+$\sigma = 1$ such that the density contained in the interval is equal to that
+of a 1$\sigma$ interval for a normal distribution. This is given by
+\begin{equation}
+    \sigma_{68}(\nu) = \sqrt{\nu \left(\frac{1}{I^{-1}(0.68...;\frac\nu2, \frac12)} - 1\right)},
+\end{equation}
+where $I^{-1}$ is the inverse regularised incomplete beta function. This
+quantity is useful for defining a ``scale'' parameter that is less tightly
+coupled to $\nu$ than the $\sigma$
+
+\subsection{Regression model}
+\label{sec:formalism.model}
+
+For the analysis in this paper, we assume a linear relationship between
+$\{\boldsymbol{x}_i\}$ to $\{y_i\}$, i.e.
+\begin{equation}
+    f(\boldsymbol{x}_i; \boldsymbol{\theta}_x) =
+        \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i
+\end{equation}
+where $\{\alpha, \boldsymbol{\beta}\} \equiv \boldsymbol{\theta}_f$.
+
+Similarly to \citet{Kelly:2007}, we define a Bayesian hierarchical model to
+reflect the nature of the regression problem. Firstly, we assume that we can
+represent the probability distribution $\mathcal P_{\text{int}}$ with a
+Student's $t$-distribution with shape parameter $\nu$ and scale parameter
+$\sigma_{\text{int}}$ --- i.e.
+\begin{equation}
+\depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr}.
+\end{equation}
+We use a Student's $t$-distribution here not because we believe that the data
+intrinsically follows this distribution, but because the resulting model is
+robust to model misspecification --- such as if a galaxy were
+to be an outlier from a particular relation as a result of a recent merger.
+
+We assume that we can represent the probability distribution
+$\mathcal P_{\text{obs}}$ as a normal distribution with scale parameter given by
+the error associated with the measured quantity. These measurements are modelled
+as
+\begin{align}
+    \obsindep \sim&\; \mathcal N\left({\indepvars}, {\indepcov}\right) \\
+    \obsdep \sim&\; \mathcal N\left({\indepvars}, {\deperr}\right).
+\end{align}
+
+We experimented with assuming $\mathcal P_{\text{obs}}$ to be $t$-distributed,
+but found that the resultant model was difficult to sample as a result of its
+geometry, and that posterior predictive checks often included large outliers
+and did not resemble the datasets that gave rise to them.
+
+This model structure is represented as a directed acyclic graph in Figure
+\ref{fig:formalism.dag}.
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{graphics/dag.pdf}
+    \caption{A directed acyclic graph representing the $t$-cup model for the
+    function $f(\boldsymbol{x}; \boldsymbol{\theta}) = \alpha +
+    \boldsymbol{\beta} \cdot \boldsymbol{x}_i$.}
+    \label{fig:formalism.dag}
+\end{figure}
 
 \subsection{Priors}
 \label{sec:formalism.prior}
@@ -506,7 +551,7 @@ and are a test not only of the MCMC model but also of the scaling.
 % as a numbered equation:
 
 % \begin{equation}
-%     x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}.
+%     x=\frac{-b$\pm$\sqrt{b^2-4ac}}{2a}.
 % 	\label{eq:quadratic}
 % \end{equation}
 
@@ -858,17 +903,17 @@ by \citeauthor{Kelly:2007}.
 	\caption{A comparison of estimates for the intercept,
     slope, and intrinsic scatter inferred for the relationship between Eddington
     ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$. The parameter
-    estimates reported in \textcite{Kelly:2007} are the posterior median and ``a
+    estimates reported in \citet{Kelly:2007} are the posterior median and ``a
     robust estimate of the standard deviation''; for linmix and $t$-cup, we
     report the posterior median and an estimate of the standard deviation as
     $\sigma = 1.4826 MAD$.}
 	\label{tab:real-world.kelly.params}
 	\begin{tabular}{lccc} % four columns, alignment for each
                                & \citet{Kelly:2007} & linmix   & $t$-cup       \\
-    Intercept $\alpha$         & 3.12 \pm 0.41 & 3.18 \pm 0.48 & 3.48 \pm 0.35 \\
-    Slope $\beta$              & 1.35 \pm 0.54 & 1.40 \pm 0.60 & 1.80 \pm 0.44 \\
-    Int. scatter $\sigma_{68}$ & 0.26 \pm 0.11 & 0.25 \pm 0.12 & 0.15 \pm 0.09 \\
-    Outlier fraction $\omega$  &      ---      &      ---      & 0.041 \pm 0.025 \\
+    Intercept $\alpha$         & 3.12 $\pm$ 0.41 & 3.18 $\pm$ 0.48 & 3.48 $\pm$ 0.35 \\
+    Slope $\beta$              & 1.35 $\pm$ 0.54 & 1.40 $\pm$ 0.60 & 1.80 $\pm$ 0.44 \\
+    Int. scatter $\sigma_{68}$ & 0.26 $\pm$ 0.11 & 0.25 $\pm$ 0.12 & 0.15 $\pm$ 0.09 \\
+    Outlier fraction $\omega$  &      ---      &      ---      & 0.041 $\pm$ 0.025 \\
 \end{tabular}
 \end{table}
 

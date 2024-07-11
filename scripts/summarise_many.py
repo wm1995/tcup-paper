@@ -4,7 +4,24 @@ import warnings
 import arviz as az
 import numpy as np
 import pandas as pd
+import scipy.stats as sps
+import scipy.optimize
 from tqdm import trange
+
+
+def kde_map(samples, x0=None):
+    samples = samples.to_array().values
+    n_vars = samples.shape[0]
+    samples = samples.reshape(n_vars, -1)
+    if x0 is None:
+        x0 = np.zeros(n_vars)
+
+    kernel = sps.gaussian_kde(samples)
+    soln = scipy.optimize.minimize(lambda x: -kernel.logpdf(x), x0)
+
+    assert soln.success
+    return soln.x
+
 
 # This is an implementation of the half-sample mode algorithm
 # Translated from an R function in Statomics
@@ -41,44 +58,70 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True)
     parser.add_argument("--model", required=True)
-    parser.add_argument("-n", "--num-repeats", default=1000)
+    parser.add_argument("-n", "--num-repeats", default=1000, type=int)
     args = parser.parse_args()
 
     var_names = [
-        "alpha_rescaled",
-        "beta_rescaled",
-        "sigma_rescaled",
+        "alpha",
+        "beta",
     ]
-    if args.model == "tcup":
-        var_names += ["sigma_68", "nu"]
-    elif args.model == "fixed3":
+    if args.model == "ncup":
+        var_names += ["sigma"]
+    else:
         var_names += ["sigma_68"]
+    if args.model in ["tcup", "tobs"]:
+        var_names += ["nu"]
 
     results = pd.DataFrame(columns=["r_hat", "diverging"] + var_names)
 
     for idx in trange(args.num_repeats):
         try:
             mcmc = az.from_netcdf(
-                f"results/repeats/{args.dataset}_{args.model}_{idx}.nc"
+                f"results/fixed/{args.model}/{args.dataset}/{idx+1}.nc"
             )
         except FileNotFoundError:
             warnings.warn("File not found")
             continue
 
         diagnostics = az.summary(mcmc, kind="diagnostics")
-        summary = az.summary(
-            mcmc, var_names=var_names, stat_funcs={"map": hsm}
-        )
+        summary = az.summary(mcmc, var_names=var_names, stat_focus="median")
+
+        # map_estimate = kde_map(
+        #     mcmc.posterior[["alpha", "beta", "sigma_68", "nu"]],
+        #     [3, 2, 0.1, 3],
+        # )
+
+        # # add results to table
+        # results.loc[len(results)] = [
+        #     diagnostics["r_hat"].max(),
+        #     np.sum(mcmc.sample_stats["diverging"].values),
+        # ] + map_estimate.tolist()
 
         # Add results to table
-        results.loc[len(results)] = [
-            diagnostics["r_hat"].max(),
-            np.sum(mcmc.sample_stats["diverging"].values),
-            summary["map"].get("alpha_rescaled", None),
-            summary["map"].get("beta_rescaled", None),
-            summary["map"].get("sigma_rescaled", None),
-            summary["map"].get("sigma_68", None),
-            summary["map"].get("nu", None),
-        ]
+        if args.model in ["tcup", "tobs"]:
+            results.loc[len(results)] = [
+                diagnostics["r_hat"].max(),
+                np.sum(mcmc.sample_stats["diverging"].values),
+                summary["median"].get("alpha", None),
+                summary["median"].get("beta[0]", None),
+                summary["median"].get("sigma_68", None),
+                summary["median"].get("nu", None),
+            ]
+        elif args.model == "ncup":
+            results.loc[len(results)] = [
+                diagnostics["r_hat"].max(),
+                np.sum(mcmc.sample_stats["diverging"].values),
+                summary["median"].get("alpha", None),
+                summary["median"].get("beta[0]", None),
+                summary["median"].get("sigma", None),
+            ]
+        else:
+            results.loc[len(results)] = [
+                diagnostics["r_hat"].max(),
+                np.sum(mcmc.sample_stats["diverging"].values),
+                summary["median"].get("alpha", None),
+                summary["median"].get("beta[0]", None),
+                summary["median"].get("sigma_68", None),
+            ]
 
     results.to_csv(f"results/{args.dataset}_{args.model}_many.csv")

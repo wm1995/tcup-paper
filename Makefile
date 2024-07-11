@@ -5,7 +5,7 @@
 VENV := venv
 
 # List of models to be tested
-MODELS := tcup ncup fixed3 tobs
+MODELS := tcup # ncup fixed3 tobs
 
 # SBC dataset parameters
 NUM_SBC_DATASETS := 400
@@ -13,8 +13,8 @@ SBC_DATASETS := t tobs fixed normal outlier5 outlier10 outlier20 gaussian_mix la
 SBC_PLOT_TYPES := alpha_scaled beta_scaled sigma_scaled  # also nu but only for tcup/t
 
 # Fixed run parameters
-NUM_FIXED_DATASETS := 3
-FIXED_DATASETS = t normal outlier gaussian_mix laplace lognormal
+NUM_FIXED_DATASETS := 400
+FIXED_DATASETS = t # normal outlier gaussian_mix laplace lognormal
 
 # Real datasets
 REAL_DATASETS := kelly park_FWHM park_line_disp park_MAD
@@ -283,19 +283,19 @@ fixed-datasets: ${FIXED_DATASETS_JSON}
 ${FIXED_DATA_DIRS}:
 	-mkdir -p $@
 
-data/fixed/t/%.json: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/t.py | data/fixed/t
+data/fixed/t/%.json: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/fixed/t.py | data/fixed/t
 	${PYTHON} scripts/gen_dataset.py --t-dist --seed $*
 
-data/fixed/outlier/%.json data/fixed/normal/%.json &: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/outlier data/fixed/normal
+data/fixed/outlier/%.json data/fixed/normal/%.json &: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/fixed/outlier.py | data/fixed/outlier data/fixed/normal
 	${PYTHON} scripts/gen_dataset.py --outlier --seed $*
 
-data/fixed/gaussian_mix/%.json: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/gaussian_mix
+data/fixed/gaussian_mix/%.json: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/fixed/gaussian_mix.py | data/fixed/gaussian_mix
 	${PYTHON} scripts/gen_dataset.py --gaussian-mix --seed $*
 
-data/fixed/laplace/%.json: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/laplace
+data/fixed/laplace/%.json: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/fixed/laplace.py | data/fixed/laplace
 	${PYTHON} scripts/gen_dataset.py --laplace --seed $*
 
-data/fixed/lognormal/%.json: ${FIXED_DATASET_DEPENDENCIES} | data/fixed/lognormal
+data/fixed/lognormal/%.json: ${FIXED_DATASET_DEPENDENCIES} tcup-paper/data/fixed/lognormal.py | data/fixed/lognormal
 	${PYTHON} scripts/gen_dataset.py --lognormal --seed $*
 
 ################################################################################
@@ -334,6 +334,9 @@ results/real/fixed3/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
 results/real/ncup/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
 	-${PYTHON} scripts/fit_model.py -n $< $@
 
+results/real/tobs/%.nc: data/real/%.json | ${REAL_MCMC_DIRS}
+	-${PYTHON} scripts/fit_model.py -o $< $@
+
 ################################################################################
 # Fit linmix to real datasets
 ################################################################################
@@ -370,6 +373,9 @@ results/fixed/fixed3/%.nc: data/fixed/%.json ${FIXED_MCMC_DEPENDENCIES} | ${FIXE
 
 results/fixed/ncup/%.nc: data/fixed/%.json ${FIXED_MCMC_DEPENDENCIES} | ${FIXED_MCMC_DIRS}
 	-${PYTHON} scripts/fit_model.py -n $< $@
+
+results/fixed/tobs/%.nc: data/fixed/%.json ${FIXED_MCMC_DEPENDENCIES} | ${FIXED_MCMC_DIRS}
+	-${PYTHON} scripts/fit_model.py -o $< $@
 
 ################################################################################
 # Produce plots and analysis

@@ -18,7 +18,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.t_dist:
-        from tcup_paper.data.t import gen_dataset
+        from tcup_paper.data.fixed.t import gen_dataset
 
         x, y, dx, dy, info = gen_dataset(args.seed)
         data = {
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         write_dataset(f"fixed/t/{args.seed}", data, info)
 
     if args.outlier:
-        from tcup_paper.data.outlier import gen_dataset
+        from tcup_paper.data.fixed.outlier import gen_dataset
 
         x, y, dx, dy, info = gen_dataset(args.seed)
         data = {
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         write_dataset(f"fixed/normal/{args.seed}", no_outlier_data, info)
 
     if args.gaussian_mix:
-        from tcup_paper.data.gaussian_mix import gen_dataset
+        from tcup_paper.data.fixed.gaussian_mix import gen_dataset
 
         x, y, dx, dy, info = gen_dataset(args.seed)
         data = {
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         write_dataset(f"fixed/gaussian_mix/{args.seed}", data, info)
 
     if args.laplace:
-        from tcup_paper.data.laplace import gen_dataset
+        from tcup_paper.data.fixed.laplace import gen_dataset
 
         x, y, dx, dy, info = gen_dataset(args.seed)
         data = {
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         write_dataset(f"fixed/laplace/{args.seed}", data, info)
 
     if args.lognormal:
-        from tcup_paper.data.lognormal import gen_dataset
+        from tcup_paper.data.fixed.lognormal import gen_dataset
 
         x, y, dx, dy, info = gen_dataset(args.seed)
         data = {

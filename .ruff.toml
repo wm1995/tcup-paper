@@ -1,0 +1,7 @@
+
+line-length = 80
+
+[lint]
+select = ["B", "E", "F", "I", "W"]
+ignore = ["B028"]
+fixable = ["ALL"]

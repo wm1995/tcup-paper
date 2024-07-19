@@ -44,7 +44,7 @@ class Dataset(ABC):
             size=self.n_data,
             random_state=self.rng,
         )
-        self.dy = np.abs(self.beta) * 10**log_dy
+        self.dy = np.linalg.norm(self.beta) * 10**log_dy
 
     def observe_data(self):
         eps_x = np.array(

@@ -6,8 +6,6 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: chartboost/ruff-action@v1
-              with:
-                changed-files: 'true'
     python-format:
         runs-on: ubuntu-latest
         steps:
@@ -15,7 +13,6 @@ jobs:
             - uses: chartboost/ruff-action@v1
               with:
                 args: 'format --check'
-                changed-files: 'true'
     pytest:
         runs-on: ubuntu-latest
         steps:

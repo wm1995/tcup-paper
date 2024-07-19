@@ -51,7 +51,7 @@ def test_outlier_dataset(dataset_params, outlier_sigma):
     z = (dataset.y_true - mu) / dataset.sigma_68
 
     info = dataset.get_info_dict()
-    outlier_mask = info["outlier_mask"]
+    outlier_mask = np.array(info["outlier_mask"])
     outlier = dataset.y_true[dataset.outlier_idx]
     outlier_logpdf = sps.norm(
         loc=mu[dataset.outlier_idx], scale=dataset.sigma_68

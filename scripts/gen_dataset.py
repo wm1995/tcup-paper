@@ -4,7 +4,6 @@ import argparse
 import numpy as np
 from tcup_paper.data.io import write_dataset
 
-
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser(description="Fit a model to data")

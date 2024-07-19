@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
 
-from tcup_paper.data.io import write_dataset
 import tcup_paper.data.sbc as sbc_data
-
 
 if __name__ == "__main__":
     # Parse arguments
@@ -60,13 +58,17 @@ if __name__ == "__main__":
             "name": "outlier",
             "outlier_sigma": args.outlier,
         }
-        dataset = sbc_data.OutlierDataset(outlier_sigma=args.outlier, **dataset_params)
+        dataset = sbc_data.OutlierDataset(
+            outlier_sigma=args.outlier, **dataset_params
+        )
     elif args.gaussian_mix:
         dist_params = {
             "name": "gaussian_mix",
             "outlier_prob": 0.1,
         }
-        dataset = sbc_data.GaussianMixDataset(outlier_prob=0.1, **dataset_params)
+        dataset = sbc_data.GaussianMixDataset(
+            outlier_prob=0.1, **dataset_params
+        )
     elif args.laplace:
         dist_params = {
             "name": "laplace",
@@ -83,6 +85,8 @@ if __name__ == "__main__":
     dataset.generate(x_true_params)
 
     if dist_params["name"] == "outlier":
-        dataset.write(f"data/sbc/outlier{int(dist_params['outlier_sigma'])}/{args.seed}.json")
+        dataset.write(
+            f"data/sbc/outlier{int(dist_params['outlier_sigma'])}/{args.seed}.json"
+        )
     else:
         dataset.write(f"data/sbc/{dist_params['name']}/{args.seed}.json")

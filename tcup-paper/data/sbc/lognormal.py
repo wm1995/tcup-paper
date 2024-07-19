@@ -3,6 +3,7 @@ from scipy.optimize import root
 
 from .dataset import Dataset
 
+
 class LognormalDataset(Dataset):
     def draw_params_from_prior(self):
         def cred_int_68(s):

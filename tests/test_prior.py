@@ -1,14 +1,13 @@
-import pytest
-
 import jax
 import jax.numpy as jnp
+import pytest
+import scipy.stats as sps
 from numpyro.distributions import Normal
 from numpyro.infer import Predictive
-import scipy.stats as sps
 from tcup.numpyro import model_builder
 from tcup_paper.model import prior
 
-THRESHOLD = 1e-3 # Set the p-value threshold
+THRESHOLD = 1e-3  # Set the p-value threshold
 
 
 @pytest.fixture
@@ -18,11 +17,12 @@ def tcup_samples():
     tcup_sampler = Predictive(tcup_model, num_samples=100000)
     return tcup_sampler(
         rng_key,
-        x_scaled = jnp.array([[0]]),
-        y_scaled = jnp.array([[0]]),
-        cov_x_scaled = jnp.array([[[1]]]),
-        dy_scaled = jnp.array([[1]]),
+        x_scaled=jnp.array([[0]]),
+        y_scaled=jnp.array([[0]]),
+        cov_x_scaled=jnp.array([[[1]]]),
+        dy_scaled=jnp.array([[1]]),
     )
+
 
 @pytest.fixture
 def ncup_samples():
@@ -31,11 +31,12 @@ def ncup_samples():
     ncup_sampler = Predictive(ncup_model, num_samples=100000)
     return ncup_sampler(
         rng_key,
-        x_scaled = jnp.array([[0]]),
-        y_scaled = jnp.array([[0]]),
-        cov_x_scaled = jnp.array([[[1]]]),
-        dy_scaled = jnp.array([[1]]),
+        x_scaled=jnp.array([[0]]),
+        y_scaled=jnp.array([[0]]),
+        cov_x_scaled=jnp.array([[[1]]]),
+        dy_scaled=jnp.array([[1]]),
     )
+
 
 @pytest.fixture
 def fixed3_samples():
@@ -44,11 +45,12 @@ def fixed3_samples():
     fixed3_sampler = Predictive(fixed3_model, num_samples=100000)
     return fixed3_sampler(
         rng_key,
-        x_scaled = jnp.array([[0]]),
-        y_scaled = jnp.array([[0]]),
-        cov_x_scaled = jnp.array([[[1]]]),
-        dy_scaled = jnp.array([[1]]),
+        x_scaled=jnp.array([[0]]),
+        y_scaled=jnp.array([[0]]),
+        cov_x_scaled=jnp.array([[[1]]]),
+        dy_scaled=jnp.array([[1]]),
     )
+
 
 @pytest.mark.parametrize(
     "param,prior",
@@ -57,9 +59,11 @@ def fixed3_samples():
         ("beta_scaled", prior.beta_prior),
         ("sigma_68_scaled", prior.sigma_68_prior),
         ("nu", prior.nu_prior),
-    ])
+    ],
+)
 def test_prior_dist(tcup_samples, param, prior):
     assert sps.kstest(tcup_samples[param], prior.cdf).pvalue > THRESHOLD
+
 
 def test_tcup_intrinsic_dist(tcup_samples):
     x = tcup_samples["x_true"].flatten()
@@ -75,6 +79,7 @@ def test_tcup_intrinsic_dist(tcup_samples):
     assert sps.kstest(sps.t.cdf(t, df=nu), sps.uniform.cdf).pvalue > THRESHOLD
     assert sps.kstest(t, sps.norm.cdf).pvalue < THRESHOLD
 
+
 def test_ncup_intrinsic_dist(ncup_samples):
     x = ncup_samples["x_true"].flatten()
     y = ncup_samples["y_true"].flatten()
@@ -86,6 +91,7 @@ def test_ncup_intrinsic_dist(ncup_samples):
     z = (y - mu) / sigma
 
     assert sps.kstest(z, sps.norm.cdf).pvalue > THRESHOLD
+
 
 def test_fixed3_intrinsic_dist(fixed3_samples):
     x = fixed3_samples["x_true"].flatten()

@@ -1,9 +1,9 @@
 #!/usr/bin/env python2
 # NB this script is in Python 2 to work with linmix
-import argparse
 import json
 
 import numpy as np
+
 import linmix
 
 

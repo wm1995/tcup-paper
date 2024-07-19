@@ -4,6 +4,7 @@ from tcup.utils import sigma_68
 
 from ...model.prior import draw_params_from_prior
 
+
 def draw_x_true(rng, n_data, dim_x, weights, means, vars):
     n_mix = sps.multinomial(n_data, weights).rvs(random_state=rng).flatten()
     x_true = []
@@ -31,7 +32,6 @@ def gen_dataset(seed, x_true_params, dist_params):
             "nu": fixed_nu,
         }:
             nu = np.array([fixed_nu])
-            sigma_68_scaled = sigma_scaled
             sigma_scaled = sigma_68_scaled / sigma_68(nu)
             epsilon = sps.t(nu, scale=sigma_scaled).rvs(
                 size=N, random_state=rng
@@ -49,27 +49,21 @@ def gen_dataset(seed, x_true_params, dist_params):
         case {
             "name": "normal",
         }:
-            epsilon = sps.norm(scale=sigma_scaled).rvs(
-                size=N, random_state=rng
-            )
+            epsilon = sps.norm(scale=sigma_scaled).rvs(size=N, random_state=rng)
             y_true = alpha_scaled + np.dot(x_true, beta_scaled) + epsilon
         case {
             "name": "outlier",
             "outlier_idx": outlier_idx,
         }:
             x_true = np.sort(x_true)
-            epsilon = sps.norm(scale=sigma_scaled).rvs(
-                size=N, random_state=rng
-            )
+            epsilon = sps.norm(scale=sigma_scaled).rvs(size=N, random_state=rng)
             epsilon[outlier_idx] -= 10 * sigma_scaled
             y_true = alpha_scaled + np.dot(x_true, beta_scaled) + epsilon
         case {
             "name": "cauchy_mix",
         }:
             outlier_idx = np.random.choice(N, 1)
-            epsilon = sps.norm(scale=sigma_scaled).rvs(
-                size=N, random_state=rng
-            )
+            epsilon = sps.norm(scale=sigma_scaled).rvs(size=N, random_state=rng)
             epsilon[outlier_idx] = sps.cauchy(scale=sigma_scaled).rvs(
                 random_state=rng
             )
@@ -81,12 +75,8 @@ def gen_dataset(seed, x_true_params, dist_params):
             "outlier_sigma": outlier_sigma,
         }:
             outlier_idx = np.random.choice(N, 1)
-            epsilon = sps.norm(scale=sigma_scaled).rvs(
-                size=N, random_state=rng
-            )
-            outlier_sgn = -1 ** sps.bernoulli(p = 0.5).rvs(
-                random_state=rng
-            )
+            epsilon = sps.norm(scale=sigma_scaled).rvs(size=N, random_state=rng)
+            outlier_sgn = -(1 ** sps.bernoulli(p=0.5).rvs(random_state=rng))
             epsilon[outlier_idx] = outlier_sgn * outlier_sigma * sigma_scaled
             y_true = alpha_scaled + np.dot(x_true, beta_scaled) + epsilon
             outlier_mask = np.zeros((N,)).astype(bool)

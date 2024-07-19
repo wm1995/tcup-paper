@@ -1,12 +1,13 @@
-from abc import ABC, abstractmethod
 import copy
 import json
+from abc import ABC, abstractmethod
 
 import numpy as np
 import scipy.stats as sps
 
-from .utils import draw_x_true
 from ...model.prior import draw_params_from_prior
+from .utils import draw_x_true
+
 
 class Dataset(ABC):
     def __init__(self, seed, n_data, dim_x):
@@ -27,21 +28,22 @@ class Dataset(ABC):
 
     def draw_errors(self):
         if self.dim_x == 1:
-            dx = 10**sps.norm(loc=-1, scale=0.1).rvs(
+            dx = 10 ** sps.norm(loc=-1, scale=0.1).rvs(
                 size=self.n_data,
                 random_state=self.rng,
             )
             self.cov_x = (dx**2).reshape(self.n_data, self.dim_x, self.dim_x)
         else:
             self.cov_x = sps.wishart.rvs(
-                self.dim_x + 1, np.diag([0.1] * self.dim_x),
+                self.dim_x + 1,
+                np.diag([0.1] * self.dim_x),
                 size=self.n_data,
                 random_state=self.rng,
             ).reshape(self.n_data, self.dim_x, self.dim_x)
         log_dy = sps.norm(loc=-0.7, scale=0.2).rvs(
-                size=self.n_data,
-                random_state=self.rng,
-            )
+            size=self.n_data,
+            random_state=self.rng,
+        )
         self.dy = np.abs(self.beta) * 10**log_dy
 
     def observe_data(self):
@@ -58,14 +60,16 @@ class Dataset(ABC):
             random_state=self.rng
         )
 
-    def generate(self, x_true_params = None):
+    def generate(self, x_true_params=None):
         if x_true_params is None:
             self.x_true_params = {
                 "n_data": self.n_data,
                 "dim_x": self.dim_x,
                 "weights": [1],
                 "means": np.zeros((1, self.dim_x)),
-                "vars": np.diag(np.ones(self.dim_x)).reshape(1, self.dim_x, self.dim_x),
+                "vars": np.diag(np.ones(self.dim_x)).reshape(
+                    1, self.dim_x, self.dim_x
+                ),
             }
         else:
             self.x_true_params = copy.deepcopy(x_true_params)
@@ -101,7 +105,7 @@ class Dataset(ABC):
             "true_y": self.y_true.tolist(),
             "alpha_scaled": self.alpha.tolist(),
             "beta_scaled": self.beta.tolist(),
-            "sigma_68_scaled": self.sigma_68.tolist()
+            "sigma_68_scaled": self.sigma_68.tolist(),
         }
 
         # Include nu if defined

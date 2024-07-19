@@ -1,15 +1,13 @@
 import argparse
 from glob import glob
 
-import arviz as az
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as sps
-from tcup.utils import sigma_68
+import xarray as xr
 from tcup_paper.data.io import load_dataset
 from tcup_paper.model import prior
 from tcup_paper.plot.style import apply_matplotlib_style
-import xarray as xr
 
 L = 1023
 B = 16
@@ -119,7 +117,7 @@ if __name__ == "__main__":
         )
         try:
             _, info = load_dataset(data_filename)
-        except:
+        except FileNotFoundError:
             continue
 
         sbc_data = xr.load_dataset(filename)
@@ -154,20 +152,24 @@ if __name__ == "__main__":
             if "beta_scaled" in var_name:
                 idx = int(var_name.split(".")[-1])
                 # Save rank and dataset value to appropriate value
-                ranks[var_name].append((
-                    sbc_data["true_beta_scaled"].values[idx],
-                    sbc_data["rank_beta_scaled"].values[idx],
-                    sbc_data["beta_scaled"].median(axis=-1)[idx],
-                ))
+                ranks[var_name].append(
+                    (
+                        sbc_data["true_beta_scaled"].values[idx],
+                        sbc_data["rank_beta_scaled"].values[idx],
+                        sbc_data["beta_scaled"].median(axis=-1)[idx],
+                    )
+                )
                 bin_idx = int(sbc_data["rank_beta_scaled"].values[idx] * L)
                 curr_bins[bin_idx] += 1
             else:
                 # Save rank and dataset value to appropriate value
-                ranks[var_name].append((
-                    sbc_data[f"true_{var_name}"].values[()],
-                    sbc_data[f"rank_{var_name}"].values[()],
-                    sbc_data[var_name].median(axis=-1)[()],
-                ))
+                ranks[var_name].append(
+                    (
+                        sbc_data[f"true_{var_name}"].values[()],
+                        sbc_data[f"rank_{var_name}"].values[()],
+                        sbc_data[var_name].median(axis=-1)[()],
+                    )
+                )
                 bin_idx = int(sbc_data[f"rank_{var_name}"].values[()] * L)
                 curr_bins[bin_idx] += 1
 
@@ -182,7 +184,8 @@ if __name__ == "__main__":
         confidence_intervals.append((lower, upper))
         print(f"{N=}, {B=}, {N / B=:.2f}")
         print(
-            f"{confidence_level * 100:.0f}% confidence interval: [{lower}, {upper}]"
+            f"{confidence_level * 100:.0f}% confidence interval: "
+            f"[{lower}, {upper}]"
         )
 
     apply_matplotlib_style()
@@ -190,7 +193,9 @@ if __name__ == "__main__":
     for idx, (var_name, curr_bins) in enumerate(zip(var_names, bins)):
         pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
         for lower, upper in confidence_intervals:
-            ax[idx].fill_between([-0.05, 1.05], lower, upper, alpha=0.1, color="k")
+            ax[idx].fill_between(
+                [-0.05, 1.05], lower, upper, alpha=0.1, color="k"
+            )
         edges = np.linspace(0, 1 - 1 / B, B)
         ax[idx].bar(edges, pooled_bins, width=1 / B, align="edge")
         ax[idx].hlines(
@@ -251,10 +256,11 @@ if __name__ == "__main__":
         latex_var = get_latex_var(var_name)
         plt.xlabel(rf"CDF of dataset ${latex_var}$")
         plt.ylabel(rf"CDF of median $\hat{{{latex_var}}}$")
+        pearsonr = sps.pearsonr(cdf(data[:, 0]), cdf(data[:, 2])).statistic
         plt.text(
             0.02,
             0.98,
-            f"R = {sps.pearsonr(cdf(data[:, 0]), cdf(data[:, 2])).statistic:.3f}",
+            f"R = {pearsonr:.3f}",
             horizontalalignment="left",
             verticalalignment="top",
         )

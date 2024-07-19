@@ -1,14 +1,15 @@
 from functools import cache
 from glob import glob
-from dash import Dash, html, dcc, Input, Output, callback
-from tcup_paper.data.io import load_dataset
+
 import numpy as np
-import plotly.subplots as ps
 import plotly.graph_objects as go
+import plotly.subplots as ps
 import scipy.stats as sps
 import xarray as xr
+from dash import Dash, Input, Output, callback, dcc, html
+from tcup_paper.data.io import load_dataset
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -16,72 +17,110 @@ dataset_type = [x.split("/")[-1] for x in glob("data/sbc/*")]
 dataset_type.sort()
 file_index = list(range(1, 401))
 
-app.layout = html.Div([
-    dcc.Tabs([
-        dcc.Tab(label="SBC rank histograms", children=[
-            html.Div([
-                dcc.Dropdown(
-                    dataset_type,
-                    "t",
-                    id='rank-data-filter',
+app.layout = html.Div(
+    [
+        dcc.Tabs(
+            [
+                dcc.Tab(
+                    label="SBC rank histograms",
+                    children=[
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    dataset_type,
+                                    "t",
+                                    id="rank-data-filter",
+                                ),
+                                dcc.Checklist(
+                                    ["tcup", "ncup", "tobs", "fixed3"],
+                                    ["tcup"],
+                                    id="rank-model-filter",
+                                    inline=True,
+                                ),
+                            ]
+                        ),
+                        html.Div(
+                            [
+                                dcc.Graph(
+                                    id="rank-plot",
+                                )
+                            ],
+                            style={
+                                "width": "99%",
+                                "display": "inline-block",
+                                "padding": "0 20",
+                            },
+                        ),
+                    ],
                 ),
-                dcc.Checklist(
-                    ["tcup", "ncup", "tobs", "fixed3"],
-                    ["tcup"],
-                    id='rank-model-filter',
-                    inline=True,
+                dcc.Tab(
+                    label="SBC datasets",
+                    children=[
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        dcc.Dropdown(
+                                            dataset_type,
+                                            "outlier10",
+                                            id="data-filter",
+                                        ),
+                                        dcc.Dropdown(
+                                            file_index,
+                                            1,
+                                            id="file-filter",
+                                        ),
+                                        dcc.Checklist(
+                                            ["tcup", "ncup", "tobs", "fixed3"],
+                                            ["tcup"],
+                                            id="model-filter",
+                                            inline=True,
+                                        ),
+                                        dcc.Checklist(
+                                            {True: "Show posterior predictive"},
+                                            id="show-post-pred",
+                                            inline=True,
+                                        ),
+                                    ],
+                                    style={
+                                        "width": "49%",
+                                        "display": "inline-block",
+                                    },
+                                ),
+                                html.Div(
+                                    [],
+                                    style={
+                                        "width": "49%",
+                                        "float": "right",
+                                        "display": "inline-block",
+                                    },
+                                ),
+                            ],
+                            style={"padding": "10px 5px"},
+                        ),
+                        html.Div(
+                            [
+                                dcc.Graph(
+                                    id="dataset-plot",
+                                )
+                            ],
+                            style={
+                                "width": "99%",
+                                "display": "inline-block",
+                                "padding": "0 20",
+                            },
+                        ),
+                        html.Div(
+                            [],
+                            style={"display": "inline-block", "width": "49%"},
+                        ),
+                    ],
                 ),
-            ]),
-            html.Div([
-                dcc.Graph(
-                    id='rank-plot',
-                )
-            ], style={'width': '99%', 'display': 'inline-block', 'padding': '0 20'}),
-        ]),
-        dcc.Tab(label="SBC datasets", children=[
-            html.Div([
-                html.Div([
-                    dcc.Dropdown(
-                        dataset_type,
-                        "outlier10",
-                        id='data-filter',
-                    ),
-                    dcc.Dropdown(
-                        file_index,
-                        1,
-                        id='file-filter',
-                    ),
-                    dcc.Checklist(
-                        ["tcup", "ncup", "tobs", "fixed3"],
-                        ["tcup"],
-                        id='model-filter',
-                        inline=True,
-                    ),
-                    dcc.Checklist(
-                        {True: "Show posterior predictive"},
-                        id='show-post-pred',
-                        inline=True,
-                    ),
-                ],
-                style={'width': '49%', 'display': 'inline-block'}),
+            ]
+        ),
+    ]
+)
 
-                html.Div([
-                ], style={'width': '49%', 'float': 'right', 'display': 'inline-block'})
-            ], style={
-                'padding': '10px 5px'
-            }),
-
-            html.Div([
-                dcc.Graph(
-                    id='dataset-plot',
-                )
-            ], style={'width': '99%', 'display': 'inline-block', 'padding': '0 20'}),
-            html.Div([
-            ], style={'display': 'inline-block', 'width': '49%'}),
-                ]),
-            ]),
-
-])
 
 def pool_bins(bins, pooling_factor):
     # Check pooling factor, bin sizes are powers of 2
@@ -107,7 +146,6 @@ def get_binned_ranks(dataset, model):
 
     N = 0
     L = 1023
-    B = 16
 
     var_names = None
 
@@ -118,7 +156,7 @@ def get_binned_ranks(dataset, model):
         )
         try:
             _, info = load_dataset(data_filename)
-        except:
+        except FileNotFoundError:
             continue
 
         sbc_data = xr.load_dataset(filename)
@@ -145,20 +183,24 @@ def get_binned_ranks(dataset, model):
             if "beta_scaled" in var_name:
                 idx = int(var_name.split(".")[-1])
                 # Save rank and dataset value to appropriate value
-                ranks[var_name].append((
-                    sbc_data["true_beta_scaled"].values[idx],
-                    sbc_data["rank_beta_scaled"].values[idx],
-                    sbc_data["beta_scaled"].median(axis=-1)[idx],
-                ))
+                ranks[var_name].append(
+                    (
+                        sbc_data["true_beta_scaled"].values[idx],
+                        sbc_data["rank_beta_scaled"].values[idx],
+                        sbc_data["beta_scaled"].median(axis=-1)[idx],
+                    )
+                )
                 bin_idx = int(sbc_data["rank_beta_scaled"].values[idx] * L)
                 curr_bins[bin_idx] += 1
             else:
                 # Save rank and dataset value to appropriate value
-                ranks[var_name].append((
-                    sbc_data[f"true_{var_name}"].values[()],
-                    sbc_data[f"rank_{var_name}"].values[()],
-                    sbc_data[var_name].median(axis=-1)[()],
-                ))
+                ranks[var_name].append(
+                    (
+                        sbc_data[f"true_{var_name}"].values[()],
+                        sbc_data[f"rank_{var_name}"].values[()],
+                        sbc_data[var_name].median(axis=-1)[()],
+                    )
+                )
                 bin_idx = int(sbc_data[f"rank_{var_name}"].values[()] * L)
                 curr_bins[bin_idx] += 1
 
@@ -169,17 +211,19 @@ def get_binned_ranks(dataset, model):
 
 
 @callback(
-    Output('rank-plot', 'figure'),
-    Input('rank-data-filter', 'value'),
-    Input('rank-model-filter', 'value'),
+    Output("rank-plot", "figure"),
+    Input("rank-data-filter", "value"),
+    Input("rank-model-filter", "value"),
 )
 def update_rank_hist(dataset_name, model_names):
     if dataset_name in ["t", "tobs", "fixed"]:
         n_plots = 4
+        titles = ["alpha", "beta", "sigma_68", "nu"]
     else:
         n_plots = 3
+        titles = ["alpha", "beta", "sigma_68"]
 
-    fig = ps.make_subplots(rows=1, cols=n_plots)
+    fig = ps.make_subplots(rows=1, cols=n_plots, subplot_titles=titles)
 
     L = 1023
     B = 16
@@ -205,10 +249,11 @@ def update_rank_hist(dataset_name, model_names):
             confidence_intervals.append((lower / N, upper / N))
             print(f"{N=}, {B=}, {N / B=:.2f}")
             print(
-                f"{confidence_level * 100:.0f}% confidence interval: [{lower}, {upper}]"
+                f"{confidence_level * 100:.0f}% confidence interval: "
+                f"[{lower}, {upper}]"
             )
 
-        for idx, (var_name, curr_bins) in enumerate(zip(var_names, bins)):
+        for idx, curr_bins in enumerate(bins):
             pooled_bins = pool_bins(curr_bins, pooling_factor=(L + 1) // B)
             fig.add_trace(
                 go.Bar(
@@ -221,20 +266,28 @@ def update_rank_hist(dataset_name, model_names):
                     name=model,
                     opacity=0.5,
                     marker={"color": model_color},
-                    showlegend=(idx == 0)
+                    showlegend=(idx == 0),
                 ),
-                row=1, col=idx + 1,
+                row=1,
+                col=idx + 1,
             )
 
     fig.add_hline(y=1 / B, line_dash="dash")
     for lower, upper in confidence_intervals:
-        fig.add_hrect(y0=lower, y1=upper, line_width=0, fillcolor="black", opacity=0.1)
+        fig.add_hrect(
+            y0=lower, y1=upper, line_width=0, fillcolor="black", opacity=0.1
+        )
 
     return fig
 
-def add_model_samples(fig, model_name, dataset_name, file_name, data, info, show_post_pred):
+
+def add_model_samples(
+    fig, model_name, dataset_name, file_name, data, info, show_post_pred
+):
     try:
-        samples = xr.open_dataset(f"results/sbc/{model_name}/{dataset_name}/{file_name}.nc")
+        samples = xr.open_dataset(
+            f"results/sbc/{model_name}/{dataset_name}/{file_name}.nc"
+        )
     except FileNotFoundError:
         return
 
@@ -250,53 +303,61 @@ def add_model_samples(fig, model_name, dataset_name, file_name, data, info, show
 
     x_true = np.sort(info["true_x"], axis=0)
     for idx in range(100):
-        y_true = np.array(samples["alpha_scaled"][idx]) + np.dot(x_true, np.array(samples["beta_scaled"][0, idx]))
-        fig.add_trace(go.Scatter(
-            x=x_true.flatten(),
-            y=y_true.flatten(),
-            line=line_style,
-            opacity=0.02,
-            mode="lines",
-            name=f"{model_name}{idx}",
-            showlegend=False,
-        ))
+        y_true = np.array(samples["alpha_scaled"][idx]) + np.dot(
+            x_true, np.array(samples["beta_scaled"][0, idx])
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=x_true.flatten(),
+                y=y_true.flatten(),
+                line=line_style,
+                opacity=0.02,
+                mode="lines",
+                name=f"{model_name}{idx}",
+                showlegend=False,
+            )
+        )
 
-    fig.add_trace(go.Scatter(
-        x=[0],
-        y=[[0]],
-        line=line_style,
-        opacity=1,
-        mode="lines",
-        name=model_name,
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=[0],
+            y=[[0]],
+            line=line_style,
+            opacity=1,
+            mode="lines",
+            name=model_name,
+        )
+    )
 
     if show_post_pred:
         for idx in range(100):
-            fig.add_trace(go.Scatter(
-                x=samples["post_pred_x_scaled"][:, 0, idx],
-                y=samples["post_pred_y_scaled"][:, idx],
-                # error_x=dict(
-                #     type='data',
-                #     array=np.sqrt(data["cov_x_scaled"]).flatten(),
-                #     visible=True
-                # ),
-                # error_y=dict(
-                #     type='data',
-                #     array=np.array(data["dy_scaled"]),
-                #     visible=True,
-                # ),
-                mode='markers',
-                marker_color='red',
-                name=f"Post. pred.{idx}",
-            ))
+            fig.add_trace(
+                go.Scatter(
+                    x=samples["post_pred_x_scaled"][:, 0, idx],
+                    y=samples["post_pred_y_scaled"][:, idx],
+                    # error_x=dict(
+                    #     type='data',
+                    #     array=np.sqrt(data["cov_x_scaled"]).flatten(),
+                    #     visible=True
+                    # ),
+                    # error_y=dict(
+                    #     type='data',
+                    #     array=np.array(data["dy_scaled"]),
+                    #     visible=True,
+                    # ),
+                    mode="markers",
+                    marker_color="red",
+                    name=f"Post. pred.{idx}",
+                )
+            )
 
 
 @callback(
-    Output('dataset-plot', 'figure'),
-    Input('data-filter', 'value'),
-    Input('file-filter', 'value'),
-    Input('model-filter', 'value'),
-    Input('show-post-pred', 'value'),
+    Output("dataset-plot", "figure"),
+    Input("data-filter", "value"),
+    Input("file-filter", "value"),
+    Input("model-filter", "value"),
+    Input("show-post-pred", "value"),
 )
 def update_graph(dataset_name, file_name, model_names, show_post_pred):
     data, info = load_dataset(f"data/sbc/{dataset_name}/{file_name}.json")
@@ -305,42 +366,49 @@ def update_graph(dataset_name, file_name, model_names, show_post_pred):
     y = np.array(data["y_scaled"])
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=x[:, 0],
-        y=y,
-        error_x=dict(
-            type='data',
-            array=np.sqrt(data["cov_x_scaled"]).flatten(),
-            visible=True
-        ),
-        error_y=dict(
-            type='data',
-            array=np.array(data["dy_scaled"]),
-            visible=True,
-        ),
-        mode='markers',
-        marker_color='rgba(0, 0, 0, 0.8)',
-        name="Data",
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=x[:, 0],
+            y=y,
+            error_x=dict(
+                type="data",
+                array=np.sqrt(data["cov_x_scaled"]).flatten(),
+                visible=True,
+            ),
+            error_y=dict(
+                type="data",
+                array=np.array(data["dy_scaled"]),
+                visible=True,
+            ),
+            mode="markers",
+            marker_color="rgba(0, 0, 0, 0.8)",
+            name="Data",
+        )
+    )
 
     x_true = np.sort(info["true_x"], axis=0)
 
     for model_name in model_names:
-        add_model_samples(fig, model_name, dataset_name, file_name, data, info, show_post_pred)
+        add_model_samples(
+            fig, model_name, dataset_name, file_name, data, info, show_post_pred
+        )
 
-    y_true = np.array(info["alpha_scaled"]) + np.dot(x_true, np.array(info["beta_scaled"]))
-    fig.add_trace(go.Scatter(
-        x=x_true.flatten(),
-        y=y_true,
-        line=dict(color="black", dash="dash"),
-        opacity=1,
-        mode="lines",
-        name="Intrinsic",
-    ))
+    y_true = np.array(info["alpha_scaled"]) + np.dot(
+        x_true, np.array(info["beta_scaled"])
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=x_true.flatten(),
+            y=y_true,
+            line=dict(color="black", dash="dash"),
+            opacity=1,
+            mode="lines",
+            name="Intrinsic",
+        )
+    )
 
     return fig
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
-

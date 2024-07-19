@@ -2,6 +2,7 @@ import scipy.stats as sps
 
 from .dataset import Dataset
 
+
 class NormalDataset(Dataset):
     def draw_params_from_prior(self):
         params = super().draw_params_from_prior()

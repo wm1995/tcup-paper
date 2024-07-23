@@ -18,9 +18,9 @@ if __name__ == "__main__":
         filetext = f.read()
 
     matches = re.findall(
-        r"(\d+) \d+ M 0 (\d+) R D \d+ (\d+) M (\d+) 0 R D\s\d+ \d+ M 24[12] 0 R"
-        r" D\s\d+ \d+ M 24[12] 0 R D\s\d+ \d+ M 0 24[12] R D\s\d+ \d+ M 0 24[12"
-        r"] R D",
+        r"(\d+) \d+ M 0 (\d+) R D \d+ (\d+) M (\d+) 0 R D\s\d+ \d+ M 24[12] 0 "
+        r"R D\s\d+ \d+ M 24[12] 0 R D\s\d+ \d+ M 0 24[12] R D\s\d+ \d+ M 0 24["
+        r"12] R D",
         filetext,
     )
 

@@ -69,7 +69,9 @@ def build_post_pred_samples(results: az.InferenceData):
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser(
-        description="Run a single chain for simulation-based calibration checks"
+        description=(
+            "Run a single MCMC chain for simulation-based calibration checks"
+        )
     )
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-f", "--fixed", type=float)

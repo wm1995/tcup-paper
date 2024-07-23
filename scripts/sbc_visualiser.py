@@ -77,7 +77,7 @@ app.layout = html.Div(
                                             inline=True,
                                         ),
                                         dcc.Checklist(
-                                            {True: "Show posterior predictive"},
+                                            {True: "Show post. predictive"},
                                             id="show-post-pred",
                                             inline=True,
                                         ),
@@ -390,7 +390,13 @@ def update_graph(dataset_name, file_name, model_names, show_post_pred):
 
     for model_name in model_names:
         add_model_samples(
-            fig, model_name, dataset_name, file_name, data, info, show_post_pred
+            fig,
+            model_name,
+            dataset_name,
+            file_name,
+            data,
+            info,
+            show_post_pred,
         )
 
     y_true = np.array(info["alpha_scaled"]) + np.dot(

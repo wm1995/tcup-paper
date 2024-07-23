@@ -164,7 +164,9 @@ def plot_corner(
                             true_vals[var_y], **true_kwargs
                         )
             if var_x in var_labels:
-                var_x_suffix = "".join([f"$_{x_coord}$" for x_coord in var_idx])
+                var_x_suffix = "".join(
+                    [f"$_{x_coord}$" for x_coord in var_idx]
+                )
                 ax[-1, ax_idx].set_xlabel(var_labels[var_x] + var_x_suffix)
     fig.align_labels()
     fig.subplots_adjust(wspace=0, hspace=0)

@@ -86,7 +86,9 @@ def test_gaussian_mix_dataset(dataset_params):
         sps.kstest(z[dataset.outlier_mask], sps.norm(scale=10).cdf).pvalue
         > THRESHOLD
     )
-    assert sps.kstest(z[~dataset.outlier_mask], sps.norm.cdf).pvalue > THRESHOLD
+    assert (
+        sps.kstest(z[~dataset.outlier_mask], sps.norm.cdf).pvalue > THRESHOLD
+    )
 
 
 def test_laplace_dataset(dataset_params):

@@ -107,7 +107,9 @@ if __name__ == "__main__":
     spectra[["line_disp", "dline_disp"]] = spectra["line_disp"].str.split(
         r" \+or- ", expand=True
     )
-    spectra[["MAD", "dMAD"]] = spectra["MAD"].str.split(r" \+or- ", expand=True)
+    spectra[["MAD", "dMAD"]] = spectra["MAD"].str.split(
+        r" \+or- ", expand=True
+    )
 
     df = rm_masses.merge(spectra, on="object")
 

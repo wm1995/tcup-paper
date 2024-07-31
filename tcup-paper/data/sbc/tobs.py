@@ -3,6 +3,7 @@ import scipy.stats as sps
 
 from .t import StudentTDataset
 
+
 class TObsDataset(StudentTDataset):
     def observe_data(self):
         eps_x = np.array(

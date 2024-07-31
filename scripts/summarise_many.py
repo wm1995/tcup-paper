@@ -4,8 +4,8 @@ import warnings
 import arviz as az
 import numpy as np
 import pandas as pd
-import scipy.stats as sps
 import scipy.optimize
+import scipy.stats as sps
 from tqdm import trange
 
 

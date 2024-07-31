@@ -1,5 +1,4 @@
 import daft
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 from tcup_paper.plot.style import apply_matplotlib_style
 

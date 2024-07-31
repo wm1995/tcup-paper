@@ -1,8 +1,8 @@
 import scipy.stats as sps
-
 from tcup.utils import sigma_68
 
 from .dataset import Dataset
+
 
 class StudentTDataset(Dataset):
     def __init__(self, seed, n_data, dim_x, nu=None):

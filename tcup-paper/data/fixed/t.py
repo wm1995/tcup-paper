@@ -15,7 +15,9 @@ def gen_dataset(seed):
     }
     t_scale = info["sigma_68"] / sigma_68(info["nu"])
     x_true = sps.norm(2, 2).rvs(size=shape, random_state=rng)
-    epsilon = sps.t(info["nu"], scale=t_scale).rvs(size=shape[0], random_state=rng)
+    epsilon = sps.t(info["nu"], scale=t_scale).rvs(
+        size=shape[0], random_state=rng
+    )
     y_true = info["alpha"] + np.dot(x_true, info["beta"]) + epsilon
     dx = 10 ** sps.norm(-1, 0.1).rvs(size=shape, random_state=rng)
     dy = 10 ** sps.norm(-0.7, 0.1).rvs(size=shape[0], random_state=rng)

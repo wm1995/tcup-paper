@@ -67,10 +67,10 @@ if __name__ == "__main__":
         "time_delay"
     ].str.extract(r"\${([0-9.]+)}_{-([0-9.]+)}\^{\+([0-9.]+)}\$", expand=True)
     rm_masses[["rms_disp", "drms_disp"]] = rm_masses["rms_disp"].str.split(
-        " \+or- ", expand=True
+        r" \+or- ", expand=True
     )
     rm_masses[["M_BH", "dM_BH"]] = rm_masses["M_BH"].str.split(
-        " \+or- ", expand=True
+        r" \+or- ", expand=True
     )
 
     spectra = pd.read_table(
@@ -99,15 +99,17 @@ if __name__ == "__main__":
         "telescope/instrument"
     ].str.split("/", expand=True)
     spectra[["log_L", "dlog_L"]] = spectra["log_L"].str.split(
-        " \+or- ", expand=True
+        r" \+or- ", expand=True
     )
     spectra[["FWHM", "dFWHM"]] = spectra["FWHM"].str.split(
-        " \+or- ", expand=True
+        r" \+or- ", expand=True
     )
     spectra[["line_disp", "dline_disp"]] = spectra["line_disp"].str.split(
-        " \+or- ", expand=True
+        r" \+or- ", expand=True
     )
-    spectra[["MAD", "dMAD"]] = spectra["MAD"].str.split(" \+or- ", expand=True)
+    spectra[["MAD", "dMAD"]] = spectra["MAD"].str.split(
+        r" \+or- ", expand=True
+    )
 
     df = rm_masses.merge(spectra, on="object")
 

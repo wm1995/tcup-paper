@@ -1,5 +1,6 @@
 import itertools
 from typing import Optional
+
 import arviz as az
 import matplotlib.pyplot as plt
 import numpy as np

@@ -2,12 +2,8 @@ import argparse
 import warnings
 
 import arviz as az
-import numpy as np
-import pandas as pd
-import scipy.stats as sps
-from tqdm import trange
 import xarray as xr
-
+from tqdm import trange
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

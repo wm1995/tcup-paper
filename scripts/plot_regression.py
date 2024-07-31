@@ -1,6 +1,6 @@
 import argparse
-
 import json
+
 import arviz as az
 import matplotlib as mpl
 import matplotlib.pyplot as plt

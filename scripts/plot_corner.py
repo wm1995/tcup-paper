@@ -149,9 +149,7 @@ if __name__ == "__main__":
     for var_name in first_vars:
         if "beta" in var_name:
             N_beta_plots = N_vars - len(first_vars) + 1
-            ax_vars += [
-                f"beta_{idx}" for idx in range(N_beta_plots)
-            ]
+            ax_vars += [f"beta_{idx}" for idx in range(N_beta_plots)]
         else:
             ax_vars += [var_name]
 

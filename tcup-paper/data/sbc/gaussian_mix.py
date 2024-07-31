@@ -4,6 +4,7 @@ from scipy.optimize import root
 
 from .dataset import Dataset
 
+
 class GaussianMixDataset(Dataset):
     def __init__(self, seed, n_data, dim_x, outlier_prob):
         super().__init__(seed, n_data, dim_x)
@@ -12,14 +13,14 @@ class GaussianMixDataset(Dataset):
     def pdf(self, x):
         core_pdf = sps.norm.pdf(x)
         outlier_pdf = sps.norm(scale=10).pdf(x)
-        p_core = (1 - self.outlier_prob)
+        p_core = 1 - self.outlier_prob
         p_outlier = self.outlier_prob
         return p_core * core_pdf + p_outlier * outlier_pdf
 
     def cdf(self, x):
         core_cdf = sps.norm.cdf(x)
         outlier_cdf = sps.norm(scale=10).cdf(x)
-        p_core = (1 - self.outlier_prob)
+        p_core = 1 - self.outlier_prob
         p_outlier = self.outlier_prob
         return p_core * core_cdf + p_outlier * outlier_cdf
 

@@ -13,3 +13,10 @@ repos:
     - id: ruff
     # Run the formatter.
     - id: ruff-format
+- repo: https://github.com/astral-sh/uv-pre-commit
+  # uv version.
+  rev: 0.2.32
+  hooks:
+    # Compile requirements
+    - id: pip-compile
+      args: [requirements.in, -o, requirements.txt]

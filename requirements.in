@@ -1,0 +1,8 @@
+tcup
+daft
+dash
+netcdf4
+ruff
+pytest
+pre-commit
+-e .

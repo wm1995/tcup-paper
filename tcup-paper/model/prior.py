@@ -1,8 +1,8 @@
 import scipy.stats as sps
 
-alpha_prior = sps.norm(scale=3)
-beta_prior = sps.norm(scale=3)
-sigma_68_prior = sps.gamma(a=2, scale=1 / 4)
+alpha_prior = sps.norm(scale=2)
+beta_prior = sps.norm(scale=2)
+sigma_68_prior = sps.gamma(a=1.1, scale=1 / 5)
 nu_prior = sps.invgamma(a=4, scale=15)
 
 

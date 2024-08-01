@@ -214,4 +214,4 @@ if __name__ == "__main__":
     )
 
     samples = samples.reset_index(["sample", "chain", "draw"], drop=True)
-    samples.to_netcdf(args.outfile)
+    samples.to_netcdf(args.outfile, engine="h5netcdf")

@@ -76,8 +76,7 @@ if __name__ == "__main__":
             x_axis,
             [
                 mcmc["posterior"]["alpha"].values.flatten()[inds]
-                + mcmc["posterior"]["beta"].values.flatten()[inds]
-                * x_val
+                + mcmc["posterior"]["beta"].values.flatten()[inds] * x_val
                 for x_val in x_axis
             ],
             color="red" if idx else "blue",

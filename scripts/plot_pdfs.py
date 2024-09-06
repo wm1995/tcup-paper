@@ -94,8 +94,8 @@ if __name__ == "__main__":
             "range": jnp.logspace(-3, 3, 500),
             "xscale": "log",
             "yscale": "log",
-            "xlim": (1e-3, 1e3),
-            "ylim": (1e-6, 1e2),
+            "xlim": (3e-2, 1e3),
+            "ylim": (1e-6, 2e1),
         },
         {
             "name": "peak_height",
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     ]
 
     priors = [
-        (partial(pdf_invgamma, alpha=3, beta=10), r"This work"),
+        (partial(pdf_invgamma, alpha=4, beta=15), r"This work"),
         (pdf_F18, "Feeney et al. 2018"),
         (partial(pdf_invgamma, alpha=2, beta=10), r"Ju\'arez \& Steel (2010)"),
         (partial(pdf_invgamma, alpha=1, beta=10), r"Ding (2014)"),
@@ -171,5 +171,7 @@ if __name__ == "__main__":
             if plot == "pdf":
                 plt.yscale(coord["yscale"])
                 plt.ylim(coord.get("ylim"))
+            if plot == "cdf":
+                plt.ylim((0, 1))
             plt.savefig(f"plots/{plot}_{coord['name']}.pdf", backend="pgf")
             plt.close()

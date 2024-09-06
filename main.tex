@@ -1,29 +1,33 @@
 % main.tex
 %
-% LaTeX template for creating an MNRAS paper
+% LaTeX template for creating an RASTI paper
 %
-% v3.0 released 14 May 2015
-% (version numbers match those of mnras.cls)
+% v1.4 relased 23 April 2024
 %
-% Copyright (C) Royal Astronomical Society 2015
+%
+% Copyright (C) Royal Astronomical Society 2024
 % Authors:
-% Keith T. Smith (Royal Astronomical Society)
+% Peter Jones (OUP, adapted from mnras_template.tex, author Keith T. Smith (Royal Astronomical Society))
 
 % Change log
 %
-% v3.0 May 2015
-%    Renamed to match the new package name
-%    Version number matches mnras.cls
-%    A few minor tweaks to wording
-% v1.0 September 2013
-%    Beta testing only - never publicly released
-%    First version: a simple (ish) template for creating an MNRAS paper
+% v1.0 November 2021
+%    Adapted from mnras_template.tex
+% v1.1 February 2022
+%    rasti.bst updated to match output style for Geophysical Journal International
+% v1.2 April 2022
+%    minor updates to author instructions (word limit, contact adddress, keywords)
+% v1.3 July 2023
+%   updated guidance on use of amssymb package
+% v1.4 April 2024
+%    updated pubyear element to print current year
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Basic setup. Most papers should leave these options alone.
-\documentclass[fleqn,usenatbib]{mnras}
+\documentclass[fleqn,usenatbib]{rasti}
 
-% MNRAS is set in Times font. If you don't have this installed (most LaTeX
+% RASTI is set in Times font. If you don't have this installed (most LaTeX
 % installations will be fine) or prefer the old Computer Modern fonts, comment
 % out the following line
 \usepackage{newtxtext,newtxmath}
@@ -1071,7 +1075,7 @@ https://github.com/wm1995/tcup-paper.
 
 %%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
 
-\bibliographystyle{mnras}
+\bibliographystyle{rasti}
 \bibliography{references}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1386,4 +1390,4 @@ We generate $N = 25$ datapoints under the following model:
 \label{lastpage}
 \end{document}
 
-% End of mnras_template.tex
+% End of rasti_template.tex

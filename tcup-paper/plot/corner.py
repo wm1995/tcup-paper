@@ -11,7 +11,7 @@ def plot_kde(x, y, ax, **kde_kwargs):
     hdi_probs = kde_kwargs.get("hdi_probs")
     contour_kwargs = kde_kwargs.get("contour_kwargs", {})
 
-    log_axes =[
+    log_axes = [
         x.name in ["sigma_68", "nu"],
         y.name in ["sigma_68", "nu"],
     ]

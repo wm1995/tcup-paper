@@ -83,3 +83,4 @@ if __name__ == "__main__":
                 filename = "".join(args.outfile.split(".")[:-1])
                 filename += f"_run_{seed}.nc"
                 mcmc.to_netcdf(filename)
+                del mcmc

@@ -37,13 +37,14 @@ if __name__ == "__main__":
     if args.dataset:
         _, params = load_dataset(args.dataset)
         true_vals = {
-            "alpha_rescaled": params["alpha"],
-            "beta_rescaled": params["beta"],
-            "sigma_rescaled": params["sigma_int"],
-            "sigma_68": params["sigma_int"],
+            "alpha": params["alpha"],
+            "beta": params["beta"],
+            "sigma_68": params.get("sigma_68", params["sigma_int"]),
             "nu": params.get("nu"),
             "outlier_frac": params.get("outlier_frac"),
         }
+        if np.array(true_vals["beta"]).ndim != 1:
+            true_vals["beta"] = [true_vals["beta"]]
 
     fig = None
     ax = None
@@ -103,7 +104,7 @@ if __name__ == "__main__":
         }
 
         # Set styles for different datasets
-        if mcmc_file.split("/")[-1][:6] == "normal":
+        if "/normal/" in mcmc_file:
             ncup_kwargs = {"color": "cornflowerblue", "linestyle": "dashed"}
             fixed3_kwargs = {"color": "orange", "linestyle": "dashed"}
             tcup_kwargs = {"color": "lightcoral", "linestyle": "dashed"}
@@ -118,7 +119,7 @@ if __name__ == "__main__":
             mcmc_kwargs = ncup_kwargs
         elif "linmix" in mcmc_file:
             mcmc_kwargs = linmix_kwargs
-        elif "fixed3" in mcmc_file:
+        elif "fixed/fixed" in mcmc_file:
             mcmc_kwargs = fixed3_kwargs
 
         # Plot dataset 1

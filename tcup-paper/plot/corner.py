@@ -2,12 +2,32 @@ import itertools
 from typing import Optional
 
 import arviz as az
+import fastkde
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_kde(x, y, ax, kde_kwargs):
-    pass
+def plot_kde(x, y, ax, **kde_kwargs):
+    hdi_probs = kde_kwargs.get("hdi_probs")
+    contour_kwargs = kde_kwargs.get("contour_kwargs", {})
+
+    log_axes = [
+        x.name in ["sigma_68", "nu"],
+        y.name in ["sigma_68", "nu"],
+    ]
+    pdf = fastkde.pdf(x.values, y.values, log_axes=log_axes)
+
+    xx, yy = np.meshgrid(*[pdf[dim] for dim in pdf.dims[::-1]])
+    if hdi_probs is not None:
+        levels = az.stats.density_utils._find_hdi_contours(
+            pdf,
+            hdi_probs,
+        )
+        levels.sort()
+    else:
+        levels = None
+
+    ax.contour(xx, yy, pdf, levels=levels, **contour_kwargs)
 
 
 def plot_corner(
@@ -139,7 +159,7 @@ def plot_corner(
                         verticalalignment="baseline",
                     )
                 ax[ax_idy, ax_idx].sharex(ax[ax_idx, ax_idx])
-                az.plot_kde(
+                plot_kde(
                     pooled_samples[var_x][var_idx],
                     pooled_samples[var_y][var_idy],
                     ax=ax[ax_idy, ax_idx],

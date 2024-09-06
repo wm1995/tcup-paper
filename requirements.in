@@ -1,8 +1,8 @@
-tcup
+tcup==0.7.0
 daft
 dash
-netcdf4
+h5netcdf
 ruff
 pytest
 pre-commit
--e .
+.

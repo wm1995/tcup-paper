@@ -179,9 +179,13 @@ astronomy \citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
 % However, the model is designed to be sampled using Gibbs sampling, which limits
 % the choice of distributions for variables within the model and the number of
 % parameters that can be fit simultaneously.
-The model assumes parameters are normally distributed throughout; however,
-inference that relies on normal distributions can be unduly affected by outliers
-(see Section \ref{sec:results} for an exploration of this effect).
+This approach has been extended and refined by others
+\citep[e.g.][]{Mantz:2016, Sereno:2016, Bartlett:2023}. These models assume
+parameters are normally distributed throughout; however, scientific
+uncertainties are often empirically not normally distributed, leading to more
+frequent outliers \citep{Bailey:2017}. Inference that relies on normal
+distributions can be unduly affected by outliers (see Section \ref{sec:results}
+for an exploration of this effect).
 
 The problem of outliers within datasets can be thought of as model
 misspecification: these objects do not fit the distributions used to model them.
@@ -228,7 +232,7 @@ methods that we use to validate our model; the results of these validation
 checks are presented in Section \ref{sec:results}. In Section
 \ref{sec:real-world}, we compare the performance of our model on real-world
 datasets with the models outlined in \citet{Kelly:2007} and \citet{Park:2017},
-before concluding remarks in Section \ref{sec:conclusions}.
+before concluding remarks in Section \ref{sec:conclusion}.
 
 \section{Formalism}
 \label{sec:formalism}
@@ -350,7 +354,28 @@ of a 1$\sigma$ interval for a normal distribution. This is given by
 \end{equation}
 where $I^{-1}$ is the inverse regularised incomplete beta function. This
 quantity is useful for defining a ``scale'' parameter that is less tightly
-coupled to $\nu$ than the $\sigma$
+coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
+
+The second quantity we defined is an ``outlier fraction'' $\omega$, which
+defines the fraction of points expected to lie more than $3\sigma$ from the
+distribution mean $\mu$. For a $t$ distribution, this is given by
+\begin{eqnarray}
+    \omega(\nu)
+    &=& P\left(
+        \left|x - \mu \right| > 3 \sigma \;
+        \middle| \;
+        x \sim \studentt{\mu}{\sigma}
+    \right) \\
+    &=& 2 F_\nu \left(\mu - 3 \sigma \right),
+\end{eqnarray}
+where $F_\nu(x)$ is the cumulative distribution function for Student's
+$t$-distribution with shape parameter $\nu$. Figure \ref{fig:model.outlier_frac}
+shows the relationship between outlier fraction $\omega$ and shape parameter
+$\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
+distribution, i.e., as $\nu \rightarrow \infty$. We would, therefore, expect
+that approximately 1 in 370 datapoints would be outliers for data that follows a
+normal distribution; for Cauchy-distributed data (i.e. $\nu = 1$),
+we would expect every fifth datapoint to be an outlier.
 
 \subsection{Regression model}
 \label{sec:formalism.model}
@@ -579,43 +604,34 @@ reproduces the datasets in this section is available online\footnotemark.
 \label{sec:results.t}
 
 \begin{figure*}
-    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/alpha_scaled.pdf}
-    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/beta_scaled.0.pdf}
-    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/beta_scaled.1.pdf}
-    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/sigma_scaled.pdf}
-    \includegraphics[width=0.19\textwidth]{graphics/sbc_t/nu.pdf}
-    \caption{SBC runs for the t distribution under $t$-cup {\color{red} I know
-    there are several tweaks needed to these plots}}
+    \includegraphics[width=\textwidth]{graphics/sbc/tcup/t/sbc.pdf}
+    \caption{SBC runs for the t distribution under $t$-cup. If the inference
+    procedure is working as expected, the histograms for each parameter should
+    be distributed uniformly (as indicated by the black dashed line). The dark
+    (light) grey regions correspond to the 94\% (98\%) confidence interval of
+    uniformity (i.e.\ we expect one histogram bin per panel (figure) to lie
+    outside of this range).}
     \label{fig:results.t.sbc}
 \end{figure*}
 
 For our first test, we start with a dataset that matches our model perfectly
 (i.e.\ $\mathcal P_{\text{int}} = \mathcal P_{\text{obs}} = t_\nu$). The
-simulation-based calibration tests show that, while we are accurately inferring
-$\alpha$ and $\boldsymbol{\beta}$, our inference for $\sigma_{int}$ and $\nu$ is
-biased. The bias in $\nu$ arises because of the lack of identifiability for
-larger values of $\nu$, which biases the MCMC estimates of $\nu$ to be lower
-than the true values. The bias in $\sigma$ is a byproduct of this - if $\nu$ is
-underestimated, then $\sigma$ will be underestimated as well.
+simulation-based calibration tests indicate that the rank statistic is
+consistent with being uniformly distributed (see Figure
+\ref{fig:results.t.sbc}), and, therefore, that our inference procedure is
+working as expected.
 
 For our fixed-value tests, we drew $N = 20$ datapoints with $\{\alpha, \beta,
-\sigma_{\rm int}, \nu\} = \{3, 2, 0.1, 3\}$; the full model used to generate the
-data is specified in Appendix \ref{sec:data-models.t}.
+\sigma_{68}, \nu\} = \{3, 2, 0.1, 3\}$; the full model used to generate the data
+is specified in Appendix \ref{sec:data-models.t}. The chosen value of $\nu = 3$
+corresponds to an outlier fraction of $\omega(\nu = 3) \approx 5.8 \%$.  As we
+can see in Figure \ref{fig:results.t.corner}, we recover the values of the
+parameters that were used to generate the dataset; these values are consistent
+with a model where the shape parameter is fixed to $\nu = 3$.
 
-
-The chosen value of $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu = 3)
-\approx 5.8 \%$.
-
-% \begin{figure}
-%     \includegraphics[width=\columnwidth]{example-image-a}
-%     \caption{{\color{red} 100} draws from the posterior of regression lines
-%     (red) for the \textit{t}-distributed dataset (black points). The ground
-%     truth regression line is illustrated by the black dashed line.}
-%     \label{fig:results.t.regression}
-% \end{figure}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/corner_t.pdf}
+    \includegraphics[width=\columnwidth]{graphics/fixed/corner_t.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ for the \textit{t}-distributed dataset, with ground-truth
     values indicated by the black dashed lines. Contours indicate 39.3\% and
@@ -624,48 +640,35 @@ The chosen value of $\nu = 3$ corresponds to an outlier fraction of $\omega(\nu 
     \label{fig:results.t.corner}
 \end{figure}
 
-As we can see in Figures \ref{fig:results.t.regression} and
-\ref{fig:results.t.corner}, we recover the values of the parameters that were
-used to generate the dataset.
+We then generated 400 datasets from the same ground-truth parameters, and ran
+MCMC against each dataset.
+% We combined samples from each of the MCMC runs to produce a plot of the
+% cumulative distribution function for the regression coefficients and shape
+% parameter $\nu$. The results shown in Figure \ref{fig:results.t.map} indicate
+% that the estimate of true parameter values is unbiased.
+95\% highest posterior density credible intervals were constructed for each run;
+the true parameter values were contained in these credible intervals $97\%$,
+$96\%$ and $98\%$ of the time for the intercept $\alpha$, the slope $\beta$ and
+the intrinsic scatter $\sigma_{68}$. For the nusiance paramater $\nu$, the
+credible intervals contained the true parameter value across all runs; this may
+be caused by this parameter being only weakly constrained for these datasets.
 
-We then generated 1000 datasets from the same ground-truth parameters, and
-calculated the maximum a posteriori (MAP) values of the regression coefficients
-and shape parameter $\nu$. The results shown in Figure
-\ref{fig:results.t.map} indicate that the estimate of true parameter values is
-unbiased.{
-\color{red} The true parameter values were contained in the 95\% highest
-posterior density credible intervals $x$\% of the time across all parameters and
-runs.
-}
-
-% \begin{figure}
-%     \includegraphics[width=\columnwidth]{example-image-a}
-%     \caption{The distribution of maximum a posteriori (MAP) estimates for each
-%     of the regression parameters, as well as the shape parameter $\nu$.}
-%     \label{fig:results.t.map}
-% \end{figure}
 
 \subsection{Normally-distributed data}
 \label{sec:results.outlier}
 
 \begin{figure*}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/alpha_scaled.pdf}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/beta_scaled.0.pdf}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/beta_scaled.1.pdf}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_ncup/sigma_scaled.pdf}
+    \includegraphics[width=\textwidth]{graphics/sbc/ncup/outlier20/sbc.pdf}
     \caption{SBC runs for the outlier dataset under $n$-cup {\color{red} I know
     there are several tweaks needed to these plots}}
-    \label{fig:results.t.sbc}
+    \label{fig:results.outlier.ncup-sbc}
 \end{figure*}
 
 \begin{figure*}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/alpha_scaled.pdf}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/beta_scaled.0.pdf}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/beta_scaled.1.pdf}
-    \includegraphics[width=0.24\textwidth]{graphics/sbc_outlier_tcup/sigma_scaled.pdf}
+    \includegraphics[width=\textwidth]{graphics/sbc/tcup/outlier20/sbc.pdf}
     \caption{SBC runs for the outlier dataset under $t$-cup {\color{red} I know
     there are several tweaks needed to these plots}}
-    \label{fig:results.t.sbc}
+    \label{fig:results.outlier.tcup-sbc}
 \end{figure*}
 
 In this test, we compare $t$-cup with an equivalent model that employs normal
@@ -684,7 +687,7 @@ require this to give {\color{red} unbiased} estimates of the regression
 parameters.
 
 \begin{figure*}
-    \includegraphics[width=\linewidth]{graphics/regression_outlier.pdf}
+    \includegraphics[width=\linewidth]{graphics/fixed/regression_outlier.pdf}
     \caption{{\color{red} 100} draws from the posterior of regression lines from
     the normal model (left panel, blue) and $t$-cup (right panel, red). The
     dataset is illustrated by the black points, with the ground-truth regression
@@ -694,7 +697,7 @@ parameters.
 \end{figure*}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/corner_outlier_ncup.pdf}
+    \includegraphics[width=\columnwidth]{graphics/fixed/corner_outlier_ncup.pdf}
     \caption{The posterior for each of the regression coefficients under the
     normal model with the outlier included (dark blue, solid) and excluded
     (light blue, dashed), and for $t$-cup with the outlier included (dark red,
@@ -703,7 +706,7 @@ parameters.
 \end{figure}
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/corner_outlier_tcup.pdf}
+    \includegraphics[width=\columnwidth]{graphics/fixed/corner_outlier_tcup.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ under the $t$-cup model with the outlier included (dark red,
     solid) and excluded (light red, dashed). {\color{red} To do: fix contours
@@ -729,14 +732,14 @@ the $t$-cup model recovers consistent constraints whether the outlier is
 included or excluded.
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/outlier_many.pdf}
+    \includegraphics[width=\columnwidth]{graphics/fixed/outlier_cdf.pdf}
     \caption{The distribution of MAP estimates for each
     of the regression parameters under the normal model (blue) and $t$-cup model
     (red).}
     \label{fig:results.outlier.map}
 \end{figure}
 
-We then generated 1000 datasets using the same procedure, and calculated the
+We then generated 400 datasets using the same procedure, and calculated the
 maximum a posteriori (MAP) values of the regression coefficients for both the
 normal model and for $t$-cup. The results (illustrated in Figure
 \ref{fig:results.outlier.map}) indicate that {\color{red} constraints under
@@ -767,7 +770,7 @@ parameters were fixed to $\{\alpha, \beta_0, \beta_1, \sigma_{\rm int}\} = \{2,
 Appendix \ref{sec:data-models.gmm}.
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/corner_gaussian_mix.pdf}
+    \includegraphics[width=\columnwidth]{graphics/fixed/corner_gaussian_mix.pdf}
     \caption{The posterior for each of the regression coefficients and the
     outlier fraction $\omega$ for the normal mixture model dataset, with
     ground-truth values indicated by the black dashed lines. {\color{red} To do:
@@ -818,6 +821,14 @@ and shape parameter $\nu$. The results (illustrated in Figure
 values is unbiased.{ \color{red} We also calculated the 95\% highest-posterior
 density credible intervals for each parameter, finding that the true parameter
 value was contained within the interval for $x$\% of parameters and runs.  }
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{graphics/fixed/laplace_cdf.pdf}
+    \caption{The distribution of MAP estimates for each
+    of the regression parameters under the normal model (blue) and $t$-cup model
+    (red).}
+    \label{fig:results.laplace.map}
+\end{figure}
 
 % \begin{figure}
 %     \includegraphics[width=\columnwidth]{example-image-a}
@@ -910,10 +921,10 @@ by \citeauthor{Kelly:2007}.
 	\label{tab:real-world.kelly.params}
 	\begin{tabular}{lccc} % four columns, alignment for each
                                & \citet{Kelly:2007} & linmix   & $t$-cup       \\
-    Intercept $\alpha$         & 3.12 $\pm$ 0.41 & 3.18 $\pm$ 0.48 & 3.48 $\pm$ 0.35 \\
-    Slope $\beta$              & 1.35 $\pm$ 0.54 & 1.40 $\pm$ 0.60 & 1.80 $\pm$ 0.44 \\
-    Int. scatter $\sigma_{68}$ & 0.26 $\pm$ 0.11 & 0.25 $\pm$ 0.12 & 0.15 $\pm$ 0.09 \\
-    Outlier fraction $\omega$  &      ---      &      ---      & 0.041 $\pm$ 0.025 \\
+    Intercept $\alpha$         & 3.12 $\pm$ 0.41 & 3.18 $\pm$ 0.48 & 3.62 $\pm$ 0.26 \\
+    Slope $\beta$              & 1.35 $\pm$ 0.54 & 1.40 $\pm$ 0.60 & 2.00 $\pm$ 0.33 \\
+    Int. scatter $\sigma_{68}$ & 0.26 $\pm$ 0.11 & 0.25 $\pm$ 0.12 & 0.08 $\pm$ 0.07 \\
+    Outlier fraction $\omega$  &      ---      &      ---      & 0.04 $\pm$ 0.03 \\
 \end{tabular}
 \end{table}
 
@@ -926,13 +937,13 @@ The tighter constraints of $t$-cup suggest that the inference presented by
 which may not hold true in this case.
 The explicit assumption of normality in \textsc{linmix} is in tension with the
 outlier fraction estimated by $t$-cup (68\% CI $\omega =
-0.041^{+0.032}_{-0.021}$). This showcases that analysing data with robust
-procedures gives materially different answers on real-world data, and highlights
-the importance of carefully considering the implications when assuming
-normality.
+0.05$\raisebox{0.5ex}{\tiny$^{+0.04}_{-0.01}$}). This showcases that analysing
+data with robust procedures gives materially different answers on real-world
+data, and highlights the importance of carefully considering the implications
+when assuming normality.
 
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/corner_kelly.pdf}
+    \includegraphics[width=\columnwidth]{graphics/real/corner_kelly.pdf}
     \caption{The posterior distributions for the data from \citet{Kelly:2007}
     under the linmix (blue) and $t$-cup (red) models.}
     \label{fig:real-world.kelly.corner}
@@ -955,8 +966,28 @@ consistent with those of \citet{Park:2017} --- see Figure
 \ref{fig:real-world.park.corner}. {\color{red} This needs rerunning with the
 latest version of the code.}
 
+\begin{table*}
+	\centering
+	\caption{A comparison of estimates for the intercept,
+    slope, and intrinsic scatter inferred for the relationship between Eddington
+    ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$. The parameter
+    estimates reported in \citet{Kelly:2007} are the posterior median and ``a
+    robust estimate of the standard deviation''; for linmix and $t$-cup, we
+    report the posterior median and an estimate of the standard deviation as
+    $\sigma = 1.4826 MAD$.}
+	\label{tab:real-world.park.params}
+	\begin{tabular}{lcc|cc|cc} % seven columns, alignment for each
+                          & \multicolumn{2}{c}{FWHM} & \multicolumn{2}{c}{$\sigma_l$} & \multicolumn{2}{c}{MAD} \\
+                          & \citet{Park:2017} & $t$-cup & \citet{Park:2017} & $t$-cup & \citet{Park:2017} & $t$-cup \\
+    Intercept $\alpha$    & $7.54$\raisebox{0.5ex}{\tiny$^{+0.26}_{-0.27}$} & $7.51$\raisebox{0.5ex}{\tiny$^{+0.22}_{-0.22}$} & $6.90$\raisebox{0.5ex}{\tiny$^{+0.35}_{-0.34}$} & $6.91$\raisebox{0.5ex}{\tiny$^{+0.30}_{-0.31}$} & $7.15$\raisebox{0.5ex}{\tiny$^{+0.24}_{-0.25}$} & $7.15$\raisebox{0.5ex}{\tiny$^{+0.22}_{-0.22}$} \\
+    Slope $\beta$         & $0.45$\raisebox{0.5ex}{\tiny$^{+0.08}_{-0.08}$} & $0.43$\raisebox{0.5ex}{\tiny$^{+0.06}_{-0.06}$} & $0.44$\raisebox{0.5ex}{\tiny$^{+0.07}_{-0.07}$} & $0.43$\raisebox{0.5ex}{\tiny$^{+0.05}_{-0.06}$} & $0.42$\raisebox{0.5ex}{\tiny$^{+0.07}_{-0.07}$} & $0.42$\raisebox{0.5ex}{\tiny$^{+0.05}_{-0.06}$} \\
+    Slope $\gamma$        & $0.50$\raisebox{0.5ex}{\tiny$^{+0.55}_{-0.53}$} & $0.58$\raisebox{0.5ex}{\tiny$^{+0.44}_{-0.45}$} & $1.66$\raisebox{0.5ex}{\tiny$^{+0.65}_{-0.66}$} & $1.66$\raisebox{0.5ex}{\tiny$^{+0.57}_{-0.58}$} & $1.65$\raisebox{0.5ex}{\tiny$^{+0.61}_{-0.62}$} & $1.65$\raisebox{0.5ex}{\tiny$^{+0.55}_{-0.55}$} \\
+    Int. scatter $\sigma$ & $0.16$\raisebox{0.5ex}{\tiny$^{+0.10}_{-0.08}$} & $0.10$\raisebox{0.5ex}{\tiny$^{+0.03}_{-0.10}$} & $0.12$\raisebox{0.5ex}{\tiny$^{+0.09}_{-0.06}$} & $0.08$\raisebox{0.5ex}{\tiny$^{+0.02}_{-0.08}$} & $0.12$\raisebox{0.5ex}{\tiny$^{+0.09}_{-0.06}$} & $0.07$\raisebox{0.5ex}{\tiny$^{+0.02}_{-0.07}$} \\
+    \end{tabular}
+\end{table*}
+
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/corner_park.pdf}
+    \includegraphics[width=\columnwidth]{graphics/real/corner_park_fwhm.pdf}
     \caption{The posterior distributions for the data from \citet{Park:2007}
     under the $t$-cup model. {\color{red} This figure
     needs updating with the latest version of this model.}}

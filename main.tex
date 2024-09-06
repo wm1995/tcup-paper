@@ -96,7 +96,7 @@ $^{3}$Department of Physics, The Oskar Klein Centre, Stockholm University, Alban
 \date{Accepted XXX. Received YYY; in original form ZZZ}
 
 % Enter the current year, for the copyright statements etc.
-\pubyear{2023}
+\pubyear{\the\year{}}
 
 % Don't change these lines
 \begin{document}
@@ -150,15 +150,13 @@ astronomers for linear regression when both the dependent and independent
 variables are measured with error \citep[e.g.][]{Press:1992, Akritas:1996,
 Tremaine:2002, Kelly:2007}.
 
-\citet{Kelly:2007} illustrates that common ad-hoc
-estimators such as \textsc{fitexy} \citep{Press:1992, Tremaine:2002} and
-\textsc{bces} \citep{Akritas:1996} suffer from biases and can underestimate
-intrinsic scatter.
-Similar algorithms exist for removing
-outliers from data \citep[e.g.][Sigma clipping]{xxxx} have been used previously
-\citep[e.g.][]{Riess:xxxx}, but these can
-lead to controversy \citep[e.g.][]{Efstathiou:2013}. A more principled approach
-is to model the entire measurement process.
+\citet{Kelly:2007} illustrates that common ad-hoc estimators such as
+\textsc{fitexy} \citep{Press:1992, Tremaine:2002} and \textsc{bces}
+\citep{Akritas:1996} suffer from biases and can underestimate intrinsic scatter.
+Similar algorithms exist for removing outliers from data (e.g.\ sigma clipping)
+have been used previously but these can lead to controversy (e.g.\ the
+reanalysis of \citet{Riess:2011} by \citet{Efstathiou:2014}). A more principled
+approach is to model the entire measurement process.
 
 Bayesian hierarchical models (BHMs) are a natural way to model such datasets ---
 this allows astronomers to account for, e.g., measurement errors, selection
@@ -444,24 +442,23 @@ prior information).
 Our priors on the regression parameters $\{\tilde{\intercept},
 \tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ are
 \begin{align}
-    \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
-    \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 3), \\
-    \tilde{\sigma}_{\text{int}} \sim&\; {\color{red}\Gamma(2, 2)}.
+    \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 2), \\
+    \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 2), \\
+    \tilde{\sigma}_{68} \sim&\; \Gamma(1.1, 5).
 \end{align}
+
 The motivation behind the prior on $\tilde{\intercept}$ is that, as the data is
 pre-scaled to have zero mean and the relationship between quantities is assumed
-to be linear, we would expect the data to have zero intercept.  {\color{red}
-There's not a particularly strong motivation behind the $\tilde{\covariate}$,
-other than it's broad and symmetric. A more motivated prior would be
-$\text{Cauchy}(0, 1)$, which is equivalent to a uniform prior on the angle the
-line makes with the axis for $\dim x = 1$... but might overly weight a
-regression for $\dim x \geq 2$, when we might want something uniform on the unit
-sphere?} The prior on $\tilde{\sigma}_{\text{int}}$ is following the suggestion
-of \citet{Chung:2015}, who demonstrate that a prior with density at
+to be linear, we would expect the data to have zero intercept. Similarly, the
+prior on $\tilde{\alpha}$ has been chosen because the pre-scaling of the data
+suggests a gradient between -1 and 1. The prior on $\tilde{\sigma}_{68}$ is
+informed by \citet{Chung:2013}, who demonstrate that a prior with density at
 $\tilde{\sigma}_{\text{int}} = 0$ will lead to a prediction of no intrinsic
-scatter in datasets where intrinsic scatter is present. The prior recommended in
-their paper is {\color{red} $\Gamma(2, 2)$}; however, as we have pre-scaled our
-data to have unit variance, we adopt a more concentrated prior.
+scatter in datasets where intrinsic scatter is present; in addition, there is a
+reasonable physical argument that most astrophysical processes will not produce
+objects with no population scatter. The chosen prior balances this constraint
+with difficulties arising in testing as a result of the pre-scaling, which led
+to insufficient prior density at small levels of intrinsic scatter.
 
 The prior on the latent values of the independent quantities $\{\indepvars\}$ is
 a Gaussian mixture model prior, similar to that used in \citet{Kelly:2007}.
@@ -474,22 +471,19 @@ $\{\indepvars\}$, and use these parameters for the prior.
 
 The prior on the shape parameter $\nu$ is
 \begin{align}
-    \nu \sim&\; {\color{red}\text{Inv-}\Gamma(3, 10)};
+    \nu \sim&\; \text{Inv-}\Gamma(4, 15);
 \end{align}
 this prior was chosen to balance flexibility (such that the model could
 accommodate both heavily leptokurtic distributions --- e.g. the Cauchy
 distribution --- and normally-distributed data) and sampling issues (as $\nu
 \leftarrow \infty$, different values of $\nu$ become rapidly indistinguishable).
 The reasoning behind this choice of prior is expanded upon in Appendix
-\ref{sec:t-prior}.
-
-The exact choice of prior for $\nu$ is unimportant, as the model is designed to
-be robust to model misspecification; the only key element is that nu is allowed
-to vary to accommodate both normal and heavy-tailed distributions. By virtue of
-this, difficulties in sampling $\nu$ according to this prior distribution do not
-invalidate the results of the model, as long as there is coverage at both small
-and large values of $\nu$. In Section \ref{sec:results.t}, we shall discuss sampling issues in
-greater detail.
+\ref{sec:t-prior}. The exact choice of prior for $\nu$ is unimportant, as the
+model is designed to be robust to model misspecification; the only key element
+is that $\nu$ is allowed to vary to accommodate both normal and heavy-tailed
+distributions. By virtue of this, difficulties in sampling $\nu$ according to
+this prior distribution do not invalidate the results of the model, as long as
+there is coverage at both small and large values of $\nu$. 
 
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}
@@ -499,9 +493,9 @@ greater detail.
 \subsection{Implementation}
 \label{sec:formalism.implementation}
 
-The model described in Section \ref{sec:formalism.model} is implemented in Stan
-\citep{Stan}, which is used to draw samples via a HMC No U-Turn Sampler. The
-implementation is packaged as $t$-cup, available as a Python
+The model described in Section \ref{sec:formalism.model} is implemented in
+NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a HMC No U-Turn
+Sampler. The implementation is packaged as $t$-cup, available as a Python
 package\footnotemark.
 
 For the purposes of comparison, we have also implemented a model that mirrors

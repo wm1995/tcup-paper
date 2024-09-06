@@ -21,6 +21,24 @@ def load_dataset(filename):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True)
+    parser.add_argument("--tcup-file", required=True)
+    parser.add_argument("--ncup-file", required=True)
+    parser.add_argument(
+        "--xlim",
+        nargs=2,
+        type=float,
+        metavar=("min", "max"),
+        required=True,
+    )
+    parser.add_argument(
+        "--ylim",
+        nargs=2,
+        type=float,
+        metavar=("min", "max"),
+        required=False,
+    )
+    parser.add_argument("--no-errorbars", action="store_true")
+    parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
     # Set matplotlib style
@@ -38,47 +56,59 @@ if __name__ == "__main__":
     mpl.rcParams["ytick.direction"] = "in"
 
     # Load dataset
-    data, info = load_dataset(f"data/{args.dataset}.json")
+    data, info = load_dataset(args.dataset)
 
     # Load mcmc data
-    t_mcmc = az.from_netcdf(f"results/{args.dataset}_tcup.nc")
-    n_mcmc = az.from_netcdf(f"results/{args.dataset}_ncup.nc")
+    t_mcmc = az.from_netcdf(args.tcup_file)
+    n_mcmc = az.from_netcdf(args.ncup_file)
 
-    x_axis = np.linspace(-1, 13, 200)
+    x_axis = np.linspace(*args.xlim, 200)
 
     rng = np.random.default_rng(SEED)
 
     fig, ax = plt.subplots(1, 2, figsize=(7.06, 3.57), sharey=True)
     for idx, (ax_i, mcmc) in enumerate(zip(ax, [n_mcmc, t_mcmc])):
         inds = rng.choice(
-            mcmc["posterior"].dims["chain"] * mcmc["posterior"].dims["draw"],
+            mcmc["posterior"].sizes["chain"] * mcmc["posterior"].sizes["draw"],
             size=100,
         )
         ax_i.plot(
             x_axis,
             [
-                mcmc["posterior"]["alpha_rescaled"].values.flatten()[inds]
-                + mcmc["posterior"]["beta_rescaled"].values.flatten()[inds]
+                mcmc["posterior"]["alpha"].values.flatten()[inds]
+                + mcmc["posterior"]["beta"].values.flatten()[inds]
                 * x_val
                 for x_val in x_axis
             ],
             color="red" if idx else "blue",
             alpha=0.05,
         )
-        ax_i.plot(
-            x_axis,
-            info["alpha"] + info["beta"] * x_axis,
-            color="k",
-            linestyle="dashed",
-        )
-        ax_i.errorbar(
-            data["x"],
-            data["y"],
-            data["dy"],
-            data["dx"],
-            "k+",
-        )
-        ax_i.set_xlim((-1, 13))
+        try:
+            ax_i.plot(
+                x_axis,
+                info["alpha"] + info["beta"] * x_axis,
+                color="k",
+                linestyle="dashed",
+            )
+        except KeyError:
+            pass
+        if args.no_errorbars:
+            ax_i.plot(
+                data["x"],
+                data["y"],
+                "k+",
+            )
+        else:
+            ax_i.errorbar(
+                data["x"],
+                data["y"],
+                data["dy"],
+                data["dx"],
+                "k+",
+            )
+        ax_i.set_xlim(args.xlim)
+        if args.ylim:
+            ax_i.set_ylim(args.ylim)
 
     plt.tight_layout()
-    plt.savefig(f"plots/regression_{args.dataset}.svg")
+    plt.savefig(args.output)

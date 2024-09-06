@@ -81,7 +81,7 @@ if __name__ == "__main__":
     elif args.ncup:
         model = "ncup"
     elif args.fixed:
-        model = "fixed3"
+        model = "fixed"
     elif args.tobs:
         model = "tobs"
 

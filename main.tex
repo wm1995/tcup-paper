@@ -84,12 +84,11 @@
 % If you need two or more lines of authors, add an extra line using \newauthor
 \author[W. Martin \& D. Mortlock]{
 William Martin$^{1}$\thanks{E-mail: w.martin19@imperial.ac.uk}
-and Daniel Mortlock$^{1,2,3}$
+and Daniel Mortlock$^{1,2}$
 \\
 % List of institutions
 $^{1}$Department of Physics, Imperial College London, Blackett Laboratory, Prince Consort Road, London SW7 2AZ, UK\\
-$^{2}$Department of Mathematics, Imperial College London, London, SW7 2AZ, UK\\
-$^{3}$Department of Physics, The Oskar Klein Centre, Stockholm University, Albanova, SE-10691 Stockholm, Sweden
+$^{2}$Department of Mathematics, Imperial College London, London, SW7 2AZ, UK
 }
 
 % These dates will be filled out by the publisher
@@ -142,10 +141,10 @@ methods: statistical -- methods: data analysis -- software: data analysis
 % }
 
 Linear regression is a common problem in astronomy, arising in fields as
-diverse as {\color{red} galaxy formation and evolution (e.g. the black hole
-mass -- stellar velocity dispersion correlation), stellar physics (e.g. the
+diverse as galaxy formation and evolution (e.g. the black hole
+mass -- stellar velocity dispersion correlation --- \citealt{Ferrarese:2000, Gebhardt:2000}), stellar physics (e.g. the
 Leavitt law linking the luminosity and pulsation period for Cepheid variable
-stars), and...}. For this reason, there are a plethora of techniques used by
+stars --- \citealt{Leavitt:1912}), and cosmology (e.g. the original formulation of Hubble's law --- \citealt{Hubble:1929}). For this reason, there are a plethora of techniques used by
 astronomers for linear regression when both the dependent and independent
 variables are measured with error \citep[e.g.][]{Press:1992, Akritas:1996,
 Tremaine:2002, Kelly:2007}.
@@ -155,23 +154,21 @@ Tremaine:2002, Kelly:2007}.
 \citep{Akritas:1996} suffer from biases and can underestimate intrinsic scatter.
 Similar algorithms exist for removing outliers from data (e.g.\ sigma clipping)
 have been used previously but these can lead to controversy (e.g.\ the
-reanalysis of \citet{Riess:2011} by \citet{Efstathiou:2014}). A more principled
+reanalysis of the data-set from \citealt{Riess:2011} by \citealt{Efstathiou:2014}). A more principled
 approach is to model the entire measurement process.
 
 Bayesian hierarchical models (BHMs) are a natural way to model such datasets ---
-this allows astronomers to account for, e.g., measurement errors, selection
+these allow astronomers to account for, e.g., measurement errors, selection
 effects, interlinked parameters, censored data, and many other effects common to
 astronomical problems. BHMs have seen increasing use in astrophysics over the
-past 30 years, from the distance-redshift relation in cosmology
+past few decades, from the distance-redshift relation in cosmology
 \citep[e.g.][]{Feeney:2018, Avelino:2019} and photometric redshift estimation
 \citep[e.g.][]{Leistedt:2016} to exoplanet characterisation
 \citep[e.g.][]{Sestovic:2018} and population-level inference
 \citep[e.g.][]{Kelly:2009} --- see \citet{Feigelson:2021} for a recent review
 including further examples of BHMs.
 
-\citet{Kelly:2007} presented a general Bayesian hierarchical
-model for linear regression with measurement errors and censored data.
-\citeauthor{Kelly:2007} found that the Bayesian approach had several advantages
+\citet{Kelly:2007} presented a general BHM for linear regression with measurement errors and censored data, demonstrating  several advantages
 over the other methods considered: no bootstrapping was required to obtain
 uncertainties on parameters; the Bayesian approach was easily extensible to
 truncated or censored data; and other methods would sometimes severely
@@ -190,10 +187,10 @@ distributions can be unduly affected by outliers (see Section \ref{sec:results}
 for an exploration of this effect).
 
 The problem of outliers within datasets can be thought of as model
-misspecification: these objects do not fit the distributions used to model them.
+mis-specification: these objects do not fit the distributions used to model them.
 The ideas behind robust inference can prove useful for this problem; in robust
 inference, methods are designed to work irrespective of the actual generative
-distribution {\color{red} \citep{Berger:1994}}. One approach is the use of
+distribution \citep{Berger:1994}. One approach is the use of
 Student's $t$-distributions, which are leptokurtic (i.e. have heavier tails than
 a normal distribution) and can, therefore, lead to more robust results in the
 case of model misspecification \citep[e.g.][]{Berger:1994, Gelman:2013}.
@@ -207,25 +204,23 @@ analysis. From the review of previous methods, we can identify properties that
 we would like to see in our regression model:
 
 \begin{itemize}
-	\item A Bayesian hierarchical model -- we favour a hierarchical approach
+	\item A BHM -- we favour a hierarchical approach
 	because it naturally encodes the hierarchical structure of astronomical
 	regression problems (i.e.\ objects are drawn from a high-level population;
 	the objects intrinsically obey some relationship; the objects are measured
-	with error and only the measured values are known). We favour a Bayesian
-	approach because it gives posterior distributions encoding our degree of
-	belief of the values of parameters, quantifying our uncertainty in their
-	values.
+	with error and only the measured values are known). We adopt a Bayesian
+	approach both for practical reasons -- the resultant posterior distributions provide full uncertainty quantification -- and due to their logical consistency \citep[e.g.][]{Cox:1946, van_Horn:2003, Knuth:2010}.
 
 	\item A robust model -- we desire a model that is robust to both outliers
 	(i.e.\ data points that, whether intrinsically or by virtue of measurement
-	errors, do not lie on our regression relation) and model misspecification
+	errors, do not lie on our regression relation) and model mis-specification
 	(i.e.\ where the underlying distribution of data does not match up with the
 	distribution assumed for modelling).
 
 	\item A general method -- we seek a model that does not require case-by-case
 	optimisation for application to different regression problems (e.g.\ no
 	manual outlier identification and removal, no need to rescale prior
-	distributions for different problems, etc.)
+	distributions for different problems, etc.).
 \end{itemize}
 
 We implement these ideas in this paper, beginning with a discussion of our model
@@ -234,25 +229,25 @@ methods that we use to validate our model; the results of these validation
 checks are presented in Section \ref{sec:results}. In Section
 \ref{sec:real-world}, we compare the performance of our model on real-world
 datasets with the models outlined in \citet{Kelly:2007} and \citet{Park:2017},
-before concluding remarks in Section \ref{sec:conclusion}.
+before summarising our conclusions in Section \ref{sec:conclusion}.
 
 \section{Formalism}
 \label{sec:formalism}
 
-In this section, we establish notation and set out our model. We
-have $N$ objects, each with some associated independent quantities
+Here we establish notation and set out our model. We
+have $N$ astronomical objects, each with some associated independent quantities
 $\{\boldsymbol{x}_i\}$ and a dependent quantity $\{y_i\}$. We assume that these
-quantities are related by the equations
+quantities are related by 
 \begin{align}
-    y_i =&\; f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) + \epsilon_i, \\
-    \epsilon_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
+    y_i =&\; f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) + \delta_i, \\
+    \delta_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
 \end{align}
 where $f(\boldsymbol{x}_i; \boldsymbol{\theta}_f)$ is a function relating
 $\{\boldsymbol{x}_i\}$ to $\{y_i\}$, with parameters $\boldsymbol{\theta}_f$,
 and $\mathcal{P}_{\text{int}}$ is an unknown probability distribution with
 parameters $\boldsymbol{\theta}_{\text{int}}$.
 
-These objects are then observed by astronomers, resulting in the measured
+These objects are then observed, resulting in the measured
 data
 \begin{align}
     \hat{\boldsymbol{x}}_i =&\; \boldsymbol{x}_i + \boldsymbol{\epsilon}_{x,i}, \\
@@ -271,25 +266,28 @@ these effects.
 \subsection{Building a robust model}
 \label{sec:formalism.robust}
 
-In the setup outlined above, we do not know what the distributions
-$\mathcal{P}_{\text{int}}$ and $\boldsymbol{\theta}_{\text{obs}}$ are. A common
+In the setup outlined above, the form of the distributions
+$\mathcal{P}_{\text{int}}$ and 
+$\mathcal{P}_{\text{obs}}$ are unknown. A common
 assumption in analysis is to use normal distributions to model both of these
 distributions. However, in the case of model misspecification (where, e.g., we
 assume $\mathcal{P}_{\text{int}}$ is a normal distribution but it is a different
 distribution), the results obtained under this assumption can be biased.
 Making the assumption that $\mathcal{P}_{\text{int}}$ follows a different
-distribution, such as a Student's $t$-distribution \citep{??} or a Gaussian
-mixture model \citep{??}, can give results that are robust to this model
+distribution, such as a Student's $t$-distribution \citep{Andrews:1974} or a Gaussian
+mixture model \citep{Aitkin:1980}, can give results that are robust to this model
 misspecification. This means that, even though we do not believe that the
 distribution we choose to model $\mathcal{P}_{\text{int}}$ is the same as the
 underlying, unknown $\mathcal{P}_{\text{int}}$, we can be confident in the
-results achieved.
+inferences about the regression model and the properties of individual objects.
 
 In this paper, we use Student's $t$-distributions to build a model that is
 robust to model misspecification.
 
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}
+
+{\color{green} Here I think ``form follows function'' could be usefully applied: say what properties we want the distribution to have before then stating that the student-t fills these - and then give the background about how it arises.}
 
 Student's $t$-distributions are encountered when estimating the mean of a normal
 distribution with unknown variance from a limited number of samples. The number
@@ -324,8 +322,8 @@ the probability density function
         -\frac{\nu + 1}{2}
     }.
 \end{equation}
-Plots of a range of $\nu$ are shown in Figure \ref{fig:model.t}; note that $\nu
-= 1$ gives a Cauchy distribution, and $\nu \rightarrow \infty$ tends to a normal
+This is shown for a range of $\nu$ in Figure \ref{fig:model.t}: $\nu
+= 1$ gives a Cauchy distribution; and $\nu \rightarrow \infty$ tends to a normal
 distribution. The distribution has mean
 \begin{equation}
     \mathbb{E}(x)
@@ -354,12 +352,14 @@ of a 1$\sigma$ interval for a normal distribution. This is given by
 \begin{equation}
     \sigma_{68}(\nu) = \sqrt{\nu \left(\frac{1}{I^{-1}(0.68...;\frac\nu2, \frac12)} - 1\right)},
 \end{equation}
-where $I^{-1}$ is the inverse regularised incomplete beta function. This
+where $I^{-1}$ is the inverse regularised incomplete beta function.
+{\bf DJM: Define this explicitly.}
+This
 quantity is useful for defining a ``scale'' parameter that is less tightly
 coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
 
-The second quantity we defined is an ``outlier fraction'' $\omega$, which
-defines the fraction of points expected to lie more than $3\sigma$ from the
+The second quantity we use is an ``outlier fraction'' $\omega$, which
+is defined as the fraction of points expected to lie more than $3\sigma$ from the
 distribution mean $\mu$. For a $t$ distribution, this is given by
 \begin{eqnarray}
     \omega(\nu)
@@ -374,21 +374,24 @@ where $F_\nu(x)$ is the cumulative distribution function for Student's
 $t$-distribution with shape parameter $\nu$. Figure \ref{fig:model.outlier_frac}
 shows the relationship between outlier fraction $\omega$ and shape parameter
 $\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
-distribution, i.e., as $\nu \rightarrow \infty$. We would, therefore, expect
-that approximately 1 in 370 datapoints would be outliers for data that follows a
+distribution, i.e., as $\nu \rightarrow \infty$.  Under this definition approximately 1 in 370 data-points would be outliers for data that follows a
 normal distribution; for Cauchy-distributed data (i.e. $\nu = 1$),
-we would expect every fifth datapoint to be an outlier.
+every fifth data-point to be an outlier.
 
 \subsection{Regression model}
 \label{sec:formalism.model}
 
-For the analysis in this paper, we assume a linear relationship between
-$\{\boldsymbol{x}_i\}$ to $\{y_i\}$, i.e.
+Our regression model, represented as a directed acyclic graph in Figure~\ref{fig:formalism.dag}, is specified here.
+We assume a linear relationship between
+$\{\boldsymbol{x}_i\}$ and $\{y_i\}$, i.e.
 \begin{equation}
     f(\boldsymbol{x}_i; \boldsymbol{\theta}_x) =
         \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i
 \end{equation}
 where $\{\alpha, \boldsymbol{\beta}\} \equiv \boldsymbol{\theta}_f$.
+{\color{green} Should this be theta-x rather than theta-f?}
+
+{\color{green} Say something about options for extending to non-linear models.}
 
 Similarly to \citet{Kelly:2007}, we define a Bayesian hierarchical model to
 reflect the nature of the regression problem. Firstly, we assume that we can
@@ -408,14 +411,14 @@ $\mathcal P_{\text{obs}}$ as a normal distribution with scale parameter given by
 the error associated with the measured quantity. These measurements are modelled
 as
 \begin{align}
-    \obsindep \sim&\; \mathcal N\left({\indepvars}, {\indepcov}\right) \\
-    \obsdep \sim&\; \mathcal N\left({\indepvars}, {\deperr}\right).
+    \obsindep \sim&\; \mathcal N\left({\indepvars}, \indepcov^2\right) \\
+    \obsdep \sim&\; \mathcal N\left({\indepvars}, \deperr^2\right).
 \end{align}
 
 We experimented with assuming $\mathcal P_{\text{obs}}$ to be $t$-distributed,
 but found that the resultant model was difficult to sample as a result of its
 geometry, and that posterior predictive checks often included large outliers
-and did not resemble the datasets that gave rise to them.
+and did not resemble the datasets that gave rise to them.  Fortunately, for robust inference the presence of a single heavy-tailed component is sufficient.
 
 This model structure is represented as a directed acyclic graph in Figure
 \ref{fig:formalism.dag}.
@@ -439,19 +442,18 @@ scaled intercept, gradients and scatter $\{\tilde{\intercept},
 different units or datasets (though these priors can be revised to incorporate
 prior information).
 
-Our priors on the regression parameters $\{\tilde{\intercept},
+Our default priors on the regression parameters $\{\tilde{\intercept},
 \tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ are
 \begin{align}
     \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 2), \\
     \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 2), \\
     \tilde{\sigma}_{68} \sim&\; \Gamma(1.1, 5).
 \end{align}
-
 The motivation behind the prior on $\tilde{\intercept}$ is that, as the data is
 pre-scaled to have zero mean and the relationship between quantities is assumed
 to be linear, we would expect the data to have zero intercept. Similarly, the
 prior on $\tilde{\alpha}$ has been chosen because the pre-scaling of the data
-suggests a gradient between -1 and 1. The prior on $\tilde{\sigma}_{68}$ is
+suggests a gradient between $-1$ and $1$. The prior on $\tilde{\sigma}_{68}$ is
 informed by \citet{Chung:2013}, who demonstrate that a prior with density at
 $\tilde{\sigma}_{\text{int}} = 0$ will lead to a prediction of no intrinsic
 scatter in datasets where intrinsic scatter is present; in addition, there is a
@@ -467,7 +469,7 @@ found that such a prior led to sampling issues as a result of the lack of
 identifiability inherent in a multicomponent Gaussian mixture model. Therefore,
 we use extreme deconvolution \citep{Bovy:2011} to estimate the parameters of a
 Gaussian mixture model approximating the latent distribution of
-$\{\indepvars\}$, and use these parameters for the prior.
+$\{\indepvars\}$, and use these parameters for the prior.  
 
 The prior on the shape parameter $\nu$ is
 \begin{align}
@@ -479,7 +481,7 @@ distribution --- and normally-distributed data) and sampling issues (as $\nu
 \leftarrow \infty$, different values of $\nu$ become rapidly indistinguishable).
 The reasoning behind this choice of prior is expanded upon in Appendix
 \ref{sec:t-prior}. The exact choice of prior for $\nu$ is unimportant, as the
-model is designed to be robust to model misspecification; the only key element
+model is designed to be robust to model mis-specification; the only key element
 is that $\nu$ is allowed to vary to accommodate both normal and heavy-tailed
 distributions. By virtue of this, difficulties in sampling $\nu$ according to
 this prior distribution do not invalidate the results of the model, as long as
@@ -488,19 +490,21 @@ there is coverage at both small and large values of $\nu$.
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}
 
-{\color{green} For Daniel}
+{\color{green} Please proof read this section!}
+
+One potential disadvantage of adopting a heavy-tailed likelihood in the statistical model is that the resultant inferences would, in general, be less constraining than under the assumption of a normal model.  If there are no outliers the implication would be that the robust approach is inferior. 
+This effect would be appreciable for the smallest datasets -- the posteriors would have heavier tails than under a normal model -- but the lack of means meaningful constraints are unlikely irrespective of the adopted model. For larger datasets, of more than a few tens of points, these tails are effectively multiplied out, typically leaving just a single region of high probability.  Moreover, for the regression problem considered here, the posterior in the regression parameters satisfies the requirements for asymptotic normality \citep[e.g.][]{Ghosh_etal:2006}, so the core of the posterior is Gaussian in form, just as would be the case under a normal model.  (There is not even a significant numerical cost as the posterior has to be evaluated by sampling anyway.)
 
 \subsection{Implementation}
 \label{sec:formalism.implementation}
 
 The model described in Section \ref{sec:formalism.model} is implemented in
-NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a HMC No U-Turn
-Sampler. The implementation is packaged as $t$-cup, available as a Python
+NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a Hamiltonian Monte Carlo (HMC) No U-Turn
+Sampler (NUTS). The implementation is packaged as $t$-cup, available as a Python
 package\footnotemark.
 
 For the purposes of comparison, we have also implemented a model that mirrors
-the above structure, but uses normal distributions at each stage --- this model
-is referred to as $n$-cup.
+the above structure, but uses normal distributions at each stage --- we refere to this as $n$-cup.
 
 \footnotetext{\url{https://github.com/wm1995/tcup}}
 
@@ -508,9 +512,9 @@ is referred to as $n$-cup.
 \label{sec:methods}
 
 In this section, we outline the methods used to validate the model set out in
-the previous section. We run two types of tests to validate the performance of
+Section~\ref{sec:formalism}. We run two types of tests to validate the performance of
 $t$-cup under different types of model misspecification: simulation-based
-calibration tests \citep{Cook:2006, Talts:2018} and fixed value calibration
+calibration tests \citep{Cook:2006, Talts:2018}; and fixed value calibration
 tests.
 
 \subsection{Simulation-based calibration}
@@ -524,10 +528,11 @@ drawn $L$ independent samples $\{\tilde{\theta}_{i}\}$ (see \citet{Talts:2018}
 for a discussion of independence criteria). We then compute the rank statistic
 \begin{equation}
     r(\theta_0, \tilde{\boldsymbol{\theta}}_{\text{MCMC}})
-        = \sum_{i = 1}^{L} \mathbb I [\tilde{\theta}_i < \theta_0].
+        = \sum_{i = 1}^{L} \mathbb I (\tilde{\theta}_i < \theta_0),
 \end{equation}
+where $\mathbb{I}(\cdot)$ is the indicator function which evaluates to 1 if its (logical) argument is true and 0 if it is false.
 If the generative model matches the sampling model and the sampling algorithm
-correctly draws samples from the posterior, the rank statistic will be uniformly
+correctly draws from the posterior, the rank statistic will be uniformly
 distributed across the integers $[0, L]$. We can, therefore, repeat this process
 many times to build a histogram of rank statistics; any shortfalls in the
 sampling algorithm will manifest as deviations from uniformity.
@@ -561,7 +566,7 @@ full specifications of the data models are specified in Appendix
 
 We aim to do a full end-to-end test of our inference pipeline in the fixed-value
 calibration tests; therefore, these datasets are generated in the unscaled space
-and are a test not only of the MCMC model but also of the scaling.
+and are a test not only of the sampler but also of the scaling.
 
 % Normally the next section describes the techniques the authors used.
 % It is frequently split into subsections, such as Section~\ref{sec:maths} below.
@@ -613,20 +618,21 @@ reproduces the datasets in this section is available online\footnotemark.
 \end{figure*}
 
 For our first test, we start with a dataset that matches our model perfectly
-(i.e.\ $\mathcal P_{\text{int}} = \mathcal P_{\text{obs}} = t_\nu$). The
-simulation-based calibration tests indicate that the rank statistic is
+(i.e.\ $\mathcal P_{\text{int}} = \mathcal P_{\text{obs}} = t_\nu$).
+{\color{green} But isn't P-int normal so there aren't two heavy-tailed distributions in the model?}
+The simulation-based calibration tests indicate that the rank statistic is
 consistent with being uniformly distributed (see Figure
 \ref{fig:results.t.sbc}), and, therefore, that our inference procedure is
 working as expected.
 
 For our fixed-value tests, we drew $N = 20$ datapoints with $\{\alpha, \beta,
-\sigma_{68}, \nu\} = \{3, 2, 0.1, 3\}$; the full model used to generate the data
+\sigma_{68}, \nu\} = \{3, 2, 0.1, 3\}$;
+{\color{green} Lots of cases like this where they aren't really sets, as they're ordered; so more corrected to put () brackets around these.}
+the full model used to generate the data
 is specified in Appendix \ref{sec:data-models.t}. The chosen value of $\nu = 3$
-corresponds to an outlier fraction of $\omega(\nu = 3) \approx 5.8 \%$.  As we
-can see in Figure \ref{fig:results.t.corner}, we recover the values of the
+corresponds to an outlier fraction of $\omega(\nu = 3) \approx 5.8 \%$.  As shown in Figure \ref{fig:results.t.corner}, we recover the values of the
 parameters that were used to generate the dataset; these values are consistent
 with a model where the shape parameter is fixed to $\nu = 3$.
-
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_t.pdf}
@@ -651,7 +657,6 @@ the intrinsic scatter $\sigma_{68}$. For the nusiance paramater $\nu$, the
 credible intervals contained the true parameter value across all runs; this may
 be caused by this parameter being only weakly constrained for these datasets.
 
-
 \subsection{Normally-distributed data}
 \label{sec:results.outlier}
 
@@ -670,19 +675,17 @@ be caused by this parameter being only weakly constrained for these datasets.
 \end{figure*}
 
 In this test, we compare $t$-cup with an equivalent model that employs normal
-distributions to illustrate that:
+distributions to check that:
 \begin{enumerate}
-    \item $t$-cup is able to reduce to a normal model in the absence of outliers
-    \item $t$-cup is able to give less biased results when an extreme outlier is
-          introduced.
+    \item $t$-cup is reduces to a normal model in the absence of outliers
+    \item $t$-cup gives less biased results when an extreme outlier is          present.
 \end{enumerate}
 A dataset of $N = 12$ points was generated with $\{\alpha, \beta, \sigma_{\rm
 int}\} = \{3, 2, 0.2\}$, and one of the points was modified to be a
-$\sim20~\sigma$ outlier (the full generative model is given in Appendix
-\ref{sec:data-models.outlier}). While such an extreme outlier can easily be
-spotted and removed, the purpose here is to demonstrate that $t$-cup does not
-require this to give {\color{red} unbiased} estimates of the regression
-parameters.
+$\sim20\!\sigma$ outlier (the full generative model is given in Appendix
+\ref{sec:data-models.outlier}). While such an extreme outlier could easily be
+identified and removed, the purpose here is to demonstrate that $t$-cup does not
+require this to obtain sensible inferences.
 
 \begin{figure*}
     \includegraphics[width=\linewidth]{graphics/fixed/regression_outlier.pdf}
@@ -726,8 +729,7 @@ this example illustrates the utility of the $t$-cup model in datasets with
 outliers.
 
 For completeness, in Figure \ref{fig:results.outlier.tcup} we illustrate that
-the $t$-cup model recovers consistent constraints whether the outlier is
-included or excluded.
+the $t$-cup model recovers consistent constraints regardless of whether the outlier is included or excluded.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/outlier_cdf.pdf}
@@ -747,7 +749,7 @@ for each parameter,finding that the true parameter value was contained within
 the interval for $x$\% of parameters and runs. }
 
 
-\subsection{2D Normal Mixture Model with outlier fraction}
+\subsection{Two-dimensional normal mixture model with outliers}
 \label{sec:results.gmm}
 
 This test is designed to further explore how $t$-cup performs when the model is
@@ -764,7 +766,7 @@ are drawn from an outlier distribution with standard deviation $10
 \sigma_\textrm{int}$. The observation distribution $\mathcal P_{\rm obs}$ is a
 normal distribution. For fixed-value tests, the true values of the regression
 parameters were fixed to $\{\alpha, \beta_0, \beta_1, \sigma_{\rm int}\} = \{2,
-3, 1, 0.4\}$. The full generative model for fixed-value tests is given in
+3, 1, 0.4\}$. The full generative model for the fixed-value tests is given in
 Appendix \ref{sec:data-models.gmm}.
 
 \begin{figure}
@@ -781,10 +783,9 @@ Appendix \ref{sec:data-models.gmm}.
 \subsection{Laplace-distributed data}
 \label{sec:results.laplace}
 
-For this test, we compare model performance on a symmetric, heavy-tailed, cuspy
-distribution that does not fall into the family of $t$-distributions. Therefore,
+As the underlying sampling distributions can never be known with certainty it is important to test the method on data generated from a distribution that does not fall into the family of $t$-distributions (and has a high outlier fraction).  Here 
 we use a Laplace distribution as $\mathcal P_{\rm int}$, giving another example
-of performance under explicit model misspecification.
+of performance under explicit model mis-specification.
 
 We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
 (i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$) and normally distributed observation
@@ -809,11 +810,11 @@ generative model can be found in Appendix \ref{sec:data-models.laplace}.
 % \end{figure}
 
 As we can see in Figures \ref{fig:results.laplace.regression} and
-\ref{fig:results.laplace.corner}, we recover the values of the parameters that were
+\ref{fig:results.laplace.corner}, $t$-cup successfully recovers the values of the parameters that were
 used to generate the dataset.
 
 We then generated 1000 datasets from the same ground-truth parameters, and
-calculated the maximum a posteriori (MAP) values of the regression coefficients
+calculated the MAP values of the regression coefficients
 and shape parameter $\nu$. The results (illustrated in Figure
 \ref{fig:results.laplace.map}) indicate that the estimate of true parameter
 values is unbiased.{ \color{red} We also calculated the 95\% highest-posterior
@@ -836,12 +837,12 @@ value was contained within the interval for $x$\% of parameters and runs.  }
 % \end{figure}
 
 
-\subsection{Lognormally-distributed data}
+\subsection{Log-normal distributed data}
 \label{sec:results.lognormal}
 
 For the final test in this section, we look at model performance for an
 intrinsic scatter distribution that is asymmetric. For this reason, we choose
-$\mathcal P_{\rm int}$ to be a lognormal distribution.
+$\mathcal P_{\rm int}$ to be a log-normal distribution.
 
 For the fixed-value datasets, generate $N = 25$ datapoints with $\{\alpha,
 \beta\} = \{4, 8\}$; the full generative model is given in Appendix
@@ -905,17 +906,17 @@ and X-ray spectral index $\Gamma$. Performance is compared with a Python
 implementation\footnotemark of the original \textsc{linmix\_err} paper proposed
 by \citeauthor{Kelly:2007}.
 
-\footnotetext{https://github.com/jmeyers314/linmix}
+\footnotetext{\url{https://github.com/jmeyers314/linmix}}
 
 \begin{table}
 	\centering
-	\caption{A comparison of estimates for the intercept,
+	\caption{Estimates for the intercept,
     slope, and intrinsic scatter inferred for the relationship between Eddington
-    ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$. The parameter
+    ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$ for the sample of quasars analysed by \citet{Kelly:2007}. The parameter
     estimates reported in \citet{Kelly:2007} are the posterior median and ``a
     robust estimate of the standard deviation''; for linmix and $t$-cup, we
     report the posterior median and an estimate of the standard deviation as
-    $\sigma = 1.4826 MAD$.}
+    $\sigma = 1.4826 \, {\rm MAD}$.}
 	\label{tab:real-world.kelly.params}
 	\begin{tabular}{lccc} % four columns, alignment for each
                                & \citet{Kelly:2007} & linmix   & $t$-cup       \\
@@ -931,8 +932,8 @@ While the parameter estimates are broadly consistent (see Table
 \ref{fig:real-world.kelly.corner} can be seen to differ, with the posterior
 inferred by \textsc{linmix} being more diffuse than that inferred by $t$-cup.
 The tighter constraints of $t$-cup suggest that the inference presented by
-\citet{Kelly:2007} may biased by the assumption of normally-distributed data,
-which may not hold true in this case.
+\citet{Kelly:2007} may be biased by the enforced assumption of normally-distributed data,
+which may not be accurate.
 The explicit assumption of normality in \textsc{linmix} is in tension with the
 outlier fraction estimated by $t$-cup (68\% CI $\omega =
 0.05$\raisebox{0.5ex}{\tiny$^{+0.04}_{-0.01}$}). This showcases that analysing
@@ -950,19 +951,20 @@ when assuming normality.
 \subsection{\citet{Park:2017}}
 
 This dataset consists of $N = 31$ AGN with reverberation-mapped mass estimates
-$M_{\text{BH}}$, \textsc{Civ} emission line width $\Delta V$, and continuum
-luminosity $\lambda L_{\lambda}$.
+$M_{\text{BH}}$, \textsc{Civ} emission line widtha $\Delta V$, and continuum
+luminosities $\lambda L_{\lambda}$.
 
 We recover constraints on the regression relation
 \begin{equation}
-    \log_{10} \left( \frac{M_{\text{BH}}}{10^8 M_\odot} \right) =
+    \log_{10}\!\left( \frac{M_{\text{BH}}}{10^8 M_\odot} \right)\! =
         \alpha +
-        \beta_0 \log_{10} \left( \frac{\lambda L_{\lambda}}{10^{44} \text{erg s}^{-1}} \right) +
-        \beta_1 \log_{10} \left( \frac{\Delta V}{10^3 \text{km s}^{-1}} \right)
+        \beta_0\! \log_{10}\! \left( \frac{\lambda L_{\lambda}}{10^{44} \text{erg s}^{-1}} \right) +
+        \beta_1\! \log_{10}\!\left( \frac{\Delta V}{10^3 \text{km s}^{-1}} \right)
 \end{equation}
 consistent with those of \citet{Park:2017} --- see Figure
 \ref{fig:real-world.park.corner}. {\color{red} This needs rerunning with the
 latest version of the code.}
+{\color{green} There seems to be a paragraph missing here - need to discuss the results.}
 
 \begin{table*}
 	\centering
@@ -1039,8 +1041,8 @@ latest version of the code.}
 \section{Conclusions}
 \label{sec:conclusion}
 
-This paper has demonstrated a general-purpose approach to linear regression that
-is robust to model misspecification, with a model laid out in Section
+We have developed a general-purpose approach to linear regression, implemented as $t$-cup, that
+is robust to model mis-specification, with a model laid out in Section
 \ref{sec:formalism}. In Section \ref{sec:results}, we demonstrated that the
 model recovers constraints consistent with those used to generate the datasets,
 including in cases where there is a mismatch between the generative model used
@@ -1048,9 +1050,9 @@ to create the dataset and our regression model. In Section \ref{sec:real-world},
 we compared the method to \textsc{linmix\_err} \citep{Kelly:2007} on real-world
 data, illustrating that the models derive consistent constraints.
 
-Summarise the take-home point that the method is a form of robust inference;
+{\color{red} Summarise the take-home point that the method is a form of robust inference;
 works on all sorts of outliers; then lead on to use in Paper 2 on the mass
-ladder.
+ladder.}
 
 \section*{Acknowledgements}
 
@@ -1060,7 +1062,6 @@ STFC grant ST/T506151/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Data Availability}
-
 
 The data in this paper is sourced from \citet{Kelly:2007, Park:2017}. Scripts to
 generate the simulated datasets used to validate the model in Section
@@ -1089,7 +1090,7 @@ different ways.
 \citet{Feeney:2018} introduced the concept of the ``peak height ratio'' $t$ ---
 the ratio of central peak height of a $t$-distribution with shape parameter $nu$
 to that of a normal distribution. A normal distribution has, by definition,
-$t(\nu = \infty) = 1$; a Cauchy distribution has $t(\nu = 1) = \sqrt{\frac2\pi}
+$t(\nu = \infty) = 1$; a Cauchy distribution has $t(\nu = 1) = \sqrt{2/\pi}
 \approx 0.80$. For general $\nu$, peak height ratio $t$ is
 \begin{eqnarray}
     t(\nu) &=& \frac{
@@ -1156,7 +1157,7 @@ approach is to adopt a more flexible approach by allowing $\nu$ to vary
 In \citet{Feeney:2018}, it is argued that, for common choices of prior, too
 much prior density is placed on large values of $\nu$; to rectify this, they
 propose a uniform prior on peak height $t \sim U\left(0, 1\right)$. As this
-prior has no closed form derivative (a requirement for Hamiltonian Monte Carlo),
+prior has no closed form derivative (a requirement for HMC),
 they approximate this with the prior
 \begin{equation}
     \mathcal P\left(\nu\right) \propto
@@ -1169,18 +1170,18 @@ they approximate this with the prior
         \right)^a
     }
 \end{equation}
-where $\Theta(\nu)$ is the Heaviside step function, and $\nu_0$ and $a$ are
+where $\Theta(\cdot)$ is the Heaviside step function, and $\nu_0$ and $a$ are
 constants with values $\sim 0.55$ and $\sim 1.2$ respectively.  One feature of
 this prior is that it has significant density for $0 < \nu < 1$; in extreme
 cases, this can correspond to outliers that are more than 100 orders of
 magnitude larger than $\sigma$. In theory, these unphysical regions of parameter
 space ought to be excluded during the process of inference. However, the use of
-Hamiltonian Monte Carlo (HMC) in such cases can lead to divergences in the
+ HMC in such cases can lead to divergences in the
 sampling process or inefficient sampling as the sampler struggles with regions
 of high curvature --- see the discussion of this phenomenon in
 \citet{Neal:2003}.
 
-Another possible prior is on outlier fraction $\omega$. It could be argued that
+Another option would be to place a prior is on outlier fraction $\omega$. It could be argued that
 the term outlier loses its meaning when the majority of a dataset is composed of
 so-called ``outliers''; therefore, a natural choice of prior might be a uniform
 distribution ranging from the normally-distributed outlier fraction of
@@ -1202,6 +1203,8 @@ peak height $t$ or outlier fraction $\omega$.
 %     }
 %     \label{fig:model.t_approx}
 % \end{figure}
+
+{\color{green} This discussion of the nu priors needs tightening up: don't single out Feeney et al, but include all the below priors either in a logical order - if there is one - or in chronological order.}
 
 Works using the $t$-distributions for robust inference have used different
 priors for the shape parameter $\nu$, which controls how heavy-tailed the
@@ -1227,13 +1230,15 @@ These priors are illustrated in Figure \ref{fig:priors.pdf}.
     \label{fig:priors.pdf}
 \end{figure}
 
-A uniform proper prior in $\frac1\nu$ gives a hard cutoff in $\nu$, which
+A uniform proper prior in $1/nu$ gives a hard cutoff in $\nu$, which
 renders regions of parameter space inaccessible (in the case of the
 \citet{Gelman:2013} prior, $\nu = 1$ is the cutoff, which corresponds to a
 Cauchy distribution.) On the other hand, the prior used in \citet{Feeney:2018}
 has disproportionate prior density at low values of $\nu$, which corresponds to
 models with outliers several orders of magnitude larger than the predicted
 effect size.
+
+{\color{green} The below paragraph looks like a repeat holder from the editing process - can it just be deleted?}
 
 It can also be instructive to calculate the ``outlier fraction'' for different
 values of $\nu$. We define the outlier fraction $\omega$ as
@@ -1243,7 +1248,7 @@ values of $\nu$. We define the outlier fraction $\omega$ as
 \end{eqnarray}
 where $I(x; \alpha, \beta)$ is the regularised beta function. For a normal
 distribution, we expect about 0.27\% of points to be outliers greater than
-3~$\sigma$ from the mean --- i.e. $\lim_{\nu \rightarrow \infty}\omega(\nu)
+3~$\sigma$ from the mean, i.e., $\lim_{\nu \rightarrow \infty}\omega(\nu)
 \approx 0.0027$; for a Cauchy distribution, $\omega(\nu = 1) \approx 0.20$.
 
 The cumulative distribution functions for the priors in terms of outlier
@@ -1277,8 +1282,10 @@ This prior was chosen for two reasons:
 \section{Fixed-value calibration data models}
 \label{sec:data-models}
 
-In this section, we fully specify the dataset models used for fixed-value
+Here, we fully specify the dataset models used for fixed-value
 calibration tests in Section \ref{sec:results}.
+
+{\color{green} Below link back to the specific sub-section where these models are used. }
 
 \subsection{\textit{t}-distributed data}
 \label{sec:data-models.t}
@@ -1313,7 +1320,7 @@ We generated datasets of $N = 12$ points using the model:
     \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
 \end{alignat}
 
-\subsection{2D Normal Mixture Model}
+\subsection{Two-dimensional normal mixture model}
 \label{sec:data-models.gmm}
 
 We introduce the parameter $O_i$ to indicate whether the $i$th datapoint is
@@ -1362,7 +1369,7 @@ We generate $N = 25$ datapoints under the following model:
     \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
 \end{eqnarray}
 
-\subsection{Lognormally-distributed data}
+\subsection{Log-normal distributed data}
 \label{sec:data-models.lognormal}
 
 We generate $N = 25$ datapoints under the following model:

@@ -237,7 +237,7 @@ before summarising our conclusions in Section \ref{sec:conclusion}.
 Here we establish notation and set out our model. We
 have $N$ astronomical objects, each with some associated independent quantities
 $\{\boldsymbol{x}_i\}$ and a dependent quantity $\{y_i\}$. We assume that these
-quantities are related by 
+quantities are related by
 \begin{align}
     y_i =&\; f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) + \delta_i, \\
     \delta_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
@@ -267,7 +267,7 @@ these effects.
 \label{sec:formalism.robust}
 
 In the setup outlined above, the form of the distributions
-$\mathcal{P}_{\text{int}}$ and 
+$\mathcal{P}_{\text{int}}$ and
 $\mathcal{P}_{\text{obs}}$ are unknown. A common
 assumption in analysis is to use normal distributions to model both of these
 distributions. However, in the case of model mis-specification (where, e.g., we
@@ -344,6 +344,13 @@ and variance
     \end{cases}
 \end{equation}
 
+\begin{figure}
+	\includegraphics{graphics/t-dist-log.pdf}
+    \caption{The $t$-distribution probability density function for different
+    values of shape parameter, $\nu$.}
+    \label{fig:model.t}
+\end{figure}
+
 In this paper, we have found it useful to define two quantities for comparison
 with normal distributions. The first, $\sigma_{68}(\nu)$, is the width of the
 highest density interval for a $t$-distribution with scale parameter
@@ -378,6 +385,14 @@ distribution, i.e., as $\nu \rightarrow \infty$.  Under this definition
 approximately 1 in 370 data-points would be outliers for data that follows a
 normal distribution; for Cauchy-distributed data (i.e. $\nu = 1$), every fifth
 data-point to be an outlier.
+
+\begin{figure}
+	\includegraphics{graphics/outlier_frac.pdf}
+    \caption{The outlier fraction, $\omega$, for different values of shape
+    parameter, $\nu$. The outlier fraction of a normal distribution ($\approx
+    2.70 \times 10^{-3}$) is indicated by the dashed grey line.}
+    \label{fig:model.t}
+\end{figure}
 
 \subsection{Regression model}
 \label{sec:formalism.model}
@@ -470,7 +485,7 @@ found that such a prior led to sampling issues as a result of the lack of
 identifiability inherent in a multicomponent Gaussian mixture model. Therefore,
 we use extreme deconvolution \citep{Bovy:2011} to estimate the parameters of a
 Gaussian mixture model approximating the latent distribution of
-$\{\indepvars\}$, and use these parameters for the prior.  
+$\{\indepvars\}$, and use these parameters for the prior.
 
 The prior on the shape parameter $\nu$ is
 \begin{align}
@@ -486,7 +501,7 @@ model is designed to be robust to model mis-specification; the only key element
 is that $\nu$ is allowed to vary to accommodate both normal and heavy-tailed
 distributions. By virtue of this, difficulties in sampling $\nu$ according to
 this prior distribution do not invalidate the results of the model, as long as
-there is coverage at both small and large values of $\nu$. 
+there is coverage at both small and large values of $\nu$.
 
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}
@@ -495,7 +510,7 @@ One potential disadvantage of adopting a heavy-tailed likelihood in the
 statistical model is that the resultant inferences would, in general, be less
 constraining than under the assumption of a normal model (see, e.g., the
 motivation behind the mixture model proposed in \citealt{Tak:2019}).  If there
-are no outliers, the implication would be that the robust approach is inferior. 
+are no outliers, the implication would be that the robust approach is inferior.
 
 This effect would be appreciable for the smallest datasets -- the posteriors
 would have heavier tails than under a normal model -- but, in this case,
@@ -509,7 +524,7 @@ form, just as would be the case under a normal model.  (There is not even a
 significant numerical cost as the posterior has to be evaluated by sampling
 anyway.)
 
-{\color{violet} I don't know whether it's worth discussing \citet{Tak:2019} in
+{\color{blue} I don't know whether it's worth discussing \citet{Tak:2019} in
 this section, and the reason for not adopting their approach (a mixture model
 with a $t$ component)? They say that their approach is better than a single $t$
 distribution --- ``A heavy tailed error assumption based on Student’s t
@@ -800,7 +815,7 @@ Appendix \ref{sec:data-models.gmm}.
 \subsection{Laplace-distributed data}
 \label{sec:results.laplace}
 
-As the underlying sampling distributions can never be known with certainty it is important to test the method on data generated from a distribution that does not fall into the family of $t$-distributions (and has a high outlier fraction).  Here 
+As the underlying sampling distributions can never be known with certainty it is important to test the method on data generated from a distribution that does not fall into the family of $t$-distributions (and has a high outlier fraction).  Here
 we use a Laplace distribution as $\mathcal P_{\rm int}$, giving another example
 of performance under explicit model mis-specification.
 

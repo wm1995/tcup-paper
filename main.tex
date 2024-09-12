@@ -1026,9 +1026,30 @@ generate the simulated datasets used to validate the model in Section
 \label{sec:t-prior}
 
 As our model relies on Student's $t$-distributions, we review notation and
-priors used by previous works and justify our reasoning for our prior choice. It
-can be informative to reparameterize the shape parameter $\nu$ in a few
-different ways.
+priors used by previous works and justify our reasoning for our prior choice.
+One approach is to adopt a fixed value of $\nu$, which is equivalent to setting
+a Dirac delta function prior: a common choice is $\nu = 4$
+\citep[e.g.][]{Berger:1994, Gelman:2013}.  Another approach is to adopt a more
+flexible approach by allowing $\nu$ to vary \citep[e.g.][]{Juarez:2010,
+Gelman:2013, Ding:2014, Park:2017, Feeney:2018}.
+
+Works using the $t$-distributions for robust inference have used different
+priors for the shape parameter $\nu$, which controls how heavy-tailed the
+distribution is. Priors suggested include:
+\begin{itemize}
+    \item priors of the form $\nu \sim \Gamma(\alpha, \beta)$ for
+          some $\left\{\alpha, \beta\right\}$ -- e.g.
+          \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 0.1\right\}$;
+          \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 0.1\right\}$
+    \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
+    \item A uniform prior in distribution peak height relative to a normal
+    distribution, $t$, such that
+    \begin{equation}
+        t \equiv \sqrt{\frac2\nu}\frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)} \sim U(0, 1).
+    \end{equation}
+\end{itemize}
+These priors, along with the prior we adopted, are illustrated in Figure
+\ref{fig:priors.pdf}.
 
 \citet{Feeney:2018} introduced the concept of the ``peak height ratio'' $t$ ---
 the ratio of central peak height of a $t$-distribution with shape parameter $nu$
@@ -1051,51 +1072,6 @@ $t(\nu = \infty) = 1$; a Cauchy distribution has $t(\nu = 1) = \sqrt{2/\pi}
 As shown in Figure \ref{fig:model.peak_height}, the behaviour of $t(\nu)$ is
 highly non-linear, reflecting that, for $\nu \gtrsim 10$, the Student's
 $t$-distribution rapidly approaches a normal distribution.
-
-% \begin{figure}
-%     \centering
-%     \includegraphics{scripts/peak-height.pdf}
-%     \caption{A plot of peak height ratio $t$ with varying shape parameter $\nu$}
-%     \label{fig:model.peak_height}
-% \end{figure}
-
-As we are using the flexibility of Student's $t$-distributions to adapt to
-datasets with outliers, it can also be useful to consider the outlier fraction
-$\omega$. If we define outliers as any points lying more than $3\sigma$ from the
-mean $\mu$, the outlier fraction is
-\begin{eqnarray}
-    \omega(\nu)
-    &=& P\left(
-        \left|x - \mu \right| > 3 \sigma \;
-        \middle| \;
-        x \sim \studentt{\mu}{\sigma}
-    \right) \\
-    &=& 2 F_\nu \left(\mu - 3 \sigma \right),
-\end{eqnarray}
-where $F_\nu(x)$ is the cumulative distribution function for Student's
-$t$-distribution with shape parameter $\nu$. Figure \ref{fig:model.outlier_frac}
-shows the relationship between outlier fraction $\omega$ and shape parameter
-$\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
-distribution, i.e., as $\nu \rightarrow \infty$. We would, therefore, expect
-that approximately 1 in 370 datapoints would be outliers for data that follows a
-normal distribution; for Cauchy-distributed data (i.e. $\nu = 1$),
-we would expect every fifth datapoint to be an outlier.
-
-% \begin{figure}
-%     \centering
-%     \includegraphics{scripts/outlier-frac.pdf}
-%     \caption{Outlier fraction $\omega$ as a function of $\nu$ - for large $\nu$,
-%     $\omega$ tends to the Gaussian limit value of $\omega \rightarrow 2.70
-%     \times 10^{-3}$}
-%     \label{fig:model.outlier_frac}
-% \end{figure}
-
-Using Student's $t$-distributions for Bayesian inference means that we have to
-specify a prior on the shape parameter $\nu$. One approach is to adopt a fixed
-value of $\nu$, which is equivalent to setting a Dirac delta function prior: a
-common choice is $\nu = 4$ \citep[e.g.][]{Berger:1994, Gelman:2013}.  Another
-approach is to adopt a more flexible approach by allowing $\nu$ to vary
-\citep[e.g.][]{Juarez:2010, Park:2017, Feeney:2018}.
 
 In \citet{Feeney:2018}, it is argued that, for common choices of prior, too
 much prior density is placed on large values of $\nu$; to rectify this, they
@@ -1138,33 +1114,7 @@ consider only distributions that are less heavy-tailed than the Cauchy
 distribution --- i.e. all those with $\nu > 1$. This prior can be set on either
 peak height $t$ or outlier fraction $\omega$.
 
-% \begin{figure}
-%     \centering
-%     \includegraphics{scripts/scaled-peak-height.pdf}
-%     \caption{Rescaled peak height $\tilde{t}$ as a function of $\nu$; also
-%     illustrated is the approximation given in Equation \ref{eqn:model.t_approx}.
-%     }
-%     \label{fig:model.t_approx}
-% \end{figure}
-
 {\color{green} This discussion of the nu priors needs tightening up: don't single out Feeney et al, but include all the below priors either in a logical order - if there is one - or in chronological order.}
-
-Works using the $t$-distributions for robust inference have used different
-priors for the shape parameter $\nu$, which controls how heavy-tailed the
-distribution is. Priors suggested include:
-\begin{itemize}
-    \item priors of the form $\nu \sim \text{Inv-}\Gamma(\alpha, \beta)$ for
-          some $\left\{\alpha, \beta\right\}$ -- e.g.
-          \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 10\right\}$;
-          \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 10\right\}$
-    \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
-    \item A uniform prior in distribution peak height relative to a normal
-    distribution, such that
-    \begin{equation}
-        \sqrt{\frac2\nu}\frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)} \sim U(0, 1).
-    \end{equation}
-\end{itemize}
-These priors are illustrated in Figure \ref{fig:priors.pdf}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
@@ -1183,17 +1133,6 @@ effect size.
 
 {\color{green} The below paragraph looks like a repeat holder from the editing process - can it just be deleted?}
 
-It can also be instructive to calculate the ``outlier fraction'' for different
-values of $\nu$. We define the outlier fraction $\omega$ as
-\begin{eqnarray}
-    \omega(\nu) &=& \mathcal P\left(|x - \mu| > 3 \sigma \mid x \sim t_\nu (\mu, \sigma^2) \right) \\
-    &=& I\left(\frac{\nu}{\nu + 3^2};\frac\nu2, \frac12\right),
-\end{eqnarray}
-where $I(x; \alpha, \beta)$ is the regularized beta function. For a normal
-distribution, we expect about 0.27\% of points to be outliers greater than
-3~$\sigma$ from the mean, i.e., $\lim_{\nu \rightarrow \infty}\omega(\nu)
-\approx 0.0027$; for a Cauchy distribution, $\omega(\nu = 1) \approx 0.20$.
-
 The cumulative distribution functions for the priors in terms of outlier
 fraction are illustrated in Figure \ref{fig:priors.outlier_frac}.
 \begin{figure}
@@ -1207,7 +1146,7 @@ fraction are illustrated in Figure \ref{fig:priors.outlier_frac}.
 
 In this work, we use the prior
 \begin{equation}
-    \nu \sim \text{Inv-}\Gamma(3, 10),
+    \nu \sim \text{Inv-}\Gamma(4, 15),
 \end{equation}
 where $\text{Inv-}\Gamma(\alpha, \beta)$ is an inverse gamma distribution with
 {\color{red} shape parameter $\alpha$ and scale parameter $\beta$}.

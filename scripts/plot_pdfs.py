@@ -56,6 +56,11 @@ def pdf_invgamma(nu, coord, alpha, beta):
     return tfp_stats.InverseGamma(alpha, beta).prob(nu) / jnp.abs(grad_x(nu))
 
 
+def pdf_gamma(nu, coord, alpha, beta):
+    grad_x = jnp.vectorize(jax.grad(coord))
+    return tfp_stats.Gamma(alpha, beta).prob(nu) / jnp.abs(grad_x(nu))
+
+
 def pdf_F18(nu, coord):
     a = 1.2
     nu_0 = 0.55
@@ -123,8 +128,8 @@ if __name__ == "__main__":
     priors = [
         (partial(pdf_invgamma, alpha=4, beta=15), r"This work"),
         (pdf_F18, "Feeney et al. 2018"),
-        (partial(pdf_invgamma, alpha=2, beta=10), r"Ju\'arez \& Steel (2010)"),
-        (partial(pdf_invgamma, alpha=1, beta=10), r"Ding (2014)"),
+        (partial(pdf_gamma, alpha=2, beta=0.1), r"Ju\'arez \& Steel (2010)"),
+        (partial(pdf_gamma, alpha=1, beta=0.1), r"Ding (2014)"),
         (pdf_inv_nu, r"Gelman et al. (2013)"),  # p. 443
     ]
 

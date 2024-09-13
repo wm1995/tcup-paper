@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
+from tcup_paper.plot import style
+
 
 def plot_cdf(samples, ax, **plot_kwargs):
     samples = np.array(samples)
@@ -18,7 +20,8 @@ def plot_cdf(samples, ax, **plot_kwargs):
 
 
 if __name__ == "__main__":
-    fig, ax = plt.subplots(2, 2)
+    style.apply_matplotlib_style()
+    fig, ax = plt.subplots(4, 1, figsize=(7.06, 3.5))
 
     models = ["ncup", "tcup"]
     datasets = ["outlier", "normal"]

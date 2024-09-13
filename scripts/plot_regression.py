@@ -55,12 +55,19 @@ if __name__ == "__main__":
     t_mcmc = az.from_netcdf(args.tcup_file)
     n_mcmc = az.from_netcdf(args.ncup_file)
 
+    colors = []
+    if "linmix" in args.ncup_file:
+        colors.append("cornflowerblue")
+    else:
+        colors.append("blue")
+    colors.append("red")
+
     x_axis = np.linspace(*args.xlim, 200)
 
     rng = np.random.default_rng(SEED)
 
     fig, ax = plt.subplots(1, 2, figsize=(7.06, 3.57), sharey=True)
-    for idx, (ax_i, mcmc) in enumerate(zip(ax, [n_mcmc, t_mcmc])):
+    for idx, (ax_i, mcmc, color) in enumerate(zip(ax, [n_mcmc, t_mcmc], colors)):
         inds = rng.choice(
             mcmc["posterior"].sizes["chain"] * mcmc["posterior"].sizes["draw"],
             size=100,
@@ -72,8 +79,8 @@ if __name__ == "__main__":
                 + mcmc["posterior"]["beta"].values.flatten()[inds] * x_val
                 for x_val in x_axis
             ],
-            color="red" if idx else "blue",
-            alpha=0.05,
+            color=color,
+            alpha=0.1 if color == "cornflowerblue" else 0.05,
         )
         try:
             ax_i.plot(

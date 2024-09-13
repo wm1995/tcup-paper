@@ -33,7 +33,7 @@ if __name__ == "__main__":
     nu = jnp.logspace(-3, 3, 200)
     omega = outlier_frac(nu)
 
-    plt.figure(figsize=(10 / 3, 3))
+    plt.figure(figsize=(10 / 3, 2))
     plt.hlines([1 - jspec.erf(3 / jnp.sqrt(2))], 1e-3, 1e3, "grey", "dashed")
     plt.loglog(nu, omega)
     plt.xlim((1e-3, 1e3))

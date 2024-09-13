@@ -287,7 +287,12 @@ robust to model misspecification.
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}
 
-{\color{green} Here I think ``form follows function'' could be usefully applied: say what properties we want the distribution to have before then stating that the student-t fills these - and then give the background about how it arises.}
+For robust inference, we seek a sampling distribution that can have heavier
+tails than a normal distribution, but that can reduce to a normal distribution
+when the underlying dataset is normally distributed. We further seek an
+identifiable model, and a differentiable distribution which can be fit using
+Hamiltonian Monte Carlo (HMC). These constraints lead us naturally to Student's
+$t$-distributions, which fulfil all of these criteria.
 
 Student's $t$-distributions are encountered when estimating the mean of a normal
 distribution with unknown variance from a limited number of samples. The number
@@ -357,12 +362,18 @@ highest density interval for a $t$-distribution with scale parameter
 $\sigma = 1$ such that the density contained in the interval is equal to that
 of a 1$\sigma$ interval for a normal distribution. This is given by
 \begin{equation}
-    \sigma_{68}(\nu) = \sqrt{\nu \left(\frac{1}{I^{-1}(0.68...;\frac\nu2, \frac12)} - 1\right)},
+    \sigma_{68}(\nu) =
+        \sqrt{
+            \nu \left(
+                \frac{1}{I^{-1}(\Phi_{\sigma=1};\frac\nu2, \frac12)} - 1
+            \right)
+        },
 \end{equation}
-where $I^{-1}$ is the inverse regularized incomplete beta function.
-{\bf DJM: Define this explicitly.}
-This
-quantity is useful for defining a ``scale'' parameter that is less tightly
+where $\Phi_{\sigma=1} = \text{erf}\left(\frac{\sqrt{2}}2\right) \approx 0.6827$
+is the posterior density contained within $\pm1\sigma$ of the mean for a normal
+distribution, and $I^{-1}$ is the inverse regularized incomplete beta function.
+{\color{green} \bf DJM: Define this explicitly.}
+This quantity is useful for defining a ``scale'' parameter that is less tightly
 coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
 
 The second quantity we use is an ``outlier fraction'' $\omega$, which
@@ -374,7 +385,7 @@ distribution mean $\mu$. For a $t$ distribution, this is given by
         \left|x - \mu \right| > 3 \sigma \;
         \middle| \;
         x \sim \studentt{\mu}{\sigma}
-    \right) \\
+    \right) \label{eqn:model.outlier_frac}\\
     &=& 2 F_\nu \left(\mu - 3 \sigma \right),
 \end{eqnarray}
 where $F_\nu(x)$ is the cumulative distribution function for the Student's
@@ -391,14 +402,15 @@ data-point to be an outlier.
     \caption{The outlier fraction, $\omega$, for different values of shape
     parameter, $\nu$. The outlier fraction of a normal distribution ($\approx
     2.70 \times 10^{-3}$) is indicated by the dashed grey line.}
-    \label{fig:model.t}
+    \label{fig:model.outlier_frac}
 \end{figure}
 
 \subsection{Regression model}
 \label{sec:formalism.model}
 
-Our regression model, represented as a directed acyclic graph in Figure~\ref{fig:formalism.dag}, is specified here.
-We assume a linear relationship between
+Our regression model, represented as a directed acyclic graph in
+Figure~\ref{fig:formalism.dag}, is specified here. We assume a linear
+relationship between
 $\{\boldsymbol{x}_i\}$ and $\{y_i\}$, i.e.
 \begin{equation}
     f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) =
@@ -433,8 +445,9 @@ as
 
 We experimented with assuming $\mathcal P_{\text{obs}}$ to be $t$-distributed,
 but found that the resultant model was difficult to sample as a result of its
-geometry, and that posterior predictive checks often included large outliers
-and did not resemble the datasets that gave rise to them.  Fortunately, for robust inference the presence of a single heavy-tailed component is sufficient.
+geometry, and that posterior predictive checks often included large outliers and
+did not resemble the datasets that gave rise to them.  Fortunately, for robust
+inference the presence of a single heavy-tailed component is sufficient.
 
 This model structure is represented as a directed acyclic graph in Figure
 \ref{fig:formalism.dag}.
@@ -454,9 +467,9 @@ To ensure that our model is generically applicable to astronomical linear
 regression, we ensure that both independent and dependent quantities are scaled
 to have zero mean and unit variance. This allows us to set generic priors on the
 scaled intercept, gradients and scatter $\{\tilde{\intercept},
-\tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ that do not require rescaling for
-different units or datasets (though these priors can be revised to incorporate
-prior information).
+\tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ that do not require rescaling
+for different units or datasets (though these priors can be revised to
+incorporate prior information).
 
 Our default priors on the regression parameters $\{\tilde{\intercept},
 \tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ are
@@ -530,18 +543,20 @@ with a $t$ component)? They say that their approach is better than a single $t$
 distribution --- ``A heavy tailed error assumption based on Student’s t
 distribution helps reduce the bias. However, it may be less efficient in
 estimating parameters if the heavy tailed assumption is uniformly applied to all
-of the data when most of them are normally observed''... I've added a parenthetical comment to incorporate this}
+of the data when most of them are normally observed''... I've added a
+parenthetical comment to incorporate this}
 
 \subsection{Implementation}
 \label{sec:formalism.implementation}
 
 The model described in Section \ref{sec:formalism.model} is implemented in
-NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a Hamiltonian Monte Carlo (HMC) No U-Turn
-Sampler (NUTS). The implementation is packaged as $t$-cup, available as a Python
+NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a HMC No U-Turn
+Sampler. The implementation is packaged as $t$-cup, available as a Python
 package\footnotemark.
 
 For the purposes of comparison, we have also implemented a model that mirrors
-the above structure, but uses normal distributions at each stage --- we refer to this as $n$-cup.
+the above structure, but uses normal distributions at each stage --- we refer to
+this as $n$-cup.
 
 \footnotetext{\url{https://github.com/wm1995/tcup}}
 
@@ -604,31 +619,6 @@ full specifications of the data models are specified in Appendix
 We aim to do a full end-to-end test of our inference pipeline in the fixed-value
 calibration tests; therefore, these datasets are generated in the unscaled space
 and are a test not only of the sampler but also of the scaling.
-
-% Normally the next section describes the techniques the authors used.
-% It is frequently split into subsections, such as Section~\ref{sec:maths} below.
-
-% \subsection{Maths}
-% \label{sec:maths} % used for referring to this section from elsewhere
-
-% Simple mathematics can be inserted into the flow of the text e.g. $2\times3=6$
-% or $v=220$\,km\,s$^{-1}$, but more complicated expressions should be entered
-% as a numbered equation:
-
-% \begin{equation}
-%     x=\frac{-b$\pm$\sqrt{b^2-4ac}}{2a}.
-% 	\label{eq:quadratic}
-% \end{equation}
-
-% Refer back to them as e.g. equation~(\ref{eq:quadratic}).
-
-% \subsection{Figures and tables}
-
-% Figures and tables should be placed at logical positions in the text. Don't
-% worry about the exact layout, which will be handled by the publishers.
-
-% Figures are referred to as e.g. Fig.~\ref{fig:example_figure}, and tables as
-% e.g. Table~\ref{tab:example_table}.
 
 \section{Results on simulated datasets}
 \label{sec:results}
@@ -713,7 +703,7 @@ In this test, we compare $t$-cup with an equivalent model that employs normal
 distributions to check that:
 \begin{enumerate}
     \item $t$-cup is reduces to a normal model in the absence of outliers
-    \item $t$-cup gives less biased results when an extreme outlier is          present.
+    \item $t$-cup gives less biased results when an extreme outlier is present.
 \end{enumerate}
 A dataset of $N = 12$ points was generated with $(\alpha, \beta, \sigma_{\rm
 int}) = (3, 2, 0.2)$, and one of the points was modified to be a
@@ -842,8 +832,8 @@ generative model can be found in Appendix \ref{sec:data-models.laplace}.
 % \end{figure}
 
 As we can see in Figures \ref{fig:results.laplace.regression} and
-\ref{fig:results.laplace.corner}, $t$-cup successfully recovers the values of the parameters that were
-used to generate the dataset.
+\ref{fig:results.laplace.corner}, $t$-cup successfully recovers the values of
+the parameters that were used to generate the dataset.
 
 We then generated 1000 datasets from the same ground-truth parameters, and
 calculated the MAP values of the regression coefficients
@@ -943,6 +933,7 @@ dataset is used to fit the regression relation
         \alpha +
         \beta \log_{10}\! \left( \frac{\lambda L_{\lambda}}{10^{44} \text{erg s}^{-1}} \right) +
         \gamma \log_{10}\!\left( \frac{\Delta V}{10^3 \text{km s}^{-1}} \right).
+        \label{eqn:real-world.park}
 \end{equation}
 The $t$-cup posterior for parameters $\alpha$, $\beta$ and $\gamma$, as well as
 intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in Figure
@@ -951,13 +942,14 @@ intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in Figure
 The constraints on the intercept, $\alpha$, and slopes, $\beta$ and $\gamma$,
 are consistent with those derived by \citet{Park:2017} for all three measures of
 emission line width --- see Table \ref{tab:real-world.park.params}.
-\citet{Park:2017} predicts
-
-{\color{green} There seems to be a paragraph missing here - need to discuss the results.}
+\citet{Park:2017} predicts a systematically higher intrinsic scatter than that
+predicted by $t$-cup, however, these figures cannot be compared directly, as
+this may be influenced by different prior choice for $\nu$.
 
 \begin{table*}
 	\centering
-	\caption{}
+	\caption{A comparison between the constraints on the parameters in Equation
+	\ref{eqn:real-world.park} derived by \citet{Park:2017} and using $t$-cup.}
 	\label{tab:real-world.park.params}
 	\begin{tabular}{lcc|cc|cc} % seven columns, alignment for each
                           & \multicolumn{2}{c}{FWHM} & \multicolumn{2}{c}{$\sigma_l$} & \multicolumn{2}{c}{MAD} \\
@@ -980,22 +972,29 @@ emission line width --- see Table \ref{tab:real-world.park.params}.
 \section{Conclusions}
 \label{sec:conclusion}
 
-We have developed a general-purpose approach to linear regression, implemented as $t$-cup, that
-is robust to model mis-specification, with a model laid out in Section
-\ref{sec:formalism}. In Section \ref{sec:results}, we demonstrated that the
-model recovers constraints consistent with those used to generate the datasets,
-including in cases where there is a mismatch between the generative model used
-to create the dataset and our regression model. In Section \ref{sec:real-world},
-we compared the method to \textsc{linmix\_err} \citep{Kelly:2007} on real-world
-data, illustrating that the models derive consistent constraints.
+We have presented a general-purpose approach to linear regression, implemented
+as $t$-cup, that is robust to model mis-specification, with a model laid out in
+Section \ref{sec:formalism}. In Section \ref{sec:results}, we demonstrated that
+the model recovers constraints consistent with those used to generate the
+datasets, including in cases where there is a mismatch between the generative
+model used to create the dataset and our regression model. In Section
+\ref{sec:real-world}, we compared the method to \citet{Kelly:2007, Park:2017} on
+real-world data, illustrating that the models derive consistent constraints.
 
-Future work
-- Re-examine prior on $\sigma_{68}$
-- Integrate more motivated prior for $x$, e.g. \citet{Bartlett:2023}.
+It may be fruitful to re-examine some of the priors assumed in the $t$-cup
+model; while we focused on producing a model that was applicable to a large
+range of datasets, $t$-cup predicted lower intrinsic scatter than both
+\citet{Kelly:2007} and \citet{Park:2017}. While results between the three are
+not directly comparable as a result of the different assumptions in each model,
+this difference could suggest that the prior on $\sigma_{68}$ has too much
+density near $\sigma_{68} = 0$. In addition, setting the prior on
+$\{\mathbf{x}_i\}$ using extreme deconvolution, while effective, is not
+theoretically motivated; a prior similar to that presented in
+\citet{Bartlett:2023} may be more appropriate in this case.
 
-{\color{red} Summarise the take-home point that the method is a form of robust inference;
-works on all sorts of outliers; then lead on to use in Paper 2 on the mass
-ladder.}
+In our next paper, we will apply the robust inference techniques presented here
+to exploring the single-epoch mass estimators used in estimating the masses of
+high-redshift quasars. 
 
 \section*{Acknowledgements}
 
@@ -1033,52 +1032,36 @@ a Dirac delta function prior: a common choice is $\nu = 4$
 flexible approach by allowing $\nu$ to vary \citep[e.g.][]{Juarez:2010,
 Gelman:2013, Ding:2014, Park:2017, Feeney:2018}.
 
-Works using the $t$-distributions for robust inference have used different
-priors for the shape parameter $\nu$, which controls how heavy-tailed the
-distribution is. Priors suggested include:
+We sought a flexible prior for this work that could reduce to a (nearly) normal
+distribution, but had sufficient flexibility to accommodate heavy-tailed
+distributions as well. Priors meeting this criterion include:
 \begin{itemize}
     \item priors of the form $\nu \sim \Gamma(\alpha, \beta)$ for
-          some $\left\{\alpha, \beta\right\}$ -- e.g.
+          some shape parameter, $\alpha$, and rate parameter, $\beta$ -- e.g.
           \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 0.1\right\}$;
           \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 0.1\right\}$
     \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
-    \item A uniform prior in distribution peak height relative to a normal
+    \item A uniform prior\footnotemark in distribution peak height relative to a normal
     distribution, $t$, such that
     \begin{equation}
         t \equiv \sqrt{\frac2\nu}\frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)} \sim U(0, 1).
     \end{equation}
 \end{itemize}
 These priors, along with the prior we adopted, are illustrated in Figure
-\ref{fig:priors.pdf}.
+\ref{fig:priors.pdf}. The cumulative distribution functions for the priors in
+terms of outlier fraction, $\omega$, are illustrated in Figure
+\ref{fig:priors.outlier_frac}.
 
-\citet{Feeney:2018} introduced the concept of the ``peak height ratio'' $t$ ---
-the ratio of central peak height of a $t$-distribution with shape parameter $nu$
-to that of a normal distribution. A normal distribution has, by definition,
-$t(\nu = \infty) = 1$; a Cauchy distribution has $t(\nu = 1) = \sqrt{2/\pi}
-\approx 0.80$. For general $\nu$, peak height ratio $t$ is
-\begin{eqnarray}
-    t(\nu) &=& \frac{
-        \studentt{x = \mu; \mu}{\sigma}
-    }{
-        \mathcal N \left(x = \mu; \mu, \sigma \right)
-    } \\
-    &=& \sqrt{\frac{2}{\nu}} \;
-    \frac{
-        \Gamma\left(\frac{\nu + 1}{2}\right)
-    }{
-        \Gamma\left(\frac{\nu}{2}\right)
-    }.
-\end{eqnarray}
-As shown in Figure \ref{fig:model.peak_height}, the behaviour of $t(\nu)$ is
-highly non-linear, reflecting that, for $\nu \gtrsim 10$, the Student's
-$t$-distribution rapidly approaches a normal distribution.
+\begin{figure}
+	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
+    \caption{A selection of different priors on $\nu$ in works that have used
+    $t$-distributions.}
+    \label{fig:priors.pdf}
+\end{figure}
 
-In \citet{Feeney:2018}, it is argued that, for common choices of prior, too
-much prior density is placed on large values of $\nu$; to rectify this, they
-propose a uniform prior on peak height $t \sim U\left(0, 1\right)$. As this
-prior has no closed form derivative (a requirement for HMC),
-they approximate this with the prior
-\begin{equation}
+\footnotetext{Strictly, \citet{Feeney:2018} approximate this prior with the closed
+form prior on shape parameter, $\nu$, of
+\begin{equation*}
     \mathcal P\left(\nu\right) \propto
     \frac{
         \Theta(\nu)
@@ -1088,59 +1071,44 @@ they approximate this with the prior
             + \left(\frac{\nu}{\nu_0}\right)^{2 / a}
         \right)^a
     }
-\end{equation}
+\end{equation*}
 where $\Theta(\cdot)$ is the Heaviside step function, and $\nu_0$ and $a$ are
-constants with values $\sim 0.55$ and $\sim 1.2$ respectively.  One feature of
-this prior is that it has significant density for $0 < \nu < 1$; in extreme
-cases, this can correspond to outliers that are more than 100 orders of
-magnitude larger than $\sigma$. In theory, these unphysical regions of parameter
-space ought to be excluded during the process of inference. However, the use of
- HMC in such cases can lead to divergences in the
-sampling process or inefficient sampling as the sampler struggles with regions
-of high curvature --- see the discussion of this phenomenon in
-\citet{Neal:2003}.
+constants with values $\sim 0.55$ and $\sim 1.2$ respectively.
+}
 
-Another option would be to place a prior is on outlier fraction $\omega$. It could be argued that
-the term outlier loses its meaning when the majority of a dataset is composed of
-so-called ``outliers''; therefore, a natural choice of prior might be a uniform
-distribution ranging from the normally-distributed outlier fraction of
-$\sim$0.00270 to this ``maximum'' outlier fraction of 0.5, corresponding to $\nu
-\sim 0.302$. This still leads to large outliers (some of 8 orders of magnitude
-for 100 draws from the distribution), which are unphysical and continue to
-present difficulties when sampling with HMC.
+When testing different priors, we found that priors with significant density in
+the range $0 < \nu < 1$ led to sampling difficulties as $\nu$ approached 0;
+these low values of $\nu \sim 0.1$ can correspond to outliers that are more than
+20 orders of magnitude larger than $\sigma$. In theory, these unphysical regions
+of parameter space ought to be excluded during the process of inference.
+However, the use of HMC in such cases can lead to divergences in the sampling
+process or inefficient sampling as the sampler struggles with regions of high
+curvature --- see the discussion of this phenomenon in \citet{Neal:2003}.
+
+Another option would be to place a prior is on outlier fraction $\omega$. It
+could be argued that the term outlier loses its meaning when the majority of a
+dataset is composed of so-called ``outliers''; therefore, a natural choice of
+prior might be a uniform distribution ranging from the normally-distributed
+outlier fraction of $\sim$0.00270 to this ``maximum'' outlier fraction of 0.5,
+corresponding to $\nu \sim 0.302$. This still leads to large outliers (some of 8
+orders of magnitude for 100 draws from the distribution), which are unphysical
+and continue to present difficulties when sampling with HMC.
 
 To limit the number of unphysical outliers, we can instead limit the prior to
 consider only distributions that are less heavy-tailed than the Cauchy
-distribution --- i.e. all those with $\nu > 1$. This prior can be set on either
-peak height $t$ or outlier fraction $\omega$.
+distribution --- i.e. all those with $\nu > 1$. This is the approach taken by
+\citet{Gelman:2013}, rendering regions of parameter space inaccessible (in the
+case of the \citet{Gelman:2013} prior, $\nu = 1$ is the cutoff, which
+corresponds to a Cauchy distribution.) On the other hand, the priors used in
+\citet{Juarez:2010, Ding:2014, Feeney:2018} have disproportionate prior density
+at low values of $\nu$, which corresponds to models with outliers several orders
+of magnitude larger than the predicted effect size.
 
-{\color{green} This discussion of the nu priors needs tightening up: don't single out Feeney et al, but include all the below priors either in a logical order - if there is one - or in chronological order.}
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
-    \caption{A selection of different priors on $\nu$ in works that have used
-    $t$-distributions.}
-    \label{fig:priors.pdf}
-\end{figure}
-
-A uniform proper prior in $1/nu$ gives a hard cutoff in $\nu$, which
-renders regions of parameter space inaccessible (in the case of the
-\citet{Gelman:2013} prior, $\nu = 1$ is the cutoff, which corresponds to a
-Cauchy distribution.) On the other hand, the prior used in \citet{Feeney:2018}
-has disproportionate prior density at low values of $\nu$, which corresponds to
-models with outliers several orders of magnitude larger than the predicted
-effect size.
-
-{\color{green} The below paragraph looks like a repeat holder from the editing process - can it just be deleted?}
-
-The cumulative distribution functions for the priors in terms of outlier
-fraction are illustrated in Figure \ref{fig:priors.outlier_frac}.
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/cdf_outlier_frac}
     \caption{The CDF of priors on $\nu$ used in works that have used
-    $t$-distributions. The priors are expressed in terms of outlier fraction
-    $\omega$, which is the fraction of points in the distribution lying more
-    than 3$\sigma$ from the mean.}
+    $t$-distributions. The priors are expressed in terms of outlier fraction,
+    $\omega$, as defined in Equation \ref{eqn:model.outlier_frac}.}
     \label{fig:priors.outlier_frac}
 \end{figure}
 
@@ -1149,16 +1117,16 @@ In this work, we use the prior
     \nu \sim \text{Inv-}\Gamma(4, 15),
 \end{equation}
 where $\text{Inv-}\Gamma(\alpha, \beta)$ is an inverse gamma distribution with
-{\color{red} shape parameter $\alpha$ and scale parameter $\beta$}.
+shape parameter, $\alpha$, and scale parameter, $\beta$.
 
 This prior was chosen for two reasons:
 \begin{itemize}
     \item the prior is smooth in $\nu$ with no sharp boundaries (unlike
           \citet{Gelman:2013})
     \item the prior has density at a larger range of outlier fractions $\omega$
-          than those in \citet{Juarez:2010, Ding:2014} but insignificant density
-          at unrealistically high outlier fractions, in contrast with the prior
-          in \citet{Feeney:2018}.
+          than that in \citet{Juarez:2010} but insignificant density
+          at unrealistically high outlier fractions, in contrast with the priors
+          in \citet{Ding:2014, Feeney:2018}.
 \end{itemize}
 
 \section{Fixed-value calibration data models}
@@ -1167,26 +1135,25 @@ This prior was chosen for two reasons:
 Here, we fully specify the dataset models used for fixed-value
 calibration tests in Section \ref{sec:results}.
 
-{\color{green} Below link back to the specific sub-section where these models are used. }
-
 \subsection{\textit{t}-distributed data}
 \label{sec:data-models.t}
 
-The fixed-value test datasets have $N = 20$ datapoints drawn from the following
-distribution:
+In Section \ref{sec:results.t}, the fixed-value test datasets have $N = 20$
+datapoints drawn from the following distribution:
 \begin{align}
     x_i \sim&\; \mathcal N (\mu = 2, \sigma = 2) \\
-    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1) \\
+    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1 / \sigma_{68}(\nu = 3)) \\
     \log_{10} \sigma_{x, i} \sim&\; \mathcal N (\mu = -1, \sigma = 0.1) \\
     \log_{10} \sigma_{y, i} \sim&\; \mathcal N (\mu = -0.7, \sigma = 0.1) \\
-    \hat{x}_i \sim&\; t_{3} (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i \sim&\; t_{3} (\mu = y_i, \sigma = \sigma_{y, i}).
+    \hat{x}_i \sim&\; \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+    \hat{y}_i \sim&\; \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
 \end{align}
 
 \subsection{Normally-distributed data with an outlier}
 \label{sec:data-models.outlier}
 
-We generated datasets of $N = 12$ points using the model:
+In Section \ref{sec:results.outlier}, we generated datasets of $N = 12$ points
+using the model:
 \begin{alignat}{1}
     x_i& \sim \mathcal N (\mu = 5, \sigma = 3) \\
     y_i& \sim
@@ -1209,7 +1176,8 @@ We introduce the parameter $O_i$ to indicate whether the $i$th datapoint is
 drawn from the core distribution (in which case, $O_i = 0$) or from the outlier
 distribution (for which $O_i = 1$).
 
-We generated a dataset of $N = 200$ points using the model:
+In Section \ref{sec:results.gmm}, we generated a dataset of $N = 200$ points
+using the model:
 \begin{alignat}{1}
     \boldsymbol{x}_i& \sim
     \begin{cases}
@@ -1235,13 +1203,16 @@ We generated a dataset of $N = 200$ points using the model:
     \Sigma_{x, i}& \sim \mathcal W_2 (\boldsymbol{V} = 0.1 \mathbb{I}, n = 3) \\
     \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma = 0.1) \\
     \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \sigma = \Sigma_{x, i}) \\
-    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}),
 \end{alignat}
+where $\mathcal W_2$ denotes a Wishart distribution over 2x2 matrices and
+$\mathbb{I}$ denotes the 2x2 identity matrix.
 
 \subsection{Laplace-distributed data}
 \label{sec:data-models.laplace}
 
-We generate $N = 25$ datapoints under the following model:
+In Section \ref{sec:results.laplace}, we generate $N = 25$ datapoints under the
+following model:
 \begin{eqnarray}
     x_i &\sim& \mathcal U (-5, 5) \\
     y_i &\sim& \mathrm{Laplace} (\mu = -1 + 0.8 x_i, b = 0.2) \\
@@ -1251,18 +1222,18 @@ We generate $N = 25$ datapoints under the following model:
     \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
 \end{eqnarray}
 
-\subsection{Log-normal distributed data}
-\label{sec:data-models.lognormal}
+% \subsection{Log-normal distributed data}
+% \label{sec:data-models.lognormal}
 
-We generate $N = 25$ datapoints under the following model:
-\begin{eqnarray}
-    x_i &\sim& \mathcal U (-5, 5) \\
-    \log_{10} y_i &\sim& \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
-    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
-\end{eqnarray}
+% We generate $N = 25$ datapoints under the following model:
+% \begin{eqnarray}
+%     x_i &\sim& \mathcal U (-5, 5) \\
+%     \log_{10} y_i &\sim& \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
+%     \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+%     \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
+%     \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
+%     \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+% \end{eqnarray}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

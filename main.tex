@@ -834,25 +834,19 @@ noise (i.e.\ $\mathcal P_{\rm obs} = \mathcal N$). For the fixed-value tests, we
 set $(\alpha, \beta, \sigma_{\rm int}) = (-1, 0.8, 0.2)$. The full
 generative model can be found in Appendix \ref{sec:data-models.laplace}.
 
-% \begin{figure}
-%     \includegraphics[width=\columnwidth]{example-image-a}
-%     \caption{{\color{red} 100} draws from the posterior of regression lines
-%     (red) for the Laplace-distributed dataset (black points). The ground
-%     truth regression line is illustrated by the black dashed line.}
-%     \label{fig:results.laplace.regression}
-% \end{figure}
+\begin{figure*}
+    \includegraphics{graphics/fixed/corner_laplace.pdf}
+    \caption{The posterior for each of the regression coefficients and the shape
+    parameter $\nu$ for the Laplace-distributed dataset, with ground-truth
+    values indicated by the black dashed lines.}
+    \label{fig:results.laplace.corner}
+\end{figure*}
 
-% \begin{figure}
-%     \includegraphics[width=\columnwidth]{example-image-a}
-%     \caption{The posterior for each of the regression coefficients and the shape
-%     parameter $\nu$ for the Laplace-distributed dataset, with ground-truth
-%     values indicated by the black dashed lines.}
-%     \label{fig:results.laplace.corner}
-% \end{figure}
-
-As we can see in Figures \ref{fig:results.laplace.regression} and
-\ref{fig:results.laplace.corner}, $t$-cup successfully recovers the values of
-the parameters that were used to generate the dataset.
+As we can see in Figure \ref{fig:results.laplace.regression} and
+\ref{fig:results.laplace.corner}, while both $n$-cup and $t$-cup successfully
+recover the gradient and intercept that were used to generate the dataset,
+$n$-cup overpredicts the true intrinsic scatter when $t$-cup constrains it
+accurately.
 
 We then generated 1000 datasets from the same ground-truth parameters, and
 calculated the MAP values of the regression coefficients

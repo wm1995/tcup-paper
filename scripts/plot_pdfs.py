@@ -3,10 +3,10 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 import jax.scipy.special as jspec
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tensorflow_probability.substrates.jax.distributions as tfp_stats
 import tensorflow_probability.substrates.jax.math as tfp_math
+from tcup_paper.plot import style
 
 
 @jax.jit
@@ -76,19 +76,7 @@ def pdf_F18(nu, coord):
 
 if __name__ == "__main__":
     jax.config.update("jax_enable_x64", True)
-    # Set matplotlib style
-    preamble = r"""
-    \usepackage{unicode-math}
-    \setmainfont{XITS-Regular.otf}
-    \setmathfont{XITSMath-Regular.otf}
-    """
-    mpl.rcParams["text.usetex"] = True
-    mpl.rcParams["pgf.preamble"] = preamble
-    mpl.rcParams["pgf.rcfonts"] = False
-    mpl.rcParams["font.size"] = 12
-    mpl.rcParams["font.family"] = "serif"
-    mpl.rcParams["xtick.direction"] = "in"
-    mpl.rcParams["ytick.direction"] = "in"
+    style.apply_matplotlib_style()
 
     coords = [
         {
@@ -127,10 +115,10 @@ if __name__ == "__main__":
 
     priors = [
         (partial(pdf_invgamma, alpha=4, beta=15), r"This work"),
-        (pdf_F18, "Feeney et al. 2018"),
         (partial(pdf_gamma, alpha=2, beta=0.1), r"Ju\'arez \& Steel (2010)"),
-        (partial(pdf_gamma, alpha=1, beta=0.1), r"Ding (2014)"),
         (pdf_inv_nu, r"Gelman et al. (2013)"),  # p. 443
+        (partial(pdf_gamma, alpha=1, beta=0.1), r"Ding (2014)"),
+        (pdf_F18, "Feeney et al. (2018)"),
     ]
 
     for coord in coords:
@@ -151,16 +139,21 @@ if __name__ == "__main__":
             cdf = jnp.cumsum(prob)
             cdf /= cdf[-1]
             sf = 1 - cdf
-            plt.figure("pdf")
+            plt.figure("pdf", figsize=(10 / 3, 3))
             plt.plot(x, prob, "-", label=label)
-            plt.figure("cdf")
+            plt.figure("cdf", figsize=(10 / 3, 3))
             plt.plot(x, cdf, label=label)
-            plt.figure("sf")
+            plt.figure("sf", figsize=(10 / 3, 3))
             plt.plot(x, sf, label=label)
 
         for plot in ["pdf", "cdf", "sf"]:
             plt.figure(plot)
-            plt.legend()
+            plt.legend(
+                loc="upper center",
+                bbox_to_anchor=(0.45, -0.14),
+                ncols=2,
+                frameon=False,
+            )
             plt.xlabel(rf"${coord['symbol']}$")
             if plot == "pdf":
                 plt.ylabel(rf"$P({coord['symbol']})$")
@@ -178,5 +171,6 @@ if __name__ == "__main__":
                 plt.ylim(coord.get("ylim"))
             if plot == "cdf":
                 plt.ylim((0, 1))
+            plt.tight_layout()
             plt.savefig(f"plots/{plot}_{coord['name']}.pdf", backend="pgf")
             plt.close()

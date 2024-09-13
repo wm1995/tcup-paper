@@ -453,6 +453,16 @@ plots/corner_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/kelly.nc
 		--range outlier_frac 0 0.15 \
 		--output plots/corner_kelly.pdf
 
+plots/real/regression_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/kelly.nc
+    ${PYTHON} scripts/plot_regression.py \
+        --dataset data/real/kelly.json \
+        --tcup-file results/real/tcup/kelly.nc \
+        --ncup-file results/real/linmix/kelly.nc \
+        --xlim -2.6 0.8 --ylim -0.2 3.4 \
+        --xlabel 'Eddington ratio $\log L_{\text{bol}} / L_{\text{Edd}}$' \
+        --ylabel 'X-ray spectral index $\Gamma_{X}$' \
+        --output plots/real/regression_kelly.pdf
+
 plots/corner_%.pdf: results/%.nc scripts/plot_corner.py
 	${PYTHON} scripts/plot_corner.py
 

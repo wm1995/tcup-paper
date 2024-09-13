@@ -714,11 +714,10 @@ require this to obtain sensible inferences.
 
 \begin{figure*}
     \includegraphics[width=\linewidth]{graphics/fixed/regression_outlier.pdf}
-    \caption{{\color{red} 100} draws from the posterior of regression lines from
+    \caption{100 draws from the posterior of regression lines from
     the normal model (left panel, blue) and $t$-cup (right panel, red). The
     dataset is illustrated by the black points, with the ground-truth regression
-    line illustrated by the black dashed line. {\color{red} I need to add axis
-    labels to this figure - ``Observed $\hat{x}$'' and ``Observed $\hat{y}$''.}}
+    line illustrated by the black dashed line.}
     \label{fig:results.outlier.regression}
 \end{figure*}
 
@@ -880,6 +879,15 @@ by \citeauthor{Kelly:2007}.
 
 \footnotetext{\url{https://github.com/jmeyers314/linmix}}
 
+\begin{figure*}
+    \includegraphics[width=\linewidth]{graphics/real/regression_kelly.pdf}
+    \caption{100 draws from the posterior of regression lines from
+    the normal model (left panel, blue) and $t$-cup (right panel, red). The
+    dataset is illustrated by the black points, with the ground-truth regression
+    line illustrated by the black dashed line.}
+    \label{fig:real-world.kelly.regression}
+\end{figure*}
+
 \begin{table}
 	\centering
 	\caption{Estimates for the intercept,
@@ -888,7 +896,7 @@ by \citeauthor{Kelly:2007}.
     estimates reported in \citet{Kelly:2007} are the posterior median and ``a
     robust estimate of the standard deviation''; for linmix and $t$-cup, we
     report the posterior median and an estimate of the standard deviation as
-    $\sigma = 1.4826 \, {\rm MAD}$.}
+    $\sigma = 1.4826 \, \text{MAD}$, where MAD is the median absolute deviation.}
 	\label{tab:real-world.kelly.params}
 	\begin{tabular}{lccc} % four columns, alignment for each
                                & \citet{Kelly:2007} & linmix   & $t$-cup       \\

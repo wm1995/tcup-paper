@@ -6,6 +6,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
+from tcup_paper.plot import style
+
 SEED = 2023
 
 
@@ -37,23 +39,14 @@ if __name__ == "__main__":
         metavar=("min", "max"),
         required=False,
     )
+    parser.add_argument("--xlabel", type=str, default=r"Observed $\hat{x}$")
+    parser.add_argument("--ylabel", type=str, default=r"Observed $\hat{y}$")
     parser.add_argument("--no-errorbars", action="store_true")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
     # Set matplotlib style
-    preamble = r"""
-    \usepackage{unicode-math}
-    \setmainfont{XITS-Regular.otf}
-    \setmathfont{XITSMath-Regular.otf}
-    """
-    mpl.rcParams["text.usetex"] = True
-    mpl.rcParams["pgf.preamble"] = preamble
-    mpl.rcParams["pgf.rcfonts"] = False
-    mpl.rcParams["font.size"] = 12
-    mpl.rcParams["font.family"] = "serif"
-    mpl.rcParams["xtick.direction"] = "in"
-    mpl.rcParams["ytick.direction"] = "in"
+    style.apply_matplotlib_style()
 
     # Load dataset
     data, info = load_dataset(args.dataset)
@@ -108,6 +101,10 @@ if __name__ == "__main__":
         ax_i.set_xlim(args.xlim)
         if args.ylim:
             ax_i.set_ylim(args.ylim)
+        if args.xlabel:
+            ax_i.set_xlabel(args.xlabel)
+        if args.ylabel and idx == 0:
+            ax_i.set_ylabel(args.ylabel)
 
     plt.tight_layout()
     plt.savefig(args.output)

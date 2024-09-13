@@ -763,15 +763,31 @@ the $t$-cup model recovers consistent constraints regardless of whether the outl
     \label{fig:results.outlier.map}
 \end{figure}
 
-We then generated 400 datasets using the same procedure, and calculated the
-maximum a posteriori (MAP) values of the regression coefficients for both the
-normal model and for $t$-cup. The results (illustrated in Figure
-\ref{fig:results.outlier.map}) indicate that {\color{red} constraints under
-$t$-cup are significantly less biased than those calculated under the normal
-model. We also compared the 95\% highest-posterior density credible intervals
-for each parameter,finding that the true parameter value was contained within
-the interval for $x$\% of parameters and runs. }
+We then generated 400 datasets using the same procedure, and combined posterior
+samples from each run to build an effective cumulative distribution function
+across all runs for both the normal model and for $t$-cup. The results
+(illustrated in Figure \ref{fig:results.outlier.map}) indicate that constraints
+under $t$-cup are significantly less biased than those calculated under the
+normal model.
 
+% We also compared the 95\% highest-posterior density credible
+% intervals for each parameter, finding that the true parameter value was
+% contained within the interval for $x$\% of parameters and runs.
+% 
+% \begin{table}
+% 	\centering
+% 	\caption{Percentage of 95\% highest posterior density credible intervals
+% 	containing the true parameter value across 400 runs (excluding runs with
+% 	$\hat{R} > 1.1$).}
+% 	\label{tab:real-world.kelly.params}
+% 	\begin{tabular}{lcccc} % four columns, alignment for each
+%                                & \multicolumn{2}{c}{Outlier excluded} & \multicolumn{2}{c}{Outlier included} \\
+%                                & $n$-cup   & $t$-cup & $n$-cup & $t$-cup       \\
+%     Intercept $\alpha$         & 96.7\% & 97.5\% & 100\% & 99.4\% \\
+%     Slope $\beta$              & 97.5\% & 97.7\% & 96.7\% & 99.7\% \\
+%     Int. scatter $\sigma_{68}$ & 97.5\% & 97.7\% & 0\% & 75.8\% \\
+% \end{tabular}
+% \end{table}
 
 \subsection{Two-dimensional normal mixture model with outliers}
 \label{sec:results.gmm}
@@ -792,6 +808,10 @@ normal distribution. For fixed-value tests, the true values of the regression
 parameters were fixed to $(\alpha, \beta_0, \beta_1, \sigma_{\rm int}) = (2,
 3, 1, 0.4)$. The full generative model for the fixed-value tests is given in
 Appendix \ref{sec:data-models.gmm}.
+
+The results (see Figure \ref{fig:results.gmm.corner}) show that, while the
+constraints from the normal model are significantly biased for this generative
+distribution, $t$-cup is able to recover the correct parameter values.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_gaussian_mix.pdf}
@@ -860,10 +880,6 @@ value was contained within the interval for $x$\% of parameters and runs.  }
 \section{Demonstration on real data}
 \label{sec:real-world}
 
-% A simple demonstration on real data (Park is a possibility; another is an
-% M-sigma analysis; possibly the data from the Kelly paper).  Suggest trying this
-% on the paper used by Kelly as can directly compare.
-
 Having seen $t$-cup's performance on simulated data in the previous section, we
 now compare the performance of the $t$-cup model with a generic astronomical
 Bayesian linear regression model \citep[\textsc{linmix\_err};][]{Kelly:2007} and
@@ -875,28 +891,28 @@ We use the same dataset that is used in Section 8 of \citet{Kelly:2007} -- a
 dataset of $N = 39$ quasars with measured Eddington ratio $L / L_{\text{Edd}}$
 and X-ray spectral index $\Gamma$. Performance is compared with a Python
 implementation\footnotemark of the original \textsc{linmix\_err} paper proposed
-by \citeauthor{Kelly:2007}.
+by \citeauthor{Kelly:2007} -- see Figure \ref{fig:real-world.kelly.regression}.
 
 \footnotetext{\url{https://github.com/jmeyers314/linmix}}
 
 \begin{figure*}
     \includegraphics[width=\linewidth]{graphics/real/regression_kelly.pdf}
     \caption{100 draws from the posterior of regression lines from
-    the normal model (left panel, blue) and $t$-cup (right panel, red). The
-    dataset is illustrated by the black points, with the ground-truth regression
-    line illustrated by the black dashed line.}
+    \textsc{linmix\_err} (left panel, blue) and $t$-cup (right panel, red) for
+    the \citet{Kelly:2007} dataset.}
     \label{fig:real-world.kelly.regression}
 \end{figure*}
 
 \begin{table}
 	\centering
-	\caption{Estimates for the intercept,
-    slope, and intrinsic scatter inferred for the relationship between Eddington
-    ratio $L / L_{\text{Edd}}$ and X-ray spectral index $\Gamma$ for the sample of quasars analysed by \citet{Kelly:2007}. The parameter
-    estimates reported in \citet{Kelly:2007} are the posterior median and ``a
-    robust estimate of the standard deviation''; for linmix and $t$-cup, we
-    report the posterior median and an estimate of the standard deviation as
-    $\sigma = 1.4826 \, \text{MAD}$, where MAD is the median absolute deviation.}
+	\caption{Estimates for the intercept, slope, and intrinsic scatter inferred for
+	the relationship between Eddington ratio $L / L_{\text{Edd}}$ and X-ray
+	spectral index $\Gamma$ for the sample of quasars analysed by
+	\citet{Kelly:2007}. The parameter estimates reported in \citet{Kelly:2007} are
+	the posterior median and ``a robust estimate of the standard deviation''; for
+	linmix and $t$-cup, we report the posterior median and an estimate of the
+	standard deviation as $\sigma = 1.4826 \, \text{MAD}$, where MAD is the median
+	absolute deviation.}
 	\label{tab:real-world.kelly.params}
 	\begin{tabular}{lccc} % four columns, alignment for each
                                & \citet{Kelly:2007} & linmix   & $t$-cup       \\

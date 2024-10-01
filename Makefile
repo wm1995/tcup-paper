@@ -459,8 +459,8 @@ plots/real/regression_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/
         --tcup-file results/real/tcup/kelly.nc \
         --ncup-file results/real/linmix/kelly.nc \
         --xlim -2.6 0.8 --ylim -0.2 3.4 \
-        --xlabel 'Eddington ratio $\log L / L_{\text{Edd}}$' \
-        --ylabel 'X-ray spectral index $\Gamma$' \
+        --xlabel 'Eddington ratio, $\log L / L_{\text{Edd}}$' \
+        --ylabel 'X-ray spectral index, $\Gamma$' \
         --output plots/real/regression_kelly.pdf
 
 plots/corner_%.pdf: results/%.nc scripts/plot_corner.py

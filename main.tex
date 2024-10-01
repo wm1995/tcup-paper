@@ -371,8 +371,14 @@ of a 1$\sigma$ interval for a normal distribution. This is given by
 \end{equation}
 where $\Phi_{\sigma=1} = \text{erf}\left(\frac{\sqrt{2}}2\right) \approx 0.6827$
 is the posterior density contained within $\pm1\sigma$ of the mean for a normal
-distribution, and $I^{-1}$ is the inverse regularized incomplete beta function.
-{\color{green} \bf DJM: Define this explicitly.}
+distribution, and $I^{-1}$ is the inverse of the regularized incomplete beta function, which we define as
+\begin{equation}
+    I(x; a, b) = \frac{
+        \int_0^x t^{a-1} (1 - t)^{b-1} {\rm d}t
+    }{
+        \int_0^1 t^{a-1} (1 - t)^{b-1} {\rm d}t
+    }
+\end{equation}
 This quantity is useful for defining a ``scale'' parameter that is less tightly
 coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
 
@@ -633,7 +639,7 @@ reproduces the datasets in this section is available online\footnotemark.
 \label{sec:results.t}
 
 \begin{figure*}
-    \includegraphics[width=\textwidth]{graphics/sbc/tcup/t/sbc.pdf}
+    \includegraphics[width=\textwidth]{graphics/sbc/tcup_sbc.pdf}
     \caption{SBC runs for the t distribution under $t$-cup. If the inference
     procedure is working as expected, the histograms for each parameter should
     be distributed uniformly (as indicated by the black dashed line). The dark
@@ -684,26 +690,36 @@ be caused by this parameter being only weakly constrained for these datasets.
 \subsection{Normally-distributed data}
 \label{sec:results.outlier}
 
-\begin{figure*}
-    \includegraphics[width=\textwidth]{graphics/sbc/ncup/outlier20/sbc.pdf}
-    \caption{SBC runs for the outlier dataset under $n$-cup {\color{red} I know
-    there are several tweaks needed to these plots}}
-    \label{fig:results.outlier.ncup-sbc}
-\end{figure*}
-
-\begin{figure*}
-    \includegraphics[width=\textwidth]{graphics/sbc/tcup/outlier20/sbc.pdf}
-    \caption{SBC runs for the outlier dataset under $t$-cup {\color{red} I know
-    there are several tweaks needed to these plots}}
-    \label{fig:results.outlier.tcup-sbc}
-\end{figure*}
-
 In this test, we compare $t$-cup with an equivalent model that employs normal
 distributions to check that:
 \begin{enumerate}
     \item $t$-cup is reduces to a normal model in the absence of outliers
     \item $t$-cup gives less biased results when an extreme outlier is present.
 \end{enumerate}
+
+We conducted a simulation-based calibration test, where datasets were generated
+using normal distributions throughout (i.e.\ $\mathcal P_{\text{int}} = \mathcal
+P_{\text{obs}} = \mathcal{N}$). The results (shown in Figure
+\ref{fig:results.outlier.sbc}) indicate that, while the estimates of the
+intercept and slope are significantly biased when analysed by the normal model
+(as indicated by the rank statistic's distribution deviating from normal), the
+estimates derived by $t$-cup are unbiased. Additionally, while both $n$-cup and
+$t$-cup systematically overestimate the intrinsic scatter $\sigma_{68}$, the
+bias is much smaller for $t$-cup than for $n$-cup.
+
+
+\begin{figure*}
+    \includegraphics[width=\textwidth]{graphics/sbc/outlier20_sbc.pdf}
+    \caption{A rank statistic histogram for 400 simulation-based calibration
+    runs for the outlier dataset under $n$-cup (blue) and $t$-cup (red). If
+    there were a perfect match between the generative model and the inference
+    model, the histograms for each parameter will be distributed uniformly (as
+    indicated by the black dashed line). The dark (light) grey regions
+    correspond to the 94\% (98\%) confidence interval of uniformity (i.e.\ we
+    expect one histogram bin per panel (figure) to lie outside of this range).}
+    \label{fig:results.outlier.sbc}
+\end{figure*}
+
 A dataset of $N = 12$ points was generated with $(\alpha, \beta, \sigma_{\rm
 int}) = (3, 2, 0.2)$, and one of the points was modified to be a
 $\sim20\,\sigma$ outlier (the full generative model is given in Appendix

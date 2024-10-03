@@ -61,10 +61,10 @@ if __name__ == "__main__":
             # Calculate standard deviation ratio
             posterior_std_ratio[idx, idy] = (samples_t["mu"].std() / samples_norm["mu"].std())
 
-    plt.figure(figsize=(10 / 3, 10 / 3))
+    plt.figure(figsize=(10 / 3, 8 / 3))
     plt.semilogx(nus, posterior_std_ratio.T, "+")
     plt.xlim(0.25, 400)
-    plt.ylim(0.5, 1.5)
+    plt.ylim(0.75, 1.5)
     plt.axhline([1.0], color="k", linestyle="--")
     plt.xlabel(r"Shape parameter, $\nu$")
     plt.ylabel(r"Posterior standard deviation ratio")

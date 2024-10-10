@@ -377,7 +377,7 @@ distribution, and $I^{-1}$ is the inverse of the regularized incomplete beta fun
         \int_0^x t^{a-1} (1 - t)^{b-1} {\rm d}t
     }{
         \int_0^1 t^{a-1} (1 - t)^{b-1} {\rm d}t
-    }
+    }.
 \end{equation}
 This quantity is useful for defining a ``scale'' parameter that is less tightly
 coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
@@ -530,6 +530,16 @@ statistical model is that the resultant inferences would, in general, be less
 constraining than under the assumption of a normal model (see, e.g., the
 motivation behind the mixture model proposed in \citealt{Tak:2019}).  If there
 are no outliers, the implication would be that the robust approach is inferior.
+This effect is illustrated in Figure \ref{fig:formalism.posterior-sd}, which
+shows the results of drawing datasets of $N=100$ points from a normal
+distribution with unknown mean and known variance, and plotting the ratio of the
+posterior standard deviations for the mean when analysed using a
+$t$-distribution vs when analysed using a normal distribution. While there can
+be a $\sim20\%$ error in the Cauchy regime ($\nu \approx 1$), this could be
+considered an acceptable trade-off to reduce bias in cases of model
+mis-specification. Under a flexible model that infers $\nu$ (such as the one
+presented here), we would expect to the model to infer a value for $\nu$ that
+approaches a normal distribution, mitigating this issue of increased error.
 
 This effect would be appreciable for the smallest datasets -- the posteriors
 would have heavier tails than under a normal model -- but, in this case,
@@ -543,22 +553,18 @@ form, just as would be the case under a normal model.  (There is not even a
 significant numerical cost as the posterior has to be evaluated by sampling
 anyway.)
 
-{\color{red} Discuss figure \ref{fig:formalism.posterior-sd}}
-
 \begin{figure}
-    \includegraphics[width=\columnwidth]{graphics/posterior_sd.pdf}
-    \caption{}
+    \includegraphics[
+        width=\columnwidth,
+        trim={0 0.3cm 0 0},
+        clip
+    ]{graphics/posterior_sd.pdf}
+    \caption{The ratio of the posterior standard deviation for a single location
+    parameter when analysed with a $t$-distribution, compared to when analysed
+    with a normal distribution. Each point represents a dataset with $N=100$
+    datapoints.}
     \label{fig:formalism.posterior-sd}
 \end{figure}
-
-{\color{blue} I don't know whether it's worth discussing \citet{Tak:2019} in
-this section, and the reason for not adopting their approach (a mixture model
-with a $t$ component)? They say that their approach is better than a single $t$
-distribution --- ``A heavy tailed error assumption based on Student’s t
-distribution helps reduce the bias. However, it may be less efficient in
-estimating parameters if the heavy tailed assumption is uniformly applied to all
-of the data when most of them are normally observed''... I've added a
-parenthetical comment to incorporate this}
 
 \subsection{Implementation}
 \label{sec:formalism.implementation}

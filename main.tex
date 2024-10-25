@@ -534,12 +534,14 @@ This effect is illustrated in Figure \ref{fig:formalism.posterior-sd}, which
 shows the results of drawing datasets of $N=100$ points from a normal
 distribution with unknown mean and known variance, and plotting the ratio of the
 posterior standard deviations for the mean when analysed using a
-$t$-distribution vs when analysed using a normal distribution. While there can
-be a $\sim20\%$ error in the Cauchy regime ($\nu \approx 1$), this could be
-considered an acceptable trade-off to reduce bias in cases of model
-mis-specification. Under a flexible model that infers $\nu$ (such as the one
-presented here), we would expect to the model to infer a value for $\nu$ that
-approaches a normal distribution, mitigating this issue of increased error.
+$t$-distribution vs when analysed using a normal distribution, along with an
+estimate of this ratio using the Fisher information of a $t$-distribution
+likelihood (see Appendix \ref{sec:fisher}). While there can be a $\sim20\%$ error
+in the Cauchy regime ($\nu \approx 1$), this could be considered an acceptable
+trade-off to reduce bias in cases of model mis-specification. Under a flexible
+model that infers $\nu$ (such as the one presented here), we would expect to the
+model to infer a value for $\nu$ that approaches a normal distribution,
+mitigating this issue of increased error.
 
 This effect would be appreciable for the smallest datasets -- the posteriors
 would have heavier tails than under a normal model -- but, in this case,
@@ -559,10 +561,14 @@ anyway.)
         trim={0 0.3cm 0 0},
         clip
     ]{graphics/posterior_sd.pdf}
+
     \caption{The ratio of the posterior standard deviation for a single location
     parameter when analysed with a $t$-distribution, compared to when analysed
     with a normal distribution. Each point represents a dataset with $N=100$
-    datapoints.}
+    datapoints. The black dashed line shows the expected ratio of posterior
+    standard deviations as calculated using the Fisher information of the
+    $t$-likelihood.}
+
     \label{fig:formalism.posterior-sd}
 \end{figure}
 
@@ -1179,6 +1185,37 @@ This prior was chosen for two reasons:
           at unrealistically high outlier fractions, in contrast with the priors
           in \citet{Ding:2014, Feeney:2018}.
 \end{itemize}
+
+\section{Estimating variance trade-offs}
+\label{sec:fisher}
+
+In Section \ref{sec:formalism.asymptotic}, we examined the increased standard
+deviation in parameter estimates using a toy model, showing the results of
+repeated trials alongside the Cram\'er-Rao bound in Figure
+\ref{fig:formalism.posterior-sd}; here, we derive the formula for this bound.
+
+For the toy model, we looked at the posterior distribution of the mean $\mu$ for
+a series of $N$ points drawn from a normal distribution with zero mean and unit
+variance. The log likelihood, $\ell (\mu; \nu, \{x_i\})$, when analyzed with a
+$t$-distribution, is
+\begin{equation}
+    \ell (\mu; \nu, \{x_i\}) = - \sum_i \frac{\nu + 1}{2} \log (1 + \frac{(x_i - \mu)^2}{\nu}) + C,
+\end{equation}
+where $C$ is a constant. Thus, the Fisher information is
+\begin{equation}
+    \mathcal F(\mu; \nu, \{x_i\}) = (\nu + 1) \sum_i \frac{\nu - (x_i - \mu)^2}{\nu + (x_i - \mu)^2}.
+\end{equation}
+We can then evaluate the Cram\'er-Rao bound at the true mean, marginalising over
+the particular dataset $\{x_i\}$, to derive the variance in the estimate at $\mu
+= 0$,
+\begin{equation}
+    {\rm Var}(\hat{\mu}) \geq \frac{1}{N(\nu + 1) \left(1 - \sqrt{\frac\nu2 \pi} \exp\left(\frac\nu2\right) {\rm erfc}\left(\sqrt{\frac\nu2}\right)\right)},
+\end{equation}
+where ${\rm erfc (x)}$ is the complementary error function.
+This bound was found to agree with the results from datasets generated with $N =
+10^5$, and is used to derive the posterior standard deviation ratio plotted in
+Figure \ref{fig:formalism.posterior-sd}.
+
 
 \section{Fixed-value calibration data models}
 \label{sec:data-models}

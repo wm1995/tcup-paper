@@ -1,10 +1,12 @@
 import daft
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from tcup_paper.plot.style import apply_matplotlib_style
 
 if __name__ == "__main__":
     # Set matplotlib style
     apply_matplotlib_style()
+    mpl.rcParams["font.size"] = 11
 
     param_style = {
         "shape": "rectangle",
@@ -41,7 +43,7 @@ if __name__ == "__main__":
     # Data.
     pgm.add_node("y_obs", r"$\hat{y}_i$", 3, 0, **data_style)
     pgm.add_node("x_obs", r"$\hat{x}_i^j$", 4.5, 0, **data_style)
-    pgm.add_node("cov_x", r"$\symbf{\Sigma}_i$", 4.5, -1, **data_style)
+    pgm.add_node("cov_x", r"$\Sigma_{x,i}$", 4.5, -1, **data_style)
     pgm.add_node("sigma_y", r"$\sigma_{y,i}$", 3, -1, **data_style)
 
     # Add in the edges.

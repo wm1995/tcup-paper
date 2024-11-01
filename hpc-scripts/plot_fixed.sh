@@ -45,8 +45,11 @@ ${PYTHON} scripts/plot_corner.py \
 	--var-names alpha beta sigma_68 nu \
 	--range alpha 2.6 3.4 \
 	--range beta_0 1.81 2.19 \
-	--range sigma_68 0 0.5 \
+	--range sigma_68 0 0.45 \
 	--range nu 0 25 \
+    --ticker alpha 0.3 0 \
+    --ticker sigma_68 0.3 0 \
+	--single-column \
 	--output plots/fixed/corner_t.pdf
 
 # plots/corner_outlier_ncup.pdf: results/normal_tcup.nc results/outlier_tcup.nc results/outlier_ncup.nc
@@ -58,7 +61,8 @@ ${PYTHON} scripts/plot_corner.py \
 	--var-names alpha beta sigma_68 \
 	--range alpha -2 9 \
 	--range beta_0 0.8 2.9 \
-	--range sigma_68 0 4 \
+	--range sigma_68 0 4.1 \
+    --single-column \
 	--output plots/fixed/corner_outlier_ncup.pdf
 
 # plots/corner_outlier_tcup.pdf: results/normal_tcup.nc results/outlier_tcup.nc
@@ -71,6 +75,8 @@ ${PYTHON} scripts/plot_corner.py \
 	--range beta_0 1.6 2.49 \
 	--range sigma_68 0 1.9 \
     --range outlier_frac 0 0.19 \
+    --ticker beta_0 0.5 0.2 \
+	--single-column \
 	--output plots/fixed/corner_outlier_tcup.pdf
 
 # plots/corner_gaussian_mix.pdf: results/gaussian_mix_tcup.nc results/gaussian_mix_ncup.nc
@@ -84,6 +90,8 @@ ${PYTHON} scripts/plot_corner.py \
 	--range beta_1 -1.2 -0.51 \
 	--range sigma_68 0 1.8 \
 	--range outlier_frac 0 0.17 \
+    --ticker beta_1 0.3 0.1 \
+	--single-column \
 	--output plots/fixed/corner_gaussian_mix.pdf
     
 ${PYTHON} scripts/plot_regression.py \
@@ -95,14 +103,15 @@ ${PYTHON} scripts/plot_regression.py \
     
 # plots/corner_t.pdf: results/t_tcup.nc results/t_fixed3.nc
 ${PYTHON} scripts/plot_corner.py \
-	--mcmc-file results/real/tcup/kelly.nc \
-	--mcmc-file results/real/linmix/kelly.nc \
-	--var-names alpha beta sigma_68 outlier_frac \
-	--range alpha 1.8 5.2 \
-	--range beta_0 -0.2 3.5 \
-	--range sigma_68 0 0.65 \
-	--range outlier_frac 0 0.19 \
-	--output plots/real/corner_kelly.pdf
+    --mcmc-file results/real/tcup/kelly.nc \
+    --mcmc-file results/real/linmix/kelly.nc \
+    --var-names alpha beta sigma_68 outlier_frac \
+    --range alpha 1.6 5.6 \
+    --range beta_0 -0.7 3.8 \
+    --range sigma_68 0 0.67 \
+    --range outlier_frac 0 0.19 \
+    --single-column \
+    --output plots/real/corner_kelly.pdf
     
 ${PYTHON} scripts/plot_regression.py \
     --dataset data/real/kelly.json \
@@ -114,12 +123,13 @@ ${PYTHON} scripts/plot_regression.py \
     
 ${PYTHON} scripts/plot_corner.py \
 	--mcmc-file results/real/tcup/park_FWHM.nc \
-	--var-names alpha beta sigma_68 nu \
+	--var-names alpha beta sigma_int nu \
 	--range alpha 6.7 8.3 \
 	--range beta_0 0.21 0.65 \
 	--range beta_1 -0.9 1.9 \
-	--range sigma_68 0 0.45 \
+	--range sigma 0 0.45 \
 	--range nu 0 19 \
+	--single-column \
 	--output plots/real/corner_park_fwhm.pdf
 
 # Copy files to final directory

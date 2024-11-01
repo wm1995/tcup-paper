@@ -105,9 +105,20 @@ $^{2}$Department of Mathematics, Imperial College London, London, SW7 2AZ, UK
 
 % Abstract of the paper
 \begin{abstract}
-A Bayesian hierarchical model for robust linear regression in the presence of measurement error is described.
-The performance of the model is assessed on both simulated and real datasets.
-The code is made available for others to use.
+Model mis-specification (e.g.\ the presence of outliers) is commonly encountered
+in astronomical analyses, often requiring the use of ad hoc algorithms (e.g.\
+sigma-clipping). We develop and implement a generic Bayesian approach to linear
+regression, based on Student's $t$-distributions, that is robust to outliers and
+mis-specification of the noise model. Our method is validated using simulated
+datasets with various degrees of model mis-specification; the derived
+constraints are shown to be systematically less biased than those from a similar
+model using normal distributions. We demonstrate that, for a dataset without
+outliers, a worst-case inference using $t$-distributions would give unbiased
+results with $\la\!10$ per cent increase in the reported parameter
+uncertainties. We also compare with existing analyses of real-world datasets,
+finding qualitatively different results where normal distributions have been
+used and agreement where more robust methods have been applied. A Python
+implementation of this model, $t$-cup, is made available for others to use.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
@@ -140,12 +151,14 @@ methods: statistical -- methods: data analysis -- software: data analysis
 % Then say presenting practical methodology and implementation here.
 % }
 
-Linear regression is a common problem in astronomy, arising in fields as
-diverse as galaxy formation and evolution (e.g. the black hole
-mass -- stellar velocity dispersion correlation --- \citealt{Ferrarese:2000, Gebhardt:2000}), stellar physics (e.g. the
-Leavitt law linking the luminosity and pulsation period for Cepheid variable
-stars --- \citealt{Leavitt:1912}), and cosmology (e.g. the original formulation of Hubble's law --- \citealt{Hubble:1929}). For this reason, there are a plethora of techniques used by
-astronomers for linear regression when both the dependent and independent
+Linear regression is a common problem in astronomy, arising in fields as diverse
+as galaxy formation and evolution (e.g. the super-massive black hole (SMBH) mass
+-- stellar velocity dispersion correlation, \citealt{Ferrarese:2000,
+Gebhardt:2000}), stellar physics (e.g. the Leavitt law linking the luminosity
+and pulsation period for Cepheid variable stars, \citealt{Leavitt:1912}), and
+cosmology (e.g. the original formulation of Hubble's law,
+\citealt{Hubble:1929}). For this reason, there are a plethora of techniques used
+by astronomers for linear regression when both the dependent and independent
 variables are measured with error \citep[e.g.][]{Press:1992, Akritas:1996,
 Tremaine:2002, Kelly:2007}.
 
@@ -154,8 +167,9 @@ Tremaine:2002, Kelly:2007}.
 \citep{Akritas:1996} suffer from biases and can underestimate intrinsic scatter.
 Similar algorithms exist for removing outliers from data (e.g.\ sigma clipping)
 have been used previously but these can lead to controversy (e.g.\ the
-reanalysis of the data-set from \citealt{Riess:2011} by \citealt{Efstathiou:2014}). A more principled
-approach is to model the entire measurement process.
+reanalysis of the data-set from \citealt{Riess:2011} by
+\citealt{Efstathiou:2014}). A more principled approach is to model the entire
+measurement process.
 
 Bayesian hierarchical models (BHMs) are a natural way to model such datasets ---
 these allow astronomers to account for, e.g., measurement errors, selection
@@ -168,13 +182,14 @@ past few decades, from the distance-redshift relation in cosmology
 \citep[e.g.][]{Kelly:2009} --- see \citet{Feigelson:2021} for a recent review
 including further examples of BHMs.
 
-\citet{Kelly:2007} presented a general BHM for linear regression with measurement errors and censored data, demonstrating  several advantages
-over the other methods considered: no bootstrapping was required to obtain
-uncertainties on parameters; the Bayesian approach was easily extensible to
-truncated or censored data; and other methods would sometimes severely
-underestimate intrinsic scatter in the data. This formulation of Bayesian
-regression, sometimes known as \textsc{linmix\_err}, is now commonly used in
-astronomy \citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
+\citet{Kelly:2007} presented a general BHM for linear regression with
+measurement errors and censored data, demonstrating  several advantages over the
+other methods considered: no bootstrapping was required to obtain uncertainties
+on parameters; the Bayesian approach was easily extensible to truncated or
+censored data; and other methods would sometimes severely underestimate
+intrinsic scatter in the data. This formulation of Bayesian regression,
+sometimes known as \textsc{linmix\_err}, is now commonly used in astronomy
+\citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
 % However, the model is designed to be sampled using Gibbs sampling, which limits
 % the choice of distributions for variables within the model and the number of
 % parameters that can be fit simultaneously.
@@ -213,9 +228,9 @@ we would like to see in our regression model:
 
 	\item A robust model -- we desire a model that is robust to both outliers
 	(i.e.\ data points that, whether intrinsically or by virtue of measurement
-	errors, do not lie on our regression relation) and model mis-specification
-	(i.e.\ where the underlying distribution of data does not match up with the
-	distribution assumed for modelling).
+	errors, do not lie sufficiently close to our regression relation) and model
+	mis-specification (i.e.\ where the underlying distribution of data does not
+	match up with the distribution assumed for modelling).
 
 	\item A general method -- we seek a model that does not require case-by-case
 	optimisation for application to different regression problems (e.g.\ no
@@ -234,10 +249,16 @@ before summarising our conclusions in Section \ref{sec:conclusion}.
 \section{Formalism}
 \label{sec:formalism}
 
-Here we establish notation and set out our model. We
-have $N$ astronomical objects, each with some associated independent quantities
-$\{\boldsymbol{x}_i\}$ and a dependent quantity $\{y_i\}$. We assume that these
-quantities are related by
+Here we establish notation and set out our model. Our dataset has $N$
+astronomical objects, each with a $K$-dimensional vector of associated
+independent quantities $\{\boldsymbol{x}_i\}$ and a dependent quantity
+$\{y_i\}$. For example, if we were estimating SMBH mass
+using measurements of luminosity and line width, we would have $K = 2$
+dimensional vectors of independent quantities $\{\boldsymbol{x}_i\} = \{(L_i, \Delta V_i)^T\}$, and the dependent quantity $\{y_i\}$ would
+correspond to the black hole mass.
+
+We assume that the independent quantities $\{\boldsymbol{x}_i\}$ and dependent
+quantities $\{y_i\}$ are related by a regression relation
 \begin{align}
     y_i =&\; f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) + \delta_i, \\
     \delta_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
@@ -313,7 +334,7 @@ parameter.
 The Student's $t$-distribution, with location $\mu$ and scale $\sigma$, has
 the probability density function
 \begin{equation}
-    t_{\nu} \left(x; {\mu}, {\sigma}\right)
+    t_{\nu} \left(x; {\mu}, {\sigma^2}\right)
         =
     \frac{1}{\sqrt{\pi \nu} \sigma}
     \frac{
@@ -384,7 +405,7 @@ coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
 
 The second quantity we use is an ``outlier fraction'' $\omega$, which
 is defined as the fraction of points expected to lie more than $3\sigma$ from the
-distribution mean $\mu$. For a $t$ distribution, this is given by
+distribution mean $\mu$. For a $t$-distribution, this is given by
 \begin{eqnarray}
     \omega(\nu)
     &=& P\left(
@@ -433,7 +454,7 @@ represent the probability distribution $\mathcal P_{\text{int}}$ with a
 Student's $t$-distribution with shape parameter $\nu$ and scale parameter
 $\sigma_{\text{int}}$ --- i.e.
 \begin{equation}
-\depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr}.
+\depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr^2}.
 \end{equation}
 We use a Student's $t$-distribution here not because we believe that the data
 intrinsically follows this distribution, but because the resulting model is
@@ -446,7 +467,7 @@ the error associated with the measured quantity. These measurements are modelled
 as
 \begin{align}
     \obsindep \sim&\; \mathcal N\left({\indepvars}, \indepcov^2\right) \\
-    \obsdep \sim&\; \mathcal N\left({\indepvars}, \deperr^2\right).
+    \obsdep \sim&\; \mathcal N\left({\depvar}, \deperr^2\right).
 \end{align}
 
 We experimented with assuming $\mathcal P_{\text{obs}}$ to be $t$-distributed,
@@ -454,9 +475,6 @@ but found that the resultant model was difficult to sample as a result of its
 geometry, and that posterior predictive checks often included large outliers and
 did not resemble the datasets that gave rise to them.  Fortunately, for robust
 inference the presence of a single heavy-tailed component is sufficient.
-
-This model structure is represented as a directed acyclic graph in Figure
-\ref{fig:formalism.dag}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/dag.pdf}
@@ -480,8 +498,8 @@ incorporate prior information).
 Our default priors on the regression parameters $\{\tilde{\intercept},
 \tilde{\covariate}, \tilde{\sigma}_{\text{int}}\}$ are
 \begin{align}
-    \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma = 2), \\
-    \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma = 2), \\
+    \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma^2 = 4), \\
+    \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma^2 = 4), \\
     \tilde{\sigma}_{68} \sim&\; \Gamma(1.1, 5).
 \end{align}
 The motivation behind the prior on $\tilde{\intercept}$ is that, as the data is
@@ -531,17 +549,20 @@ constraining than under the assumption of a normal model (see, e.g., the
 motivation behind the mixture model proposed in \citealt{Tak:2019}).  If there
 are no outliers, the implication would be that the robust approach is inferior.
 This effect is illustrated in Figure \ref{fig:formalism.posterior-sd}, which
-shows the results of drawing datasets of $N=100$ points from a normal
-distribution with unknown mean and known variance, and plotting the ratio of the
-posterior standard deviations for the mean when analysed using a
-$t$-distribution vs when analysed using a normal distribution, along with an
-estimate of this ratio using the Fisher information of a $t$-distribution
-likelihood (see Appendix \ref{sec:fisher}). While there can be a $\sim20\%$ error
-in the Cauchy regime ($\nu \approx 1$), this could be considered an acceptable
-trade-off to reduce bias in cases of model mis-specification. Under a flexible
-model that infers $\nu$ (such as the one presented here), we would expect to the
-model to infer a value for $\nu$ that approaches a normal distribution,
-mitigating this issue of increased error.
+shows results for datasets of $N=100$ points drawn from a normal distribution
+with zero mean and unit variance. The points show the ratio of the posterior
+standard deviations for the mean when analyzed using a $t$-distribution to that
+obtained using a normal distribution. These agree well with the approximate form
+of this ratio obtained using the Fisher information of a $t$-distribution
+likelihood (see Appendix \ref{sec:fisher}). This ratio increases with decreasing
+$\nu$ until $nu \sim 0.6$, beyond which it falls again; this is a result of the
+increasingly narrow peak of the $t$-distribution (see Figure \ref{fig:model.t}).
+While the uncertainty can be increased by up to $\sim20\%$ (in the Cauchy
+regime, $\nu \approx 1$), we consider this an acceptable trade-off to reduce
+bias in cases of model mis-specification. Under a flexible model that infers
+$\nu$ (such as the one presented here), we would expect the model to infer a
+value for $\nu$ that approaches a normal distribution, mitigating this issue of
+increased error.
 
 This effect would be appreciable for the smallest datasets -- the posteriors
 would have heavier tails than under a normal model -- but, in this case,
@@ -670,11 +691,11 @@ reproduces the datasets in this section is available online\footnotemark.
 \end{figure*}
 
 For our first test, we start with a dataset that matches our model perfectly
-(i.e.\ $\mathcal P_{\text{int}} = t_\nu, \mathcal P_{\text{obs}} = \mathcal{N}$).
-The simulation-based calibration tests indicate that the rank statistic is
-consistent with being uniformly distributed (see Figure
-\ref{fig:results.t.sbc}), and, therefore, that our inference procedure is
-working as expected.
+(i.e.\ $\mathcal P_{\text{int}} = t_\nu, \mathcal P_{\text{obs}} =
+\mathcal{N}$), and choose $K=1$ independent variables. The simulation-based
+calibration tests indicate that the rank statistic is consistent with being
+uniformly distributed (see Figure \ref{fig:results.t.sbc}), and, therefore, that
+our inference procedure is working as expected.
 
 For our fixed-value tests, we drew $N = 20$ datapoints with $(\alpha, \beta,
 \sigma_{68}, \nu) = (3, 2, 0.1, 3)$; the full model used to generate the data is
@@ -713,19 +734,20 @@ be caused by this parameter being only weakly constrained for these datasets.
 In this test, we compare $t$-cup with an equivalent model that employs normal
 distributions to check that:
 \begin{enumerate}
-    \item $t$-cup is reduces to a normal model in the absence of outliers
+    \item $t$-cup reduces to a normal model in the absence of outliers
     \item $t$-cup gives less biased results when an extreme outlier is present.
 \end{enumerate}
 
 We conducted a simulation-based calibration test, where datasets were generated
 using normal distributions throughout (i.e.\ $\mathcal P_{\text{int}} = \mathcal
-P_{\text{obs}} = \mathcal{N}$). The results (shown in Figure
-\ref{fig:results.outlier.sbc}) indicate that, while the estimates of the
-intercept and slope are significantly biased when analysed by the normal model
-(as indicated by the rank statistic's distribution deviating from normal), the
-estimates derived by $t$-cup are unbiased. Additionally, while both $n$-cup and
-$t$-cup systematically overestimate the intrinsic scatter $\sigma_{68}$, the
-bias is much smaller for $t$-cup than for $n$-cup.
+P_{\text{obs}} = \mathcal{N}$) and with a single independent variable (i.e.\ $K
+= 1$). The results (shown in Figure \ref{fig:results.outlier.sbc}) indicate
+that, while the estimates of the intercept and slope are significantly biased
+when analysed by the normal model (as indicated by the rank statistic's
+distribution deviating from normal), the estimates derived by $t$-cup are
+unbiased. Additionally, while both $n$-cup and $t$-cup systematically
+overestimate the intrinsic scatter $\sigma_{68}$, the bias is much smaller for
+$t$-cup than for $n$-cup.
 
 
 \begin{figure*}
@@ -875,16 +897,25 @@ distribution, $t$-cup is able to recover the correct parameter values.
 \label{sec:results.laplace}
 
 As the underlying sampling distributions can never be known with certainty it is
-important to test the method on data generated from a distribution that does not
-fall into the family of $t$-distributions (and has a high outlier fraction).
-Here we use a Laplace distribution as $\mathcal P_{\rm int}$, giving another
-example of performance under explicit model mis-specification.
+important to test the method on data generated on multiple distributions that do
+not fall into the family of $t$-distributions. Here we use a Laplace
+distribution as $\mathcal P_{\rm int}$, giving another example of performance
+under explicit model mis-specification. The Laplace distribution has probability
+density
+\begin{equation}
+    {\rm Laplace}\left(x; \mu, b\right) = \frac1{2b} \exp\left(-\frac{\left|x - \mu\right|}{b}\right),
+\end{equation}
+
+with scale parameter $b$ related to $\sigma_{68}$ as $b(\sigma_{68}) =
+\sigma_{68} \ln \left( {\rm erf} (1/{\sqrt{2}}) + 1\right) \approx 0.86\,
+\sigma_{68}$
 
 We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
-(i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$) and normally distributed observation
-noise (i.e.\ $\mathcal P_{\rm obs} = \mathcal N$). For the fixed-value tests, we
-set $(\alpha, \beta, \sigma_{\rm int}) = (-1, 0.8, 0.2)$. The full
-generative model can be found in Appendix \ref{sec:data-models.laplace}.
+(i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$), normally distributed
+observation noise (i.e.\ $\mathcal P_{\rm obs} = \mathcal N$), and $K = 1$
+independent variables. For the fixed-value tests, we set $(\alpha, \beta,
+\sigma_{\rm int}) = (-1, 0.8, 0.2)$. The full generative model can be found in
+Appendix \ref{sec:data-models.laplace}.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_laplace.pdf}
@@ -979,12 +1010,14 @@ considering the implications when assuming normality.
 
 \subsection[Park et al. (2017)]{\citet{Park:2017}}
 
-This dataset consists of $N = 31$ AGN with reverberation-mapped mass estimates,
-$M_{\text{BH}}$, \ion{C}{iv} emission line width, $\Delta V$, and continuum
-luminosities, $\lambda L_{\lambda}$. Three different \ion{C}{iv} line width
-measurements are compared in \citet{Park:2017}: the full-width at half maximum
-(FWHM), the line dispersion, $\sigma_l$, and the median absolute deviation. This
-dataset is used to fit the regression relation
+\citet{Park:2017} presents a bespoke $t$-distribution-based linear regression
+model for estimating SMBH mass; this allows us to compare the results of their
+bespoke model with our generic one. Their dataset consists of $N = 31$ AGN with
+reverberation-mapped mass estimates, $M_{\text{BH}}$, \ion{C}{iv} emission line
+width, $\Delta V$, and continuum luminosities, $\lambda L_{\lambda}$. Three
+different \ion{C}{iv} line width measurements are compared in \citet{Park:2017}:
+the full-width at half maximum (FWHM), the line dispersion, $\sigma_l$, and the
+median absolute deviation. This dataset is used to fit the regression relation
 \begin{equation}
     \log_{10}\!\left( \frac{M_{\text{BH}}}{10^8 M_\odot} \right)\! =
         \alpha +
@@ -1021,8 +1054,7 @@ this may be influenced by different prior choice for $\nu$.
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/real/corner_park_fwhm.pdf}
     \caption{The posterior distributions for the data from \citet{Park:2017}
-    under the $t$-cup model. {\color{red} This figure
-    needs updating with param names to match Park.}}
+    under the $t$-cup model. This figure is directly comparable with Figure 9 from \citet{Park:2017}.}
     \label{fig:real-world.park.corner}
 \end{figure}
 
@@ -1191,29 +1223,28 @@ This prior was chosen for two reasons:
 
 In Section \ref{sec:formalism.asymptotic}, we examined the increased standard
 deviation in parameter estimates using a toy model, showing the results of
-repeated trials alongside the Cram\'er-Rao bound in Figure
-\ref{fig:formalism.posterior-sd}; here, we derive the formula for this bound.
+repeated trials alongside the Cram\'er-Rao bound \citep{Rao:1945, Cramer:1946}
+in Figure \ref{fig:formalism.posterior-sd}; here, we derive the formula for this
+bound.
 
 For the toy model, we looked at the posterior distribution of the mean $\mu$ for
 a series of $N$ points drawn from a normal distribution with zero mean and unit
 variance. The log likelihood, $\ell (\mu; \nu, \{x_i\})$, when analyzed with a
 $t$-distribution, is
 \begin{equation}
-    \ell (\mu; \nu, \{x_i\}) = - \sum_i \frac{\nu + 1}{2} \log (1 + \frac{(x_i - \mu)^2}{\nu}) + C,
+    \ell (\mu; \nu, \{x_i\}) = - \sum_i \frac{\nu + 1}{2} \log \left(1 + \frac{(x_i - \mu)^2}{\nu}\right) + C,
 \end{equation}
 where $C$ is a constant. Thus, the Fisher information is
 \begin{equation}
     \mathcal F(\mu; \nu, \{x_i\}) = (\nu + 1) \sum_i \frac{\nu - (x_i - \mu)^2}{\nu + (x_i - \mu)^2}.
 \end{equation}
-We can then evaluate the Cram\'er-Rao bound at the true mean, marginalising over
-the particular dataset $\{x_i\}$, to derive the variance in the estimate at $\mu
-= 0$,
+We can then evaluate the Cram\'er-Rao bound at the true mean $\mu = 0$, marginalising over
+the particular dataset $\{x_i\}$, to derive the variance in the estimate 
 \begin{equation}
     {\rm Var}(\hat{\mu}) \geq \frac{1}{N(\nu + 1) \left(1 - \sqrt{\frac\nu2 \pi} \exp\left(\frac\nu2\right) {\rm erfc}\left(\sqrt{\frac\nu2}\right)\right)},
 \end{equation}
-where ${\rm erfc (x)}$ is the complementary error function.
-This bound was found to agree with the results from datasets generated with $N =
-10^5$, and is used to derive the posterior standard deviation ratio plotted in
+where ${\rm erfc (x)} = 1 - 2/\sqrt{\pi} \int_0^x \exp(-t^2) \,{\rm d}t$ is the complementary error function.
+This bound is used to derive the posterior standard deviation ratio plotted in
 Figure \ref{fig:formalism.posterior-sd}.
 
 
@@ -1229,12 +1260,12 @@ calibration tests in Section \ref{sec:results}.
 In Section \ref{sec:results.t}, the fixed-value test datasets have $N = 20$
 datapoints drawn from the following distribution:
 \begin{align}
-    x_i \sim&\; \mathcal N (\mu = 2, \sigma = 2) \\
-    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma = 0.1 / \sigma_{68}(\nu = 3)) \\
-    \log_{10} \sigma_{x, i} \sim&\; \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} \sim&\; \mathcal N (\mu = -0.7, \sigma = 0.1) \\
-    \hat{x}_i \sim&\; \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i \sim&\; \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+    x_i \sim&\; \mathcal N (\mu = 2, \sigma^2 = 4) \\
+    y_i \sim&\; t_{3} (\mu = 3 + 2 x_i, \sigma^2 = 0.01 / \sigma_{68}^2(\nu = 3)) \\
+    \log_{10} \sigma_{x, i} \sim&\; \mathcal N (\mu = -1, \sigma^2 = 0.01) \\
+    \log_{10} \sigma_{y, i} \sim&\; \mathcal N (\mu = -0.7, \sigma^2 = 0.01) \\
+    \hat{x}_i \sim&\; \mathcal N (\mu = x_i, \sigma^2 = \sigma_{x, i}^2) \\
+    \hat{y}_i \sim&\; \mathcal N (\mu = y_i, \sigma^2 = \sigma_{y, i}^2).
 \end{align}
 
 \subsection{Normally-distributed data with an outlier}
@@ -1243,18 +1274,18 @@ datapoints drawn from the following distribution:
 In Section \ref{sec:results.outlier}, we generated datasets of $N = 12$ points
 using the model:
 \begin{alignat}{1}
-    x_i& \sim \mathcal N (\mu = 5, \sigma = 3) \\
+    x_i& \sim \mathcal N (\mu = 5, \sigma^2 = 9) \\
     y_i& \sim
     \begin{cases}
-        \mathcal N (\mu = 3 + 2 x_i - 10, \sigma = 0.2) &
+        \mathcal N (\mu = 3 + 2 x_i - 10, \sigma^2 = 0.04) &
             \text{for the second-largest $x_i$} \\
-        \mathcal N (\mu = 3 + 2 x_i, \sigma = 0.2) &
+        \mathcal N (\mu = 3 + 2 x_i, \sigma^2 = 0.04) &
             \text{otherwise} \\
     \end{cases}\\
-    \log_{10} \sigma_{x, i}& \sim \mathcal N (\mu = -0.5, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -0.3, \sigma = 0.1) \\
-    \hat{x}_i& \sim \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+    \log_{10} \sigma_{x, i}& \sim \mathcal N (\mu = -0.5, \sigma^2 = 0.01) \\
+    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -0.3, \sigma^2 = 0.01) \\
+    \hat{x}_i& \sim \mathcal N (\mu = x_i, \sigma^2 = \sigma_{x, i}^2) \\
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma^2 = \sigma_{y, i}^2).
 \end{alignat}
 
 \subsection{Two-dimensional normal mixture model}
@@ -1271,27 +1302,27 @@ using the model:
     \begin{cases}
         \mathcal N \left(
             \mu = \begin{pmatrix} -3 \\ 2 \end{pmatrix},
-            \sigma = \begin{pmatrix} 0.5 & -1 \\ -1 & 4 \end{pmatrix}
+            \Sigma^2 = \begin{pmatrix} 0.5 & -1 \\ -1 & 4 \end{pmatrix}^2
         \right) &
             1 \leqslant i \leqslant 140 \\
         \mathcal N \left(
             \mu = \begin{pmatrix} -1 \\ -1 \end{pmatrix},
-            \sigma = \begin{pmatrix} 1 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}
+            \Sigma^2 = \begin{pmatrix} 1 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}^2
         \right) &
             140 < i \leqslant 200 \\
     \end{cases}\\
     O_i& \sim \mathrm{Bernoulli}(0.1) \\
     y_i& \sim
     \begin{cases}
-        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 0.4) &
+        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma^2 = 0.16) &
             O_i = 0 \\
-        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma = 4.0) &
+        \mathcal N (\mu = 2 + (3, 1)^T \cdot x_i, \sigma^2 = 16.0) &
             O_i = 1 \\
     \end{cases}\\
     \Sigma_{x, i}& \sim \mathcal W_2 (\boldsymbol{V} = 0.1 \mathbb{I}, n = 3) \\
-    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \sigma = \Sigma_{x, i}) \\
-    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}),
+    \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma^2 = 0.01) \\
+    \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \Sigma^2 = \Sigma_{x, i}^2) \\
+    \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma^2 = \sigma_{y, i}^2),
 \end{alignat}
 where $\mathcal W_2$ denotes a Wishart distribution over 2x2 matrices and
 $\mathbb{I}$ denotes the 2x2 identity matrix.
@@ -1304,10 +1335,10 @@ following model:
 \begin{eqnarray}
     x_i &\sim& \mathcal U (-5, 5) \\
     y_i &\sim& \mathrm{Laplace} (\mu = -1 + 0.8 x_i, b = 0.2) \\
-    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
-    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\
-    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma = \sigma_{y, i}).
+    \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma^2 = 0.01) \\
+    \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma^2 = 0.01) \\
+    \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma^2 = \sigma_{x, i}^2) \\
+    \hat{y}_i &\sim& \mathcal N (\mu = y_i, \sigma^2 = \sigma_{y, i}^2).
 \end{eqnarray}
 
 % \subsection{Log-normal distributed data}

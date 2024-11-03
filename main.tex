@@ -709,9 +709,11 @@ with a model where the shape parameter is fixed to $\nu = 3$.
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_t.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
     parameter $\nu$ for the \textit{t}-distributed dataset, with ground-truth
-    values indicated by the black dashed lines. Contours indicate 39.3\% and
-    86.5\% highest posterior density regions, corresponding to 1$\sigma$ and
-    2$\sigma$ contours for a bivariate normal distribution.}
+    values indicated by the black dashed lines. Constraints from $t$-cup (red)
+    are compared with those derived with $\nu$ fixed to the true value (orange).
+    Contours indicate 39.3\% and 86.5\% highest posterior density regions,
+    corresponding to 1$\sigma$ and 2$\sigma$ contours for a bivariate normal
+    distribution.}
     \label{fig:results.t.corner}
 \end{figure}
 
@@ -880,8 +882,9 @@ distribution, $t$-cup is able to recover the correct parameter values.
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_gaussian_mix.pdf}
     \caption{The posterior for each of the regression coefficients and the
-    outlier fraction $\omega$ for the normal mixture model dataset, with
-    ground-truth values indicated by the grey dashed lines.}
+    outlier fraction $\omega$ for the normal mixture model dataset for $n$-cup
+    (blue) and $t$-cup (red), with ground-truth values indicated by the grey
+    dashed lines.}
     \label{fig:results.gmm.corner}
 \end{figure}
 
@@ -905,10 +908,9 @@ density
 \begin{equation}
     {\rm Laplace}\left(x; \mu, b\right) = \frac1{2b} \exp\left(-\frac{\left|x - \mu\right|}{b}\right),
 \end{equation}
-
 with scale parameter $b$ related to $\sigma_{68}$ as $b(\sigma_{68}) =
-\sigma_{68} \ln \left( {\rm erf} (1/{\sqrt{2}}) + 1\right) \approx 0.86\,
-\sigma_{68}$
+- \sigma_{68} / \ln \left( 1 - {\rm erf} (1/{\sqrt{2}})\right) \approx 0.87\,
+\sigma_{68}$.
 
 We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
 (i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$), normally distributed
@@ -920,8 +922,9 @@ Appendix \ref{sec:data-models.laplace}.
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_laplace.pdf}
     \caption{The posterior for each of the regression coefficients and the shape
-    parameter $\nu$ for the Laplace-distributed dataset, with ground-truth
-    values indicated by the black dashed lines.}
+    parameter $\nu$ for the Laplace-distributed dataset under the normal model
+    (blue) and $t$-cup (red), with ground-truth values indicated by the black
+    dashed lines.}
     \label{fig:results.laplace.corner}
 \end{figure}
 

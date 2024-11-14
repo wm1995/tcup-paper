@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # pgm.add_node("xi", r"$\xi$", 6, 2.5, **param_style)
 
     # Latent variables.
-    pgm.add_node("eps", r"$\epsilon_i$", 1.5, 2, **latent_style)
+    pgm.add_node("eps", r"$\delta_i$", 1.5, 2, **latent_style)
     pgm.add_node("x", r"$x_i^j$", 4.5, 2, **param_style)  # **latent_style)
 
     # Deterministic functions.

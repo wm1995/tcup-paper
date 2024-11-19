@@ -190,15 +190,12 @@ on parameters; the Bayesian approach was easily extensible to truncated or
 censored data; and other methods would sometimes severely underestimate
 intrinsic scatter in the data. This formulation of Bayesian regression,
 sometimes known as \textsc{linmix\_err}, is now commonly used in astronomy
-\citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}.
-% However, the model is designed to be sampled using Gibbs sampling, which limits
-% the choice of distributions for variables within the model and the number of
-% parameters that can be fit simultaneously.
-This approach has been extended and refined by others
-\citep[e.g.][]{Mantz:2016, Sereno:2016, Bartlett:2023}. These models assume
-parameters are normally distributed throughout; however, scientific
-uncertainties are often empirically not normally distributed, leading to more
-frequent outliers \citep{Bailey:2017}. Inference that relies on normal
+\citep[e.g.][]{McConnell:2013, Bentz:2013, Andrews:2013}. This approach has been
+extended and refined by others \citep[e.g.][]{Mantz:2016, Sereno:2016,
+Bartlett:2023, Jing:2024}. These
+models assume parameters are normally distributed throughout; however,
+scientific uncertainties are often empirically not normally distributed, leading
+to more frequent outliers \citep{Bailey:2017}. Inference that relies on normal
 distributions can be unduly affected by outliers (see Section \ref{sec:results}
 for an exploration of this effect).
 
@@ -206,14 +203,16 @@ The problem of outliers within datasets can be thought of as model
 mis-specification: these objects do not fit the distributions used to model
 them. The ideas behind robust inference can prove useful for this problem; in
 robust inference, methods are designed to work irrespective of the actual
-generative distribution \citep{Berger:1994}. One approach is the use of
-Student's $t$-distributions, which are leptokurtic (i.e. have heavier tails than
-a normal distribution) and can, therefore, lead to more robust results in the
-case of model misspecification \citep[e.g.][]{Berger:1994, Gelman:2013}.
-Student's $t$-distributions have seen use in bespoke astronomical
-\citep[e.g.][]{Andreon:2008, Park:2017, Andreon:2020} and cosmological
-\citep[e.g.][]{Feeney:2018} inference, but there is not currently a generic
-robust method for Bayesian astronomical data analysis.
+generative distribution \citep{Berger:1994}. One approach is to use
+distributions that are leptokurtic (i.e. have heavier tails than a normal
+distribution) for inference --- examples include Student's $t$-distributions
+\citep{Andrews:1974} or Gaussian mixture models \citep{Box:1968, Aitkin:1980}.
+Leptokurtic distributions can lead to more robust results in the case of model
+misspecification \citep[e.g.][]{Berger:1994, Sivia:2006, Gelman:2013}. Student's
+$t$-distributions in particular have seen use in bespoke astronomical
+\citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016, Park:2017, Andreon:2020} and
+cosmological \citep[e.g.][]{Feeney:2018} inference, but there is not currently a
+generic robust method for Bayesian astronomical data analysis.
 
 We propose a development of a generic approach for robust astronomical data
 analysis. From the review of previous methods, we can identify properties that
@@ -245,7 +244,7 @@ methods that we use to validate our model; the results of these validation
 checks are presented in Section \ref{sec:results}. In Section
 \ref{sec:real-world}, we compare the performance of our model on real-world
 datasets with the models outlined in \citet{Kelly:2007} and \citet{Park:2017},
-before summarising our conclusions in Section \ref{sec:conclusion}.
+before summarizing our conclusions in Section \ref{sec:conclusion}.
 
 \section{Formalism}
 \label{sec:formalism}
@@ -289,19 +288,17 @@ these effects.
 \label{sec:formalism.robust}
 
 In the setup outlined above, the form of the distributions
-$\mathcal{P}_{\text{int}}$ and
-$\mathcal{P}_{\text{obs}}$ are unknown. A common
+$\mathcal{P}_{\text{int}}$ and $\mathcal{P}_{\text{obs}}$ are unknown. A common
 assumption in analysis is to use normal distributions to model both of these
 distributions. However, in the case of model mis-specification (where, e.g., we
 assume $\mathcal{P}_{\text{int}}$ is a normal distribution but it is a different
-distribution), the results obtained under this assumption can be biased.
-Making the assumption that $\mathcal{P}_{\text{int}}$ follows a different
-distribution, such as a Student's $t$-distribution \citep{Andrews:1974} or a Gaussian
-mixture model \citep{Aitkin:1980}, can give results that are robust to this model
-misspecification. This means that, even though we do not believe that the
-distribution we choose to model $\mathcal{P}_{\text{int}}$ is the same as the
-underlying, unknown $\mathcal{P}_{\text{int}}$, we can be confident in the
-inferences about the regression model and the properties of individual objects.
+distribution), the results obtained under this assumption can be biased. Making
+the assumption that $\mathcal{P}_{\text{int}}$ follows a different distribution
+can give results that are robust to this model misspecification. This means
+that, even though we do not believe that the distribution we choose to model
+$\mathcal{P}_{\text{int}}$ is the same as the underlying, unknown
+$\mathcal{P}_{\text{int}}$, we can be confident in the inferences about the
+regression model and the properties of individual objects.
 
 In this paper, we use Student's $t$-distributions to build a model that is
 robust to model misspecification.
@@ -1093,7 +1090,8 @@ high-redshift quasars.
 
 The authors would like to thank Alan Heavens, Stephen Feeney, Boris Leistedt,
 Jonathan Pritchard, Justin Alsing, Tamas Budavari and Chad Schafer for useful
-conversations. WM is supported by STFC grant ST/T506151/1.
+conversations, and Tianning Lyu for a typographical correction. WM is supported
+by STFC grant ST/T506151/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Data Availability}

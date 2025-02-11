@@ -1,3 +1,4 @@
+from .cauchy_obs import CauchyObsDataset
 from .gaussian_mix import GaussianMixDataset
 from .laplace import LaplaceDataset
 from .lognormal import LognormalDataset
@@ -7,6 +8,7 @@ from .t import StudentTDataset
 from .tobs import TObsDataset
 
 __all__ = [
+    CauchyObsDataset,
     GaussianMixDataset,
     LaplaceDataset,
     LognormalDataset,

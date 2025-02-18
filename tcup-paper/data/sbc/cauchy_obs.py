@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats as sps
+from tcup.utils import sigma_68
 
 from .normal import NormalDataset
 
@@ -10,7 +11,7 @@ class CauchyObsDataset(NormalDataset):
             [
                 sps.multivariate_t.rvs(
                     loc=np.zeros((self.dim_x,)),
-                    shape=cov,
+                    shape=cov / (sigma_68(1) ** 2),
                     df=1,
                     random_state=self.rng,
                 )
@@ -18,6 +19,6 @@ class CauchyObsDataset(NormalDataset):
             ]
         ).reshape(self.n_data, self.dim_x)
         self.x_obs = self.x_true + eps_x
-        self.y_obs = sps.cauchy(loc=self.y_true, scale=self.dy).rvs(
-            random_state=self.rng
-        )
+        self.y_obs = sps.cauchy(
+            loc=self.y_true, scale=self.dy / sigma_68(1)
+        ).rvs(random_state=self.rng)

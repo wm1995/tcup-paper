@@ -387,6 +387,8 @@ graphics: plots/ ${CORNER_PLOTS}
 	cp plots/dag.pdf graphics/
 	cp plots/pdf_nu.pdf graphics/
 	cp plots/cdf_outlier_frac.pdf graphics/
+	cp plots/pdf_mixture_schechter.pdf graphics/
+	cp plots/pdf_mixture_double_power.pdf graphics/
 
 plots:
 	mkdir plots

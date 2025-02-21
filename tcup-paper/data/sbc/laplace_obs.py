@@ -21,7 +21,7 @@ class LaplaceObsDataset(NormalDataset):
             [
                 sps.laplace.rvs(
                     loc=0,
-                    shape=np.sqrt(cov) / SIGMA_68_CORR,
+                    scale=np.sqrt(cov) / SIGMA_68_CORR,
                     random_state=self.rng,
                 )
                 for cov in self.cov_x

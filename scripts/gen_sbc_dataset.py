@@ -11,6 +11,7 @@ if __name__ == "__main__":
     distribution.add_argument("--t-dist", action="store_true")
     distribution.add_argument("--t-obs", action="store_true")
     distribution.add_argument("--cauchy-obs", action="store_true")
+    distribution.add_argument("--laplace-obs", action="store_true")
     distribution.add_argument("--fixed-nu", type=float)
     distribution.add_argument("--normal", action="store_true")
     distribution.add_argument("--outlier", type=float)
@@ -48,6 +49,11 @@ if __name__ == "__main__":
             "name": "cauchy_obs",
         }
         dataset = sbc_data.CauchyObsDataset(**dataset_params)
+    elif args.laplace_obs:
+        dist_params = {
+            "name": "laplace_obs",
+        }
+        dataset = sbc_data.LaplaceObsDataset(**dataset_params)
     elif args.fixed_nu:
         dist_params = {
             "name": "fixed",

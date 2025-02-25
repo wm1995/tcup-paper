@@ -74,6 +74,7 @@ if __name__ == "__main__":
     dataset_type.add_argument("--t-obs", action="store_true")
     dataset_type.add_argument("--cauchy-obs", action="store_true")
     dataset_type.add_argument("--laplace-obs", action="store_true")
+    dataset_type.add_argument("--mixed-obs", action="store_true")
     args = parser.parse_args()
 
     var_names = None
@@ -109,6 +110,8 @@ if __name__ == "__main__":
         dataset = "cauchy_obs"
     elif args.laplace_obs:
         dataset = "laplace_obs"
+    elif args.mixed_obs:
+        dataset = "mixed_obs"
 
     results_path = f"results/sbc/{model}/{dataset}/"
     data_path = f"data/sbc/{dataset}/"

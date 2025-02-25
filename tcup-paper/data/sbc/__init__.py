@@ -3,6 +3,7 @@ from .gaussian_mix import GaussianMixDataset
 from .laplace import LaplaceDataset
 from .laplace_obs import LaplaceObsDataset
 from .lognormal import LognormalDataset
+from .mixed_obs import MixedObsDataset
 from .normal import NormalDataset
 from .outlier import OutlierDataset
 from .t import StudentTDataset
@@ -14,6 +15,7 @@ __all__ = [
     LaplaceDataset,
     LaplaceObsDataset,
     LognormalDataset,
+    MixedObsDataset,
     NormalDataset,
     OutlierDataset,
     StudentTDataset,

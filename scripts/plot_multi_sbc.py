@@ -75,6 +75,9 @@ if __name__ == "__main__":
     dataset_type.add_argument("--laplace", action="store_true")
     dataset_type.add_argument("--lognormal", action="store_true")
     dataset_type.add_argument("--t-obs", action="store_true")
+    dataset_type.add_argument("--cauchy-obs", action="store_true")
+    dataset_type.add_argument("--laplace-obs", action="store_true")
+    dataset_type.add_argument("--mixed-obs", action="store_true")
     parser.add_argument("--output", required=True)
     parser.add_argument("--no-share-y", action="store_false")
     args = parser.parse_args()
@@ -97,6 +100,12 @@ if __name__ == "__main__":
         dataset = "lognormal"
     elif args.t_obs:
         dataset = "tobs"
+    elif args.cauchy_obs:
+        dataset = "cauchy_obs"
+    elif args.laplace_obs:
+        dataset = "laplace_obs"
+    elif args.mixed_obs:
+        dataset = "mixed_obs"
 
     if dataset not in ["t", "tobs"] or "ncup" in args.models or "fixed3" in args.models:
         if dataset == "gaussian_mix":

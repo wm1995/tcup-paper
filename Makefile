@@ -273,6 +273,15 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/lognormal/${plot}.pdf) &: $(
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/tobs/${plot}.pdf) &: $(wildcard data/sbc/fixed3/tobs/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --t-obs
 
+plots/sbc/outlier20_sbc.pdf:
+    ${PYTHON} scripts/plot_multi_sbc.py --models tcup ncup --outlier 20 --output plots/sbc/outlier20_sbc.pdf --no-share-y
+
+plots/sbc/tcup_sbc.pdf:
+    ${PYTHON} scripts/plot_multi_sbc.py --models tcup --t-dist --output plots/sbc/tcup_sbc.pdf
+
+plots/sbc/mixed_obs_sbc.pdf:
+    ${PYTHON} scripts/plot_multi_sbc.py --models tcup ncup --mixed-obs --output plots/sbc/mixed_obs_sbc.pdf --no-share-y
+
 ################################################################################
 # Generate mock datasets
 ################################################################################

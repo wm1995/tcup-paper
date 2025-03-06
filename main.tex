@@ -297,11 +297,17 @@ the assumption that $\mathcal{P}_{\text{int}}$ follows a different distribution
 can give results that are robust to this model misspecification. This means
 that, even though we do not believe that the distribution we choose to model
 $\mathcal{P}_{\text{int}}$ is the same as the underlying, unknown
-$\mathcal{P}_{\text{int}}$, we can be confident in the inferences about the
-regression model and the properties of individual objects.
+$\mathcal{P}_{\text{int}}$, we can have greater confidence in the inferences
+about the regression model and the properties of individual objects.
+
 
 In this paper, we use Student's $t$-distributions to build a model that is
-robust to model misspecification.
+robust to model misspecification.  The model presented will not alleviate all
+possible issues of model misspecification, such as a strongly misspecified
+regression relation $f(\mathbf{x}_i; \mathbf{\theta}_f)$, but, as we shall show
+in Section \ref{sec:results}, provides markedly improved performance over a
+similar model with normal distributions, while maintaining similar constraining
+power.
 
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}

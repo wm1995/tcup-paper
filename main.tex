@@ -867,6 +867,31 @@ normal model.
 % \end{tabular}
 % \end{table}
 
+\subsection{Mis-specified observational error}
+
+This test explores how $t$-cup performs when the distribution $\mathcal P_{\rm
+obs}$ is mis-specified. We conducted a simulation-based calibration test where
+$\mathcal P_{\rm int}$ is a normal distribution, and used $\mathcal P_{{\rm
+obs}, x} = {\rm Laplace}$, $\mathcal P_{{\rm obs}, y} = {\rm Cauchy}$ for
+observational error. The results (see Figure \ref{fig:results.obs.sbc}) show
+that $t$-cup is able to recover both the intercept and slope without bias, while
+$n$-cup produces biased estimates of both. As with the outlier case above, both
+$t$-cup and $n$-cup show significant bias in recovering the intrinsic scatter,
+but the bias is smaller for $t$-cup.
+
+\begin{figure*}
+    \includegraphics[width=\textwidth]{graphics/sbc/mixed_obs_sbc.pdf}
+    \caption{A rank statistic histogram for 400 simulation-based calibration
+    runs for the heavy-tailed observation dataset under $n$-cup (blue) and
+    $t$-cup (red). If there were a perfect match between the generative model
+    and the inference model, the histograms for each parameter would be
+    distributed uniformly (as indicated by the black dashed line). The dark
+    (light) grey regions correspond to the 94\% (98\%) confidence interval of
+    uniformity (i.e.\ we expect one histogram bin per panel (figure) to lie
+    outside of this range).}
+    \label{fig:results.obs.sbc}
+\end{figure*}
+
 \subsection{Two-dimensional normal mixture model with outliers}
 \label{sec:results.gmm}
 

@@ -529,11 +529,44 @@ would expect because of the pre-scaling.
 
 The prior on the latent values of the independent quantities $\{\indepvars\}$ is
 a Gaussian mixture model prior, similar to that used in \citet{Kelly:2007}.
-While \citeauthor{Kelly:2007} infers the complete prior as part of the model, we
-found that such a prior led to sampling issues as a result of the lack of
-identifiability inherent in a multicomponent Gaussian mixture model. Therefore,
-we use extreme deconvolution \citep{Bovy:2011} to estimate the parameters of a
-Gaussian mixture model approximating the latent distribution of
+Although Gaussian mixture models may not seem suited to modelling distributions
+that have strong power law gradients, previous work has found them to be more
+than sufficient to reproduce standard astronomical distributions (e.g.\
+\citealt{Blanton:2003, Kelly:2008} -- see also \citealt{Johnston:2013} for a
+review of approaches). To illustrate the sufficiency of this approach, we fit a
+10-component Gaussian mixture model to two common population models in
+astronomy:
+\begin{itemize}
+    \item the Schechter function \citep{Schechter:1976}
+    \begin{equation}
+        \Phi(L; \alpha, L_*, \phi_*)
+          = \phi_* \left(\frac{L}{L_*}\right)^\alpha
+            \exp \left(\frac{L}{L_*}\right)
+    \end{equation}
+    \item the double power law function (first discussed in \citealt{Boyle:1987}
+    and then presented explicitly in \citealt{Boyle:1988})
+    \begin{equation}
+        \Phi(L; \alpha, \beta, L_*, \phi_*)
+          = \phi_* \left(\left(\frac{L}{L_*}\right)^\alpha
+            \left(\frac{L}{L_*}\right)^\beta\right)^{-1}
+    \end{equation}
+\end{itemize}
+
+\begin{figure*}
+	\includegraphics[width=\columnwidth]{graphics/pdf_mixture_schechter.pdf}
+	\includegraphics[width=\columnwidth]{
+        graphics/pdf_mixture_double_power.pdf
+    }
+    \caption{A mixture model approximation to common astronomical population
+    models}
+    \label{fig:formalism.mixture-prior}
+\end{figure*}
+
+While \citeauthor{Kelly:2007} infers the complete prior as part
+of the model, we found that such a prior led to sampling issues as a result of
+the lack of identifiability inherent in a multicomponent Gaussian mixture model.
+Therefore, we use extreme deconvolution \citep{Bovy:2011} to estimate the
+parameters of a Gaussian mixture model approximating the latent distribution of
 $\{\indepvars\}$, and use these parameters for the prior.
 
 The prior on the shape parameter $\nu$ is

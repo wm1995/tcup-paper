@@ -504,20 +504,28 @@ Our default priors on the regression parameters $\{\tilde{\intercept},
 \begin{align}
     \tilde{\intercept} \sim&\; \mathcal N(\mu = 0, \sigma^2 = 4), \\
     \tilde{\covariate} \sim&\; \mathcal N(\mu = 0, \sigma^2 = 4), \\
-    \tilde{\sigma}_{68} \sim&\; \Gamma(1.1, 5).
+    \tilde{\sigma}_{68} \sim&\; \Gamma(\alpha = 1.1, \theta = 5).
 \end{align}
+
 The motivation behind the prior on $\tilde{\intercept}$ is that, as the data is
 pre-scaled to have zero mean and the relationship between quantities is assumed
-to be linear, we would expect the data to have zero intercept. Similarly, the
-prior on $\tilde{\beta}$ has been chosen because the pre-scaling of the data
-suggests a gradient between $-1$ and $1$. The prior on $\tilde{\sigma}_{68}$ is
-informed by \citet{Chung:2013}, who demonstrate that a prior with density at
-$\tilde{\sigma}_{\text{int}} = 0$ will lead to a prediction of no intrinsic
-scatter in datasets where intrinsic scatter is present; in addition, there is a
-reasonable physical argument that most astrophysical processes will not produce
-objects with no population scatter. The chosen prior balances this constraint
-with difficulties arising in testing as a result of the pre-scaling, which led
-to insufficient prior density at small levels of intrinsic scatter.
+to be linear, we would expect the data to have zero intercept; we adopt a broad
+prior by choosing a variance of 4. Similarly, the prior on $\tilde{\beta}$ has
+been chosen because the pre-scaling of the data suggests a gradient between $-1$
+and $1$, with variance chosen to give a weakly-informative prior. The prior on
+$\tilde{\sigma}_{68}$ is informed by \citet{Chung:2013}, who demonstrate that a
+prior with density at $\tilde{\sigma}_{\text{int}} = 0$ will lead to a
+prediction of no intrinsic scatter in datasets where intrinsic scatter is
+present; in addition, there is a reasonable physical argument that most
+astrophysical processes will not produce objects with no population scatter. The
+chosen prior balances this constraint with difficulties arising in testing as a
+result of the pre-scaling, which led to insufficient prior density at small
+levels of intrinsic scatter. We found that choosing a small value of the gamma
+distribution power law slope placed more weight at smaller intrinsic scatter,
+but required $\alpha > 1$ to ensure zero prior density at $\tilde{\sigma}_{68} =
+0$; similarly, we found that a scale parameter of $\theta = 5$ ensured most of
+the prior density fell in the range $0 < \tilde{\sigma}_{68} < 1$, which we
+would expect because of the pre-scaling.
 
 The prior on the latent values of the independent quantities $\{\indepvars\}$ is
 a Gaussian mixture model prior, similar to that used in \citet{Kelly:2007}.

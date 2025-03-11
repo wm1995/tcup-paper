@@ -40,13 +40,13 @@ plots = [
         "lf": schechter,
         "lf_args": {
             "alpha": -1.25,
-            "phi": 1e-3,
-            "L0": 3e9,
+            "phi": 1,
+            "L0": 1,
         },
-        "L_range": (1e5, 3e12),
+        "L_range": (3e-5, 1e3),
         "plot_params": {
-            "xlim": (1e6, 3e10),
-            "ylim": (1e-16, 3e-7),
+            "xlim": (3e-4, 1e1),
+            "ylim": (3e-7, 9e2),
         },
     },
     {
@@ -57,12 +57,12 @@ plots = [
             "alpha": 0.5,
             "beta": 3,
             "phi": 1,
-            "L0": 1e9,
+            "L0": 1,
         },
-        "L_range": (1e5, 3e12),
+        "L_range": (1e-4, 3e3),
         "plot_params": {
-            "xlim": (1e6, 4e10),
-            "ylim": (1e-14, 6e-8),
+            "xlim": (1e-3, 4e1),
+            "ylim": (1e-5, 6e1),
         },
     },
 ]
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     style.apply_matplotlib_style()
 
     for params in plots:
-        plt.figure(figsize=(10 / 3, 3))
+        plt.figure(figsize=(10 / 3, 8 / 3))
         # Calculate normalisation over range
         norm = quad(
             lambda x: params["lf"](x, **params["lf_args"]),  # noqa: B023
@@ -111,21 +111,20 @@ if __name__ == "__main__":
         # Plot LF and its mixture model approximation
         # NB We pick up a factor of L log(10) because we fit our mixture model
         # to the log of the luminosity
+        for p_comp in pdf_mixture_components(np.log10(L), gmm):
+            plt.loglog(L, p_comp / L / np.log(10), "k:")
         plt.loglog(L, pdf(L), label=params["name"])
         plt.loglog(
             L,
             pdf_mixture(np.log10(L), gmm) / L / np.log(10),
-            "--",
             label="Mixture model approx.",
         )
-        for p_comp in pdf_mixture_components(np.log10(L), gmm):
-            plt.loglog(L, p_comp / L / np.log(10), "k:")
 
         plt.xlim(*params["plot_params"]["xlim"])
         plt.ylim(*params["plot_params"]["ylim"])
         plt.legend()
-        plt.xlabel(r"Luminosity, $L$")
-        plt.ylabel(r"Luminosity function, $\Phi(L)$")
+        plt.xlabel(r"Luminosity, $L / L_*$")
+        plt.ylabel(r"Luminosity function, $\Phi(L) / \phi_*$")
         plt.tight_layout()
 
         plt.savefig(f"plots/pdf_mixture_{params['type']}.pdf")

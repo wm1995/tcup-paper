@@ -205,14 +205,16 @@ them. The ideas behind robust inference can prove useful for this problem; in
 robust inference, methods are designed to work irrespective of the actual
 generative distribution \citep{Berger:1994}. One approach is to use
 distributions that are leptokurtic (i.e. have heavier tails than a normal
-distribution) for inference --- examples include Student's $t$-distributions
-\citep{Andrews:1974} or Gaussian mixture models \citep{Box:1968, Aitkin:1980}.
-Leptokurtic distributions can lead to more robust results in the case of model
-misspecification \citep[e.g.][]{Berger:1994, Sivia:2006, Gelman:2013}. Student's
-$t$-distributions in particular have seen use in bespoke astronomical
-\citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016, Park:2017, Andreon:2020} and
-cosmological \citep[e.g.][]{Feeney:2018} inference, but there is not currently a
-generic robust method for Bayesian astronomical data analysis.
+distribution) for inference, with suggestions including Student's
+$t$-distributions \citep{Andrews:1974}, Gaussian mixture models \citep{Box:1968,
+Aitkin:1980} and log-regularly varying distributions
+\citep[LRVD;][]{Gagnon:2020, Hamura:2022}, all of which have been successful in
+practice \citep[e.g.][]{Berger:1994, Sivia:2006, Gelman:2013, Gagnon:2023,
+Hamura:2024}.  Student's $t$-distributions in particular have seen use in
+bespoke astronomical \citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016, Park:2017,
+Andreon:2020} and cosmological \citep[e.g.][]{Feeney:2018} inference, but there
+is not currently a generic robust method for Bayesian astronomical data
+analysis.
 
 We propose a development of a generic approach for robust astronomical data
 analysis. From the review of previous methods, we can identify properties that
@@ -309,7 +311,9 @@ unknown $\mathcal{P}_{\text{int}}$, we can have greater confidence in the
 inferences about the regression model and the properties of individual objects.
 
 In choosing the form of $\tilde{\mathcal{P}}_{\text{int}}$, some consideration
-must be given to the type of outliers which are expected. The focus
+must be given to the type of outliers which are expected. In the case of extreme
+outliers, it is possible to use distributions with very heavy tails such as LRVD
+to provide whole robustness \citep{Gagnon:2020, Hamura:2022}. However, the focus
 here is on the less extreme situation of more numerous but moderate outliers
 that cannot be identified as easily but will nonetheless affect the inference.
 For this reason, we use Student's $t$-distributions to build the model we

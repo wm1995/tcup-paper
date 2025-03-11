@@ -279,35 +279,45 @@ data
 where $\mathcal{P}_{\text{obs}}$ is an unknown probability distribution with
 parameters $\boldsymbol{\theta}_{\text{obs}}$.
 
+When building a model to infer parameters of interest for our model, we must
+choose probability distributions to represent the unknown
+$\mathcal{P}_{\text{int}}$ and $\mathcal{P}_{\text{obs}}$ -- we label the chosen
+distributions as $\tilde{\mathcal{P}}_{\text{int}}$ and
+$\tilde{\mathcal{P}}_{\text{obs}}$.
+
 In a Bayesian framework, we can extend this model to deal with, e.g., censored
-data or selection effects, but this is beyond the scope of the current work ---
+data or selection effects, but this is beyond the scope of the current work --
 see \citet{Kelly:2007} for an overview of an approach that would incorporate
 these effects.
 
 \subsection{Building a robust model}
 \label{sec:formalism.robust}
 
-In the setup outlined above, the form of the distributions
-$\mathcal{P}_{\text{int}}$ and $\mathcal{P}_{\text{obs}}$ are unknown. A common
-assumption in analysis is to use normal distributions to model both of these
-distributions. However, in the case of model mis-specification (where, e.g., we
-assume $\mathcal{P}_{\text{int}}$ is a normal distribution but it is a different
+In the setup outlined above, the form of the ``true'' distributions
+$\mathcal{P}_{\text{int}}$ and $\mathcal{P}_{\text{obs}}$ are unknown; we can
+only choose the forms of $\tilde{\mathcal{P}}_{\text{int}}$ and
+$\tilde{\mathcal{P}}_{\text{obs}}$. A common assumption in analysis is to use
+normal distributions to model both of these.  However, in the case of model
+misspecification (where, e.g., we assume $\tilde{\mathcal{P}}_{\text{int}}$ is a
+normal distribution but the true $\mathcal{P}_{\text{int}}$ is a different
 distribution), the results obtained under this assumption can be biased. Making
-the assumption that $\mathcal{P}_{\text{int}}$ follows a different distribution
-can give results that are robust to this model misspecification. This means
-that, even though we do not believe that the distribution we choose to model
-$\mathcal{P}_{\text{int}}$ is the same as the underlying, unknown
-$\mathcal{P}_{\text{int}}$, we can have greater confidence in the inferences
-about the regression model and the properties of individual objects.
+the assumption that $\tilde{\mathcal{P}}_{\text{int}}$ follows a different
+distribution can give results that are robust to this model misspecification.
+This means that, even though we do not believe that the distribution we choose
+to model $\tilde{\mathcal{P}}_{\text{int}}$ is the same as the underlying,
+unknown $\mathcal{P}_{\text{int}}$, we can have greater confidence in the
+inferences about the regression model and the properties of individual objects.
 
-
-In this paper, we use Student's $t$-distributions to build a model that is
-robust to model misspecification.  The model presented will not alleviate all
-possible issues of model misspecification, such as a strongly misspecified
-regression relation $f(\mathbf{x}_i; \mathbf{\theta}_f)$, but, as we shall show
-in Section \ref{sec:results}, provides markedly improved performance over a
-similar model with normal distributions, while maintaining similar constraining
-power.
+In choosing the form of $\tilde{\mathcal{P}}_{\text{int}}$, some consideration
+must be given to the type of outliers which are expected. The focus
+here is on the less extreme situation of more numerous but moderate outliers
+that cannot be identified as easily but will nonetheless affect the inference.
+For this reason, we use Student's $t$-distributions to build the model we
+present. The model presented will not alleviate all possible issues of model
+misspecification, such as a strongly misspecified regression relation
+$f(\mathbf{x}_i; \mathbf{\theta}_f)$, but, as we shall show in Section
+\ref{sec:results}, provides markedly improved performance over a similar model
+with normal distributions, while maintaining constraining power.
 
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}

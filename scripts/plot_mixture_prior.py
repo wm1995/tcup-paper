@@ -123,8 +123,8 @@ if __name__ == "__main__":
         plt.xlim(*params["plot_params"]["xlim"])
         plt.ylim(*params["plot_params"]["ylim"])
         plt.legend()
-        plt.xlabel(r"Luminosity, $L / L_*$")
-        plt.ylabel(r"Luminosity function, $\Phi(L) / \phi_*$")
+        plt.xlabel(r"Scaled luminosity, $L / L_*$")
+        plt.ylabel(r"Scaled number density, $\Phi(L) / \phi_*$")
         plt.tight_layout()
 
         plt.savefig(f"plots/pdf_mixture_{params['type']}.pdf")

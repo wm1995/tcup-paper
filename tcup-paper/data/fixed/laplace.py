@@ -10,6 +10,7 @@ def gen_dataset(seed):
         "alpha": -1,
         "beta": 0.8,
         "sigma_int": 0.2,
+        "sigma_68": 0.2 * sps.laplace.ppf(sps.norm.cdf(1)),
     }
     x_true = sps.uniform(-5, 5).rvs(size=shape, random_state=rng)
     epsilon = sps.laplace(scale=info["sigma_int"]).rvs(

@@ -93,6 +93,20 @@ ${PYTHON} scripts/plot_corner.py \
     --ticker beta_1 0.3 0.1 \
 	--single-column \
 	--output plots/fixed/corner_gaussian_mix.pdf
+
+${PYTHON} scripts/plot_corner.py \
+    --dataset data/fixed/laplace/1.json \
+    --mcmc-file results/fixed/tcup/laplace/1.nc \
+    --mcmc-file results/fixed/ncup/laplace/1.nc \
+    --var-names alpha beta sigma_68 outlier_frac \
+    --range alpha -1.4 -0.6 \
+    --range beta_0 0.65 0.95 \
+    --range sigma_68 0.1 0.5 \
+    --range outlier_frac 0 0.12 \
+    --ticker alpha 0.4 0 \
+    --ticker sigma_68 0.2 0 \
+    --single-column \
+    --output plots/fixed/corner_laplace.pdf
     
 ${PYTHON} scripts/plot_regression.py \
 	--dataset data/fixed/outlier/1.json \

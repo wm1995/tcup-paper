@@ -201,20 +201,24 @@ for an exploration of this effect).
 
 The problem of outliers within datasets can be thought of as model
 mis-specification: these objects do not fit the distributions used to model
-them. The ideas behind robust inference can prove useful for this problem; in
-robust inference, methods are designed to work irrespective of the actual
-generative distribution \citep{Berger:1994}. One approach is to use
-distributions that are leptokurtic (i.e. have heavier tails than a normal
-distribution) for inference, with suggestions including Student's
-$t$-distributions \citep{Andrews:1974}, Gaussian mixture models \citep{Box:1968,
-Aitkin:1980} and log-regularly varying distributions
-\citep[LRVD;][]{Gagnon:2020, Hamura:2022}, all of which have been successful in
-practice \citep[e.g.][]{Berger:1994, Sivia:2006, Gelman:2013, Gagnon:2023,
-Hamura:2024}.  Student's $t$-distributions in particular have seen use in
-bespoke astronomical \citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016, Park:2017,
-Andreon:2020} and cosmological \citep[e.g.][]{Feeney:2018} inference, but there
-is not currently a generic robust method for Bayesian astronomical data
-analysis.
+them. At very least, results should be checked by performing analyses using
+different models for the noise distribution \citep[e.g.][]{Andreon:2015,
+McElreath:2020}. However, it would be preferable to use robust inference
+methods, which are designed to work irrespective of the actual generative
+distribution \citep{Berger:1994}. One approach is to use distributions that are
+leptokurtic (i.e. have heavier tails than a normal distribution) for inference,
+with suggestions including Student's $t$-distributions \citep{Andrews:1974},
+Gaussian mixture models \citep{Box:1968, Aitkin:1980} and log-regularly varying
+distributions \citep[LRVD;][]{Gagnon:2020, Hamura:2022}, all of which have been
+successful in practice \citep[e.g.][]{Berger:1994, Sivia:2006, Gelman:2013,
+Gagnon:2023, Hamura:2024}.  Student's $t$-distributions in particular have seen
+use in bespoke astronomical and cosmological inference
+\citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016, Park:2017, Feeney:2018,
+Andreon:2020}. While code examples which incorporate Student's $t$-distributions
+are available (e.g.\ Appendix C.2 of \citealt{Gelman:2013}, Section 9.1.3 of
+\citealt{Andreon:2015}, or Example 7.35 of \citealt{McElreath:2020}), there is
+not currently a generic robust method for robust Bayesian regression in
+astronomy.
 
 We propose a development of a generic approach for robust astronomical data
 analysis. From the review of previous methods, we can identify properties that

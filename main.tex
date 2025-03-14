@@ -397,9 +397,9 @@ and variance
 
 In this paper, we have found it useful to define two quantities for comparison
 with normal distributions. The first, $\sigma_{68}(\nu)$, is the width of the
-highest density interval for a $t$-distribution with scale parameter
-$\sigma = 1$ such that the density contained in the interval is equal to that
-of a 1$\sigma$ interval for a normal distribution. This is given by
+highest density interval for a $t$-distribution with scale parameter $\sigma =
+1$ such that the probability contained in the interval is equal to that of a
+1$\sigma$ interval for a normal distribution. This is given by
 \begin{equation}
     \sigma_{68}(\nu) =
         \sqrt{
@@ -407,8 +407,9 @@ of a 1$\sigma$ interval for a normal distribution. This is given by
                 \frac{1}{I^{-1}(\Phi_{\sigma=1};\frac\nu2, \frac12)} - 1
             \right)
         },
+    \label{eqn:model.sigma_68}
 \end{equation}
-where $\Phi_{\sigma=1} = \text{erf}\left(\frac{\sqrt{2}}2\right) \approx 0.6827$
+where $\Phi_{\sigma=1} = \text{erf}(2^{-1/2}) \approx 0.6827$
 is the posterior density contained within $\pm1\sigma$ of the mean for a normal
 distribution, and $I^{-1}$ is the inverse of the regularized incomplete beta function, which we define as
 \begin{equation}
@@ -808,8 +809,9 @@ that, while the estimates of the intercept and slope are significantly biased
 when analysed by the normal model (as indicated by the rank statistic's
 distribution deviating from normal), the estimates derived by $t$-cup are
 unbiased. Additionally, while both $n$-cup and $t$-cup systematically
-overestimate the intrinsic scatter $\sigma_{68}$, the bias is much smaller for
-$t$-cup than for $n$-cup.
+overestimate the intrinsic scatter $\sigma_{68}$ (as defined in
+Equation~\ref{eqn:model.sigma_68}), the bias is much smaller for $t$-cup than
+for $n$-cup.
 
 
 \begin{figure*}
@@ -994,8 +996,9 @@ density
     {\rm Laplace}\left(x; \mu, b\right) = \frac1{2b} \exp\left(-\frac{\left|x - \mu\right|}{b}\right),
 \end{equation}
 with scale parameter $b$ related to $\sigma_{68}$ as $b(\sigma_{68}) =
-- \sigma_{68} / \ln \left( 1 - {\rm erf} (1/{\sqrt{2}})\right) \approx 0.87\,
-\sigma_{68}$.
+- \sigma_{68} / \ln \left( 1 - {\rm erf} (2^{-1/2})\right) \approx 0.87\,
+\sigma_{68}$, where $\sigma_{68}$ is defined in
+Equation~\ref{eqn:model.sigma_68}.
 
 We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
 (i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$), normally distributed

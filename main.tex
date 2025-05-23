@@ -160,7 +160,7 @@ cosmology (e.g. the original formulation of Hubble's law,
 \citealt{Hubble:1929}). For this reason, there are a plethora of techniques used
 by astronomers for linear regression when both the dependent and independent
 variables are measured with error (e.g., \citealt{Press:1992, Akritas:1996,
-Tremaine:2002, Kelly:2007} --- see \citealt{Andreon:2013} and \citealt{Andreon:2015}
+Tremaine:2002, Kelly:2007} -- see \citealt{Andreon:2013} and \citealt{Andreon:2015}
 for reviews including further examples).
 
 \citet{Kelly:2007} illustrates that common ad-hoc estimators such as
@@ -172,7 +172,7 @@ reanalysis of the data-set from \citealt{Riess:2011} by
 \citealt{Efstathiou:2014}). A more principled approach is to model the entire
 measurement process.
 
-Bayesian hierarchical models (BHMs) are a natural way to model such datasets ---
+Bayesian hierarchical models (BHMs) are a natural way to model such datasets --
 these allow astronomers to account for, e.g., measurement errors, selection
 effects, interlinked parameters, censored data, and many other effects common to
 astronomical problems. BHMs have seen increasing use in astrophysics over the
@@ -180,7 +180,7 @@ past few decades, from the distance-redshift relation in cosmology
 \citep[e.g.][]{Feeney:2018, Avelino:2019} and photometric redshift estimation
 \citep[e.g.][]{Leistedt:2016} to exoplanet characterisation
 \citep[e.g.][]{Sestovic:2018} and population-level inference
-\citep[e.g.][]{Kelly:2009} --- see \citet{Feigelson:2021} for a recent review
+\citep[e.g.][]{Kelly:2009} -- see \citet{Feigelson:2021} for a recent review
 including further examples of BHMs.
 
 \citet{Kelly:2007} presented a general BHM for linear regression with
@@ -476,13 +476,13 @@ Similarly to \citet{Kelly:2007}, we define a Bayesian hierarchical model to
 reflect the nature of the regression problem. Firstly, we assume that we can
 represent the probability distribution $\mathcal P_{\text{int}}$ with a
 Student's $t$-distribution with shape parameter $\nu$ and scale parameter
-$\sigma_{\text{int}}$ --- i.e.
+$\sigma_{\text{int}}$ -- i.e.
 \begin{equation}
 \depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr^2}.
 \end{equation}
 We use a Student's $t$-distribution here not because we believe that the data
 intrinsically follows this distribution, but because the resulting model is
-robust to model mis-specification --- such as if a galaxy were
+robust to model mis-specification -- such as if a galaxy were
 to be an outlier from a particular relation as a result of a recent merger.
 
 We assume that we can represent the probability distribution
@@ -608,8 +608,8 @@ The prior on the shape parameter $\nu$ is
     \nu \sim&\; \text{Inv-}\Gamma(4, 15);
 \end{align}
 this prior was chosen to balance flexibility (such that the model could
-accommodate both heavily leptokurtic distributions --- e.g. the Cauchy
-distribution --- and normally-distributed data) and sampling issues (as $\nu
+accommodate both heavily leptokurtic distributions -- e.g. the Cauchy
+distribution -- and normally-distributed data) and sampling issues (as $\nu
 \leftarrow \infty$, different values of $\nu$ become rapidly indistinguishable).
 The reasoning behind this choice of prior is expanded upon in Appendix
 \ref{sec:t-prior}. The exact choice of prior for $\nu$ is unimportant, as the
@@ -685,7 +685,7 @@ $t$-distributions directly \citep{Neal:2003, Betancourt:2013}.  The implementati
 is packaged as $t$-cup, available as a Python package\footnotemark.
 
 For the purposes of comparison, we have also implemented a model that mirrors
-the above structure, but uses normal distributions at each stage --- we refer to
+the above structure, but uses normal distributions at each stage -- we refer to
 this as $n$-cup.
 
 \footnotetext{\url{https://github.com/wm1995/tcup}}
@@ -1144,7 +1144,7 @@ intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in Figure
 
 The constraints on the intercept, $\alpha$, and slopes, $\beta$ and $\gamma$,
 are consistent with those derived by \citet{Park:2017} for all three measures of
-emission line width --- see Table \ref{tab:real-world.park.params}.
+emission line width -- see Table \ref{tab:real-world.park.params}.
 \citet{Park:2017} predicts a systematically higher intrinsic scatter than that
 predicted by $t$-cup, however, these figures cannot be compared directly, as
 this may be influenced by different prior choice for $\nu$.
@@ -1288,7 +1288,7 @@ these low values of $\nu \sim 0.1$ can correspond to outliers that are more than
 of parameter space ought to be excluded during the process of inference.
 However, the use of HMC in such cases can lead to divergences in the sampling
 process or inefficient sampling as the sampler struggles with regions of high
-curvature --- see the discussion of this phenomenon in \citet{Neal:2003} and
+curvature -- see the discussion of this phenomenon in \citet{Neal:2003} and
 \citet{Betancourt:2013}. As discussed in Section
 \ref{sec:formalism.implementation}, reparametrizing the Student's
 $t$-distribution as a mixture of normals was found to help with, but not
@@ -1305,7 +1305,7 @@ and continue to present difficulties when sampling with HMC.
 
 To limit the number of unphysical outliers, we can instead limit the prior to
 consider only distributions that are less heavy-tailed than the Cauchy
-distribution --- i.e. all those with $\nu > 1$. This is the approach taken by
+distribution -- i.e. all those with $\nu > 1$. This is the approach taken by
 \citet{Gelman:2013}, rendering regions of parameter space inaccessible (in the
 case of the \citet{Gelman:2013} prior, $\nu = 1$ is the cutoff, which
 corresponds to a Cauchy distribution.) On the other hand, the priors used in

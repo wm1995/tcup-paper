@@ -553,9 +553,8 @@ Although Gaussian mixture models may not seem suited to modelling distributions
 that have strong power law gradients, previous work has found them to be more
 than sufficient to reproduce standard astronomical distributions (e.g.\
 \citealt{Blanton:2003, Kelly:2008} -- see also \citealt{Johnston:2011} for a
-review of approaches). To illustrate the sufficiency of this approach, we fit a
-10-component Gaussian mixture model to two common population models in
-astronomy:
+review of approaches). To illustrate the approximation, we fit a 10-component
+Gaussian mixture model to two common population models in astronomy:
 \begin{itemize}
     \item the \citet{Schechter:1976} function
     \begin{equation}
@@ -569,9 +568,23 @@ astronomy:
     \begin{equation}
         \Phi(L; \alpha, \beta, L_*, \phi_*)
           = \phi_* \left(\left(\frac{L}{L_*}\right)^\alpha
-             + \left(\frac{L}{L_*}\right)^\beta\right)^{-1}
+             + \left(\frac{L}{L_*}\right)^\beta\right)^{-1}.
     \end{equation}
 \end{itemize}
+Figure~\ref{fig:formalism.mixture-prior} shows that, while these functions are
+well-approximated at the bright end of the luminosity function, if the sample is
+flux-limited then the mixture model prior will fall off at the faint end when
+the true population prior may increase. If sample selection effects are not
+accounted for (as in this work), this mismatch could lead to Eddington bias
+\citep{Eddington:1913} affecting the inferred parameters -- see
+\citep{Andreon:2010} for an exploration of this effect. Similarly, using this
+mixture prior for a flux-limited sample could lead to Malmquist bias
+\citep{Malmquist:1922}, as brighter objects would be over-represented in the
+sample, though this is unlikely to affect the inferred regression relation. In
+such cases, another prior should be considered (and can be provided to the
+$t$-cup package). An extension of the model that handles selection effects
+\citep[e.g.][]{Kelly:2007} would eliminate these biases, but is not considered
+here.
 
 \begin{figure*}
 	\includegraphics[width=\columnwidth]{graphics/pdf_mixture_schechter.pdf}

@@ -152,16 +152,16 @@ methods: statistical -- methods: data analysis -- software: data analysis
 % }
 
 Linear regression is a common problem in astronomy, arising in fields as diverse
-as galaxy formation and evolution (e.g. the super-massive black hole (SMBH) mass
--- stellar velocity dispersion correlation, \citealt{Ferrarese:2000,
-Gebhardt:2000}), stellar physics (e.g. the Leavitt law linking the luminosity
+as galaxy formation and evolution (e.g.\ the super-massive black hole (SMBH)
+mass -- stellar velocity dispersion correlation, \citealt{Ferrarese:2000,
+Gebhardt:2000}), stellar physics (e.g.\ the Leavitt law linking the luminosity
 and pulsation period for Cepheid variable stars, \citealt{Leavitt:1912}), and
-cosmology (e.g. the original formulation of Hubble's law,
+cosmology (e.g.\ the original formulation of Hubble's law,
 \citealt{Hubble:1929}). For this reason, there are a plethora of techniques used
 by astronomers for linear regression when both the dependent and independent
 variables are measured with error (e.g., \citealt{Press:1992, Akritas:1996,
-Tremaine:2002, Kelly:2007} -- see \citealt{Andreon:2013} and \citealt{Andreon:2015}
-for reviews including further examples).
+Tremaine:2002, Kelly:2007} -- see \citealt{Andreon:2013} and
+\citealt{Andreon:2015} for reviews including further examples).
 
 \citet{Kelly:2007} illustrates that common ad-hoc estimators such as
 \textsc{fitexy} \citep{Press:1992, Tremaine:2002} and \textsc{bces}
@@ -206,7 +206,7 @@ different models for the noise distribution \citep[e.g.][]{Andreon:2015,
 McElreath:2020}. However, it would be preferable to use robust inference
 methods, which are designed to work irrespective of the actual generative
 distribution \citep{Berger:1994}. One approach is to use distributions that are
-leptokurtic (i.e. have heavier tails than a normal distribution) for inference,
+leptokurtic (i.e.\ have heavier tails than a normal distribution) for inference,
 with suggestions including Student's $t$-distributions \citep{Andrews:1974},
 Gaussian mixture models \citep{Box:1968, Aitkin:1980} and log-regularly varying
 distributions \citep[LRVD;][]{Gagnon:2020, Hamura:2022}, all of which have been
@@ -445,7 +445,7 @@ shows the relationship between outlier fraction $\omega$ and shape parameter
 $\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
 distribution, i.e., as $\nu \rightarrow \infty$.  Under this definition
 approximately 1 in 370 data-points would be outliers for data that follows a
-normal distribution; for Cauchy-distributed data (i.e. $\nu = 1$), every fifth
+normal distribution; for Cauchy-distributed data (i.e.\ $\nu = 1$), every fifth
 data-point to be an outlier.
 
 \begin{figure}
@@ -462,7 +462,7 @@ data-point to be an outlier.
 Our regression model, represented as a directed acyclic graph in
 Figure~\ref{fig:formalism.dag}, is specified here. We assume a linear
 relationship between
-$\{\boldsymbol{x}_i\}$ and $\{y_i\}$, i.e.
+$\{\boldsymbol{x}_i\}$ and $\{y_i\}$, i.e.\
 \begin{equation}
     f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) =
         \alpha + \boldsymbol{\beta} \cdot \boldsymbol{x}_i
@@ -476,7 +476,7 @@ Similarly to \citet{Kelly:2007}, we define a Bayesian hierarchical model to
 reflect the nature of the regression problem. Firstly, we assume that we can
 represent the probability distribution $\mathcal P_{\text{int}}$ with a
 Student's $t$-distribution with shape parameter $\nu$ and scale parameter
-$\sigma_{\text{int}}$ -- i.e.
+$\sigma_{\text{int}}$ -- i.e.\
 \begin{equation}
 \depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr^2}.
 \end{equation}
@@ -608,7 +608,7 @@ The prior on the shape parameter $\nu$ is
     \nu \sim&\; \text{Inv-}\Gamma(4, 15);
 \end{align}
 this prior was chosen to balance flexibility (such that the model could
-accommodate both heavily leptokurtic distributions -- e.g. the Cauchy
+accommodate both heavily leptokurtic distributions -- e.g.\ the Cauchy
 distribution -- and normally-distributed data) and sampling issues (as $\nu
 \leftarrow \infty$, different values of $\nu$ become rapidly indistinguishable).
 The reasoning behind this choice of prior is expanded upon in Appendix
@@ -1242,7 +1242,7 @@ distribution, but had sufficient flexibility to accommodate heavy-tailed
 distributions as well. Priors meeting this criterion include:
 \begin{itemize}
     \item priors of the form $\nu \sim \Gamma(\alpha, \beta)$ for
-          some shape parameter, $\alpha$, and rate parameter, $\beta$ -- e.g.
+          some shape parameter, $\alpha$, and rate parameter, $\beta$ -- e.g.\
           \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 0.1\right\}$;
           \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 0.1\right\}$
     \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
@@ -1305,7 +1305,7 @@ and continue to present difficulties when sampling with HMC.
 
 To limit the number of unphysical outliers, we can instead limit the prior to
 consider only distributions that are less heavy-tailed than the Cauchy
-distribution -- i.e. all those with $\nu > 1$. This is the approach taken by
+distribution -- i.e.\ all those with $\nu > 1$. This is the approach taken by
 \citet{Gelman:2013}, rendering regions of parameter space inaccessible (in the
 case of the \citet{Gelman:2013} prior, $\nu = 1$ is the cutoff, which
 corresponds to a Cauchy distribution.) On the other hand, the priors used in

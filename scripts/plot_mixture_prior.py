@@ -19,7 +19,9 @@ def double_power(L, L0, alpha, beta, phi):
 
 
 def pdf_mixture_components(x, gmm):
-    for w, mean, cov in zip(gmm.weights_, gmm.means_, gmm.covariances_):
+    for w, mean, cov in zip(
+        gmm.weights_, gmm.means_, gmm.covariances_, strict=False
+    ):
         yield w * sps.multivariate_normal.pdf(x, mean=mean, cov=cov)
 
 
@@ -43,7 +45,7 @@ plots = [
             "phi": 1,
             "L0": 1,
         },
-        "L_range": (3e-5, 1e3),
+        "L_range": (1e-3, 1e3),
         "plot_params": {
             "xlim": (3e-4, 1e1),
             "ylim": (3e-7, 9e2),
@@ -59,7 +61,7 @@ plots = [
             "phi": 1,
             "L0": 1,
         },
-        "L_range": (1e-4, 3e3),
+        "L_range": (3e-3, 3e3),
         "plot_params": {
             "xlim": (1e-3, 4e1),
             "ylim": (1e-5, 6e1),
@@ -111,6 +113,11 @@ if __name__ == "__main__":
         # Plot LF and its mixture model approximation
         # NB We pick up a factor of L log(10) because we fit our mixture model
         # to the log of the luminosity
+        L = np.logspace(
+            np.log10(params["plot_params"]["xlim"][0]),
+            np.log10(params["plot_params"]["xlim"][1]),
+            100,
+        )
         for p_comp in pdf_mixture_components(np.log10(L), gmm):
             plt.loglog(L, p_comp / L / np.log(10), "k:")
         plt.loglog(L, pdf(L), label=params["name"])

@@ -646,10 +646,12 @@ $\nu$ until $\nu \sim 0.6$, beyond which it falls again; this is a result of the
 increasingly narrow peak of the $t$-distribution (see Figure \ref{fig:model.t}).
 While the uncertainty can be increased by up to $\sim20\%$ (in the Cauchy
 regime, $\nu \approx 1$), we consider this an acceptable trade-off to reduce
-bias in cases of model mis-specification. Under a flexible model that infers
-$\nu$ (such as the one presented here), we would expect the model to infer a
-value for $\nu$ that approaches a normal distribution, mitigating this issue of
-increased error.
+bias in cases of model mis-specification.  This uncertainty trade-off is
+mitigated by a flexible model that infers $\nu$ (such as the one presented
+here), as we would expect the model to infer a value for $\nu$ that approaches a
+normal distribution. We argue that the increased numerical difficulty of
+treating $\nu$ as a parameter in this way is worth reducing the increased
+error that is associated with fixed $\nu$ analyses.
 
 This effect would be appreciable for the smallest datasets -- the posteriors
 would have heavier tails than under a normal model -- but, in this case,

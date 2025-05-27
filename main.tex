@@ -615,14 +615,16 @@ The prior on the shape parameter $\nu$ is
 this prior was chosen to balance flexibility (such that the model could
 accommodate both heavily leptokurtic distributions -- e.g.\ the Cauchy
 distribution -- and normally-distributed data) and sampling issues (as $\nu
-\rightarrow \infty$, different values of $\nu$ become rapidly indistinguishable).
-The reasoning behind this choice of prior is expanded upon in Appendix
-\ref{sec:t-prior}. The exact choice of prior for $\nu$ is unimportant, as the
-model is designed to be robust to model mis-specification; the only key element
-is that $\nu$ is allowed to vary to accommodate both normal and heavy-tailed
-distributions. By virtue of this, difficulties in sampling $\nu$ according to
-this prior distribution do not invalidate the results of the model, as long as
-there is coverage at both small and large values of $\nu$.
+\rightarrow 0$, the posterior geometry becomes highly curved, which leads to
+numerical issues; as $\nu \rightarrow \infty$, different values of $\nu$ become
+rapidly indistinguishable). The reasoning behind this choice of prior is
+expanded upon in Appendix \ref{sec:t-prior}. The exact choice of prior for $\nu$
+is unimportant, as the model is designed to be robust to model
+mis-specification; the only key element is that $\nu$ is allowed to vary to
+accommodate both normal and heavy-tailed distributions. By virtue of this,
+difficulties in sampling $\nu$ according to this prior distribution do not
+invalidate the results of the model, as long as there is coverage at both small
+and large values of $\nu$.
 
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}

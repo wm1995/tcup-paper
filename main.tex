@@ -211,10 +211,13 @@ with suggestions including Student's $t$-distributions \citep{Andrews:1974},
 Gaussian mixture models \citep{Box:1968, Aitkin:1980} and log-regularly varying
 distributions \citep[LRVD;][]{Gagnon:2020, Hamura:2022}, all of which have been
 successful in practice \citep[e.g.][]{Berger:1994, Sivia:2006, Gelman:2013,
-Gagnon:2023, Hamura:2024}.  Student's $t$-distributions in particular have seen
-use in bespoke astronomical and cosmological inference
-\citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016, Park:2017, Feeney:2018,
-Andreon:2020}. While there are code examples in which Student's
+Gagnon:2023, Hamura:2024}.  Student's $t$-distributions, parameterized by the
+shape parameter $\nu$, have seen use in bespoke astronomical and cosmological
+inference, both by fixing $\nu$ \citep[e.g.][]{Andreon:2008, Jontof-Hutter:2016,
+Andreon:2020} and treating $\nu$ as a free parameter \citep[e.g.][]{Park:2017,
+Feeney:2018}. The advantage of the latter approach is that we can marginalise
+over $\nu$ so that we only consider models supported by the data
+\citep{Gelman:2013}.  While there are code examples in which Student's
 $t$-distributions are used for the scatter term in the dependent variable of
 regression models (e.g.\ Appendix C.2 of \citealt{Gelman:2013}, Section 9.1.3 of
 \citealt{Andreon:2015}, or Example 7.35 of \citealt{McElreath:2020}), there is

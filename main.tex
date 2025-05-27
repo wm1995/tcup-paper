@@ -686,10 +686,12 @@ The model described in Section \ref{sec:formalism.model} is implemented in
 NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a HMC No U-Turn
 Sampler. For the most part, we implement the model as presented previously;
 however, we reparametrize the Student's $t$-distribution using a mixture model
-of normal distributions \citep[e.g.][]{Stan} as HMC struggles with the extreme
-gradients that would be present if the model were implemented using Student
-$t$-distributions directly \citep{Neal:2003, Betancourt:2013}.  The implementation
-is packaged as $t$-cup, available as a Python package\footnotemark.
+of normal distributions \citep[e.g.][]{Stan}. We found this to be necessary for
+any model with non-negligible prior density below $\nu \lesssim 1$, as HMC
+struggles with the extreme gradients that would be present if the model were
+implemented using Student $t$-distributions directly \citep{Neal:2003,
+Betancourt:2013}.  The implementation is packaged as $t$-cup, available as a
+Python package\footnotemark.
 
 For the purposes of comparison, we have also implemented a model that mirrors
 the above structure, but uses normal distributions at each stage -- we refer to

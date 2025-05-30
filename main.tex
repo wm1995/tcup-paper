@@ -326,8 +326,9 @@ outliers, it is possible to use distributions with very heavy tails such as LRVD
 to provide whole robustness \citep{Gagnon:2020, Hamura:2022}. However, the focus
 here is on the less extreme situation of more numerous but moderate outliers
 that cannot be identified as easily but will nonetheless affect the inference.
-For this reason, we use Student's $t$-distributions to build the model we
-present. The model presented will not alleviate all possible issues of model
+For this reason, we use Student's $t$-distributions, which have sufficient
+flexibility to represent any noise model which is unimodal and approximately
+symmetric. The model presented will not alleviate all possible issues of model
 misspecification, such as a strongly misspecified regression relation
 $f(\mathbf{x}_i; \mathbf{\theta}_f)$, but, as we shall show in Section
 \ref{sec:results}, provides markedly improved performance over a similar model

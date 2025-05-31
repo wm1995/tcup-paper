@@ -196,7 +196,7 @@ Bartlett:2023, Jing:2024}. These
 models assume parameters are normally distributed throughout; however,
 scientific uncertainties are often empirically not normally distributed, leading
 to more frequent outliers \citep{Bailey:2017}. Inference that relies on normal
-distributions can be unduly affected by outliers (see Section \ref{sec:results}
+distributions can be unduly affected by outliers (see Section~\ref{sec:results}
 for an exploration of this effect).
 
 The problem of outliers within datasets can be thought of as model
@@ -219,8 +219,8 @@ Feeney:2018}. The advantage of the latter approach is that we can marginalise
 over $\nu$ so that we only consider models supported by the data
 \citep{Gelman:2013}.  While there are code examples in which Student's
 $t$-distributions are used for the scatter term in the dependent variable of
-regression models (e.g.\ Appendix C.2 of \citealt{Gelman:2013}, Section 9.1.3 of
-\citealt{Andreon:2015}, or Example 7.35 of \citealt{McElreath:2020}), there is
+regression models (e.g.\ Appendix~C.2 of \citealt{Gelman:2013}, Section~9.1.3 of
+\citealt{Andreon:2015}, or Example~7.35 of \citealt{McElreath:2020}), there is
 not currently a general method for robust Bayesian regression in astronomy which
 incorporates uncertainties in all quantities.
 
@@ -251,12 +251,11 @@ we would like to see in our regression model:
 \end{itemize}
 
 We implement these ideas in this paper, beginning with a discussion of our model
-in Section \ref{sec:formalism}. In Section \ref{sec:methods}, we outline the
+in Section~\ref{sec:formalism}. In Section~\ref{sec:methods}, we outline the
 methods that we use to validate our model; the results of these validation
-checks are presented in Section \ref{sec:results}. In Section
-\ref{sec:real-world}, we compare the performance of our model on real-world
+checks are presented in Section~\ref{sec:results}. In Section~\ref{sec:real-world}, we compare the performance of our model on real-world
 datasets with the models outlined in \citet{Kelly:2007} and \citet{Park:2017},
-before summarizing our conclusions in Section \ref{sec:conclusion}.
+before summarizing our conclusions in Section~\ref{sec:conclusion}.
 
 \section{Formalism}
 \label{sec:formalism}
@@ -330,9 +329,9 @@ For this reason, we use Student's $t$-distributions, which have sufficient
 flexibility to represent any noise model which is unimodal and approximately
 symmetric. The model presented will not alleviate all possible issues of model
 misspecification, such as a strongly misspecified regression relation
-$f(\mathbf{x}_i; \mathbf{\theta}_f)$, but, as we shall show in Section
-\ref{sec:results}, provides markedly improved performance over a similar model
-with normal distributions, while maintaining constraining power.
+$f(\mathbf{x}_i; \mathbf{\theta}_f)$, but, as we shall show in
+Section~\ref{sec:results}, provides markedly improved performance over a similar
+model with normal distributions, while maintaining constraining power.
 
 \subsection{Sampling distribution}
 \label{sec:formalism.sampling}
@@ -377,7 +376,7 @@ the probability density function
         -\frac{\nu + 1}{2}
     }.
 \end{equation}
-This is shown for a range of $\nu$ in Figure \ref{fig:model.t}: $\nu
+This is shown for a range of $\nu$ in Figure~\ref{fig:model.t}: $\nu
 = 1$ gives a Cauchy distribution; and $\nu \rightarrow \infty$ tends to a normal
 distribution. The distribution has mean
 \begin{equation}
@@ -446,7 +445,7 @@ distribution mean $\mu$. For a $t$-distribution, this is given by
     &=& 2 F_\nu \left(\mu - 3 \sigma \right),
 \end{eqnarray}
 where $F_\nu(x)$ is the cumulative distribution function for the Student's
-$t$-distribution with shape parameter $\nu$. Figure \ref{fig:model.outlier_frac}
+$t$-distribution with shape parameter $\nu$. Figure~\ref{fig:model.outlier_frac}
 shows the relationship between outlier fraction $\omega$ and shape parameter
 $\nu$, with $\omega \rightarrow 2.70 \times 10^{-3} $ in the limit of a normal
 distribution, i.e., as $\nu \rightarrow \infty$.  Under this definition
@@ -622,7 +621,7 @@ distribution -- and normally-distributed data) and sampling issues (as $\nu
 \rightarrow 0$, the posterior geometry becomes highly curved, which leads to
 numerical issues; as $\nu \rightarrow \infty$, different values of $\nu$ become
 rapidly indistinguishable). The reasoning behind this choice of prior is
-expanded upon in Appendix \ref{sec:t-prior}. The exact choice of prior for $\nu$
+expanded upon in Appendix~\ref{sec:t-prior}. The exact choice of prior for $\nu$
 is unimportant, as the model is designed to be robust to model
 mis-specification; the only key element is that $\nu$ is allowed to vary to
 accommodate both normal and heavy-tailed distributions. By virtue of this,
@@ -638,15 +637,15 @@ statistical model is that the resultant inferences would, in general, be less
 constraining than under the assumption of a normal model (see, e.g., the
 motivation behind the mixture model proposed in \citealt{Tak:2019}).  If there
 are no outliers, the implication would be that the robust approach is inferior.
-This effect is illustrated in Figure \ref{fig:formalism.posterior-sd}, which
+This effect is illustrated in Figure~\ref{fig:formalism.posterior-sd}, which
 shows results for datasets of $N=100$ points drawn from a normal distribution
 with zero mean and unit variance. The points show the ratio of the posterior
 standard deviations for the mean when analyzed using a $t$-distribution to that
 obtained using a normal distribution. These agree well with the approximate form
 of this ratio obtained using the Fisher information of a $t$-distribution
-likelihood (see Appendix \ref{sec:fisher}). This ratio increases with decreasing
+likelihood (see Appendix~\ref{sec:fisher}). This ratio increases with decreasing
 $\nu$ until $\nu \sim 0.6$, beyond which it falls again; this is a result of the
-increasingly narrow peak of the $t$-distribution (see Figure \ref{fig:model.t}).
+increasingly narrow peak of the $t$-distribution (see Figure~\ref{fig:model.t}).
 While the uncertainty can be increased by up to $\sim20\%$ (in the Cauchy
 regime, $\nu \approx 1$), we consider this an acceptable trade-off to reduce
 bias in cases of model mis-specification.  This uncertainty trade-off can be
@@ -688,7 +687,7 @@ anyway.)
 \subsection{Implementation}
 \label{sec:formalism.implementation}
 
-The model described in Section \ref{sec:formalism.model} is implemented in
+The model described in Section~\ref{sec:formalism.model} is implemented in
 NumPyro \citep{NumPyro, Pyro}, which is used to draw samples via a HMC No U-Turn
 Sampler. For the most part, we implement the model as presented previously;
 however, we reparametrize the Student's $t$-distribution using a mixture model
@@ -758,7 +757,7 @@ results given when using normal distributions.
 We generate multiple datasets with the same ground-truth parameters to verify
 the results across multiple runs, producing plots of the composite cumulative
 distribution function across each dataset. In each instance, full specifications
-of the data models are given in Appendix \ref{sec:data-models}.
+of the data models are given in Appendix~\ref{sec:data-models}.
 
 We aim to do a full end-to-end test of our inference pipeline in the fixed-value
 calibration tests; therefore, these datasets are generated in the unscaled space
@@ -792,14 +791,14 @@ For our first test, we start with a dataset that matches our model perfectly
 (i.e.\ $\mathcal P_{\text{int}} = t_\nu, \mathcal P_{\text{obs}} =
 \mathcal{N}$), and choose $K=1$ independent variables. The simulation-based
 calibration tests indicate that the rank statistic is consistent with being
-uniformly distributed (see Figure \ref{fig:results.t.sbc}), and, therefore, that
+uniformly distributed (see Figure~\ref{fig:results.t.sbc}), and, therefore, that
 our inference procedure is working as expected.
 
 For our fixed-value tests, we drew $N = 20$ datapoints with $(\alpha, \beta,
 \sigma_{68}, \nu) = (3, 2, 0.1, 3)$; the full model used to generate the data is
-specified in Appendix \ref{sec:data-models.t}. The chosen value of $\nu = 3$
+specified in Appendix~\ref{sec:data-models.t}. The chosen value of $\nu = 3$
 corresponds to an outlier fraction of $\omega(\nu = 3) \approx 5.8 \%$.  As
-shown in Figure \ref{fig:results.t.corner}, we recover the values of the
+shown in Figure~\ref{fig:results.t.corner}, we recover the values of the
 parameters that were used to generate the dataset; these values are consistent
 with a model where the shape parameter is fixed to $\nu = 3$.
 
@@ -819,7 +818,7 @@ We then generated 400 datasets from the same ground-truth parameters, and ran
 MCMC against each dataset.
 % We combined samples from each of the MCMC runs to produce a plot of the
 % cumulative distribution function for the regression coefficients and shape
-% parameter $\nu$. The results shown in Figure \ref{fig:results.t.map} indicate
+% parameter $\nu$. The results shown in Figure~\ref{fig:results.t.map} indicate
 % that the estimate of true parameter values is unbiased.
 95\% highest posterior density credible intervals were constructed for each run;
 the true parameter values were contained in these credible intervals $97\%$,
@@ -841,7 +840,7 @@ distributions to check that:
 We conducted a simulation-based calibration test, where datasets were generated
 using normal distributions throughout (i.e.\ $\mathcal P_{\text{int}} = \mathcal
 P_{\text{obs}} = \mathcal{N}$) and with a single independent variable (i.e.\ $K
-= 1$). The results (shown in Figure \ref{fig:results.outlier.sbc}) indicate
+= 1$). The results (shown in Figure~\ref{fig:results.outlier.sbc}) indicate
 that, while the estimates of the intercept and slope are significantly biased
 when analysed by the normal model (as indicated by the rank statistic's
 distribution deviating from normal), the estimates derived by $t$-cup are
@@ -865,8 +864,7 @@ for $n$-cup.
 
 A dataset of $N = 12$ points was generated with $(\alpha, \beta, \sigma_{\rm
 int}) = (3, 2, 0.2)$, and one of the points was modified to be a
-$\sim20\,\sigma$ outlier (the full generative model is given in Appendix
-\ref{sec:data-models.outlier}). While such an extreme outlier could easily be
+$\sim20\,\sigma$ outlier (the full generative model is given in Appendix~\ref{sec:data-models.outlier}). While such an extreme outlier could easily be
 identified and removed, the purpose here is to demonstrate that $t$-cup does not
 require this to obtain sensible inferences.
 
@@ -897,11 +895,11 @@ require this to obtain sensible inferences.
     \label{fig:results.outlier.tcup}
 \end{figure}
 
-Figure \ref{fig:results.outlier.regression} illustrates how the estimates for
+Figure~\ref{fig:results.outlier.regression} illustrates how the estimates for
 the true parameter models are biased in the normal model, but less affected in
 the $t$-cup model.
 
-In Figure \ref{fig:results.outlier.corner}, we compare the constraints on
+In Figure~\ref{fig:results.outlier.corner}, we compare the constraints on
 parameters derived under the normal model (including and excluding the outlier
 from the dataset), and the $t$-cup model (including the outlier only). The
 constraints from the $t$-cup model including the outlier are consistent with
@@ -910,7 +908,7 @@ need to remove the outlier manually. While this outlier is particularly extreme,
 this example illustrates the utility of the $t$-cup model in datasets with
 outliers.
 
-For completeness, in Figure \ref{fig:results.outlier.tcup} we illustrate that
+For completeness, in Figure~\ref{fig:results.outlier.tcup} we illustrate that
 the $t$-cup model recovers consistent constraints regardless of whether the
 outlier is included or excluded.
 
@@ -931,7 +929,7 @@ outlier is included or excluded.
 We then generated 400 datasets using the same procedure, and combined posterior
 samples from each run to build an effective cumulative distribution function
 across all runs for both the normal model and for $t$-cup. The results
-(illustrated in Figure \ref{fig:results.outlier.map}) indicate that constraints
+(illustrated in Figure~\ref{fig:results.outlier.map}) indicate that constraints
 under $t$-cup are significantly less biased than those calculated under the
 normal model.
 
@@ -960,7 +958,7 @@ This test explores how $t$-cup performs when the distribution $\mathcal P_{\rm
 obs}$ is mis-specified. We conducted a simulation-based calibration test where
 $\mathcal P_{\rm int}$ is a normal distribution, and used $\mathcal P_{{\rm
 obs}, x} = {\rm Laplace}$, $\mathcal P_{{\rm obs}, y} = {\rm Cauchy}$ for
-observational error. The results (see Figure \ref{fig:results.obs.sbc}) show
+observational error. The results (see Figure~\ref{fig:results.obs.sbc}) show
 that $t$-cup is able to recover both the intercept and slope without bias, while
 $n$-cup produces biased estimates of both. As with the outlier case above, both
 $t$-cup and $n$-cup show significant bias in recovering the intrinsic scatter,
@@ -997,9 +995,9 @@ are drawn from an outlier distribution with standard deviation $10
 normal distribution. For fixed-value tests, the true values of the regression
 parameters were fixed to $(\alpha, \beta_0, \beta_1, \sigma_{\rm int}) = (2,
 3, 1, 0.4)$. The full generative model for the fixed-value tests is given in
-Appendix \ref{sec:data-models.gmm}.
+Appendix~\ref{sec:data-models.gmm}.
 
-The results (see Figure \ref{fig:results.gmm.corner}) show that, while the
+The results (see Figure~\ref{fig:results.gmm.corner}) show that, while the
 constraints from the normal model are significantly biased for this generative
 distribution, $t$-cup is able to recover the correct parameter values.
 
@@ -1041,8 +1039,7 @@ We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
 (i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$), normally distributed
 observation noise (i.e.\ $\mathcal P_{\rm obs} = \mathcal N$), and $K = 1$
 independent variables. For the fixed-value tests, we set $(\alpha, \beta, b) =
-(-1, 0.8, 0.2)$. The full generative model can be found in Appendix
-\ref{sec:data-models.laplace}.
+(-1, 0.8, 0.2)$. The full generative model can be found in Appendix~\ref{sec:data-models.laplace}.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_laplace.pdf}
@@ -1053,12 +1050,12 @@ independent variables. For the fixed-value tests, we set $(\alpha, \beta, b) =
     \label{fig:results.laplace.corner}
 \end{figure}
 
-As we can see in Figure \ref{fig:results.laplace.corner}, while both $n$-cup and
+As we can see in Figure~\ref{fig:results.laplace.corner}, while both $n$-cup and
 $t$-cup successfully recover the gradient and intercept that were used to
 generate the dataset, $n$-cup overpredicts the true intrinsic scatter when
 $t$-cup constrains it accurately. To confirm this, we generated 400 datasets
 using the same procedure, and analysed each with both $n$-cup and $t$-cup. The
-results (illustrated in Figure \ref{fig:results.laplace.map}) show the same
+results (illustrated in Figure~\ref{fig:results.laplace.map}) show the same
 pattern -- that $t$-cup is able to accurately constrain the intrinsic scatter,
 while the estimate from the normal model is biased high.
 
@@ -1080,11 +1077,11 @@ a tailored approach using $t$-distributions \citep{Park:2017}.
 
 \subsection{\textsc{linmix\_err}}
 
-We use the same dataset that is used in Section 8 of \citet{Kelly:2007} -- a
+We use the same dataset that is used in Section~8 of \citet{Kelly:2007} -- a
 dataset of $N = 39$ quasars with measured Eddington ratio $L / L_{\text{Edd}}$
 and X-ray spectral index $\Gamma$. Performance is compared with a Python
 implementation\footnotemark of the original \textsc{linmix\_err} paper proposed
-by \citeauthor{Kelly:2007} -- see Figure \ref{fig:real-world.kelly.regression}.
+by \citeauthor{Kelly:2007} -- see Figure~\ref{fig:real-world.kelly.regression}.
 
 \footnotetext{\url{https://github.com/jmeyers314/linmix}}
 
@@ -1116,9 +1113,7 @@ by \citeauthor{Kelly:2007} -- see Figure \ref{fig:real-world.kelly.regression}.
 \end{tabular}
 \end{table}
 
-While the parameter estimates are broadly consistent (see Table
-\ref{tab:real-world.kelly.params}), the posterior distributions in Figure
-\ref{fig:real-world.kelly.corner} can be seen to differ, with the posterior
+While the parameter estimates are broadly consistent (see Table~\ref{tab:real-world.kelly.params}), the posterior distributions in Figure~\ref{fig:real-world.kelly.corner} can be seen to differ, with the posterior
 inferred by \textsc{linmix} being more diffuse than that inferred by $t$-cup.
 The tighter constraints of $t$-cup suggest that the inference presented by
 \citet{Kelly:2007} may be biased by the enforced assumption of
@@ -1154,20 +1149,18 @@ median absolute deviation. This dataset is used to fit the regression relation
         \label{eqn:real-world.park}
 \end{equation}
 The $t$-cup posterior for parameters $\alpha$, $\beta$ and $\gamma$, as well as
-intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in Figure
-\ref{fig:real-world.park.corner}.
+intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in Figure~\ref{fig:real-world.park.corner}.
 
 The constraints on the intercept, $\alpha$, and slopes, $\beta$ and $\gamma$,
 are consistent with those derived by \citet{Park:2017} for all three measures of
-emission line width -- see Table \ref{tab:real-world.park.params}.
+emission line width -- see Table~\ref{tab:real-world.park.params}.
 \citet{Park:2017} predicts a systematically higher intrinsic scatter than that
 predicted by $t$-cup, however, these figures cannot be compared directly, as
 this may be influenced by different prior choice for $\nu$.
 
 \begin{table*}
 	\centering
-	\caption{A comparison between the constraints on the parameters in Equation
-	\ref{eqn:real-world.park} derived by \citet{Park:2017} and using $t$-cup.}
+	\caption{A comparison between the constraints on the parameters in Equation~\ref{eqn:real-world.park} derived by \citet{Park:2017} and using $t$-cup.}
 	\label{tab:real-world.park.params}
 	\begin{tabular}{lcc|cc|cc} % seven columns, alignment for each
                           & \multicolumn{2}{c}{FWHM} & \multicolumn{2}{c}{$\sigma_l$} & \multicolumn{2}{c}{MAD} \\
@@ -1182,7 +1175,7 @@ this may be influenced by different prior choice for $\nu$.
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/real/corner_park_fwhm.pdf}
     \caption{The posterior distributions for the data from \citet{Park:2017}
-    under the $t$-cup model. This figure is directly comparable with Figure 9 from \citet{Park:2017}.}
+    under the $t$-cup model. This figure is directly comparable with Figure~9 from \citet{Park:2017}.}
     \label{fig:real-world.park.corner}
 \end{figure}
 
@@ -1191,11 +1184,10 @@ this may be influenced by different prior choice for $\nu$.
 
 We have presented a general-purpose approach to linear regression, implemented
 as $t$-cup, that is robust to model mis-specification, with a model laid out in
-Section \ref{sec:formalism}. In Section \ref{sec:results}, we demonstrated that
+Section~\ref{sec:formalism}. In Section~\ref{sec:results}, we demonstrated that
 the model recovers constraints consistent with those used to generate the
 datasets, including in cases where there is a mismatch between the generative
-model used to create the dataset and our regression model. In Section
-\ref{sec:real-world}, we compared the method to \citet{Kelly:2007} and
+model used to create the dataset and our regression model. In Section~\ref{sec:real-world}, we compared the method to \citet{Kelly:2007} and
 \citet{Park:2017} on real-world data, illustrating that the models derive
 consistent constraints.
 
@@ -1226,8 +1218,7 @@ STFC grant ST/T506151/1.
 \section*{Data Availability}
 
 The data in this paper is sourced from \citet{Kelly:2007} and \citet{Park:2017}.
-Scripts to generate the simulated datasets used to validate the model in Section
-\ref{sec:results} are available from the GitHub repository for this paper, at
+Scripts to generate the simulated datasets used to validate the model in Section~\ref{sec:results} are available from the GitHub repository for this paper, at
 \url{https://github.com/wm1995/tcup-paper}.
 
 %%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
@@ -1267,10 +1258,8 @@ distributions as well. Priors meeting this criterion include:
         t \equiv \sqrt{\frac2\nu}\frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)} \sim U(0, 1).
     \end{equation}
 \end{itemize}
-These priors, along with the prior we adopted, are illustrated in Figure
-\ref{fig:priors.pdf}. The cumulative distribution functions for the priors in
-terms of outlier fraction, $\omega$, are illustrated in Figure
-\ref{fig:priors.outlier_frac}.
+These priors, along with the prior we adopted, are illustrated in Figure~\ref{fig:priors.pdf}. The cumulative distribution functions for the priors in
+terms of outlier fraction, $\omega$, are illustrated in Figure~\ref{fig:priors.outlier_frac}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
@@ -1304,8 +1293,7 @@ of parameter space ought to be excluded during the process of inference.
 However, the use of HMC in such cases can lead to divergences in the sampling
 process or inefficient sampling as the sampler struggles with regions of high
 curvature -- see the discussion of this phenomenon in \citet{Neal:2003} and
-\citet{Betancourt:2013}. As discussed in Section
-\ref{sec:formalism.implementation}, reparametrizing the Student's
+\citet{Betancourt:2013}. As discussed in Section~\ref{sec:formalism.implementation}, reparametrizing the Student's
 $t$-distribution as a mixture of normals was found to help with, but not
 alleviate, this problem.
 
@@ -1332,7 +1320,7 @@ of magnitude larger than the predicted effect size.
 	\includegraphics[width=\columnwidth]{graphics/cdf_outlier_frac}
     \caption{The CDF of priors on $\nu$ used in works that have used
     $t$-distributions. The priors are expressed in terms of outlier fraction,
-    $\omega$, as defined in Equation \ref{eqn:model.outlier_frac}.}
+    $\omega$, as defined in Equation~\ref{eqn:model.outlier_frac}.}
     \label{fig:priors.outlier_frac}
 \end{figure}
 
@@ -1356,10 +1344,10 @@ This prior was chosen for two reasons:
 \section{Estimating variance trade-offs}
 \label{sec:fisher}
 
-In Section \ref{sec:formalism.asymptotic}, we examined the increased standard
+In Section~\ref{sec:formalism.asymptotic}, we examined the increased standard
 deviation in parameter estimates using a toy model, showing the results of
 repeated trials alongside the Cram\'er-Rao bound \citep{Rao:1945, Cramer:1946}
-in Figure \ref{fig:formalism.posterior-sd}; here, we derive the formula for this
+in Figure~\ref{fig:formalism.posterior-sd}; here, we derive the formula for this
 bound.
 
 For the toy model, we looked at the posterior distribution of the mean $\mu$ for
@@ -1380,19 +1368,19 @@ the particular dataset $\{x_i\}$, to derive the variance in the estimate
 \end{equation}
 where ${\rm erfc (x)} = 1 - 2/\sqrt{\pi} \int_0^x \exp(-t^2) \,{\rm d}t$ is the complementary error function.
 This bound is used to derive the posterior standard deviation ratio plotted in
-Figure \ref{fig:formalism.posterior-sd}.
+Figure~\ref{fig:formalism.posterior-sd}.
 
 
 \section{Fixed-value calibration data models}
 \label{sec:data-models}
 
 Here, we fully specify the dataset models used for fixed-value
-calibration tests in Section \ref{sec:results}.
+calibration tests in Section~\ref{sec:results}.
 
 \subsection{\textit{t}-distributed data}
 \label{sec:data-models.t}
 
-In Section \ref{sec:results.t}, the fixed-value test datasets have $N = 20$
+In Section~\ref{sec:results.t}, the fixed-value test datasets have $N = 20$
 datapoints drawn from the following distribution:
 \begin{align}
     x_i \sim&\; \mathcal N (\mu = 2, \sigma^2 = 4) \\
@@ -1406,7 +1394,7 @@ datapoints drawn from the following distribution:
 \subsection{Normally-distributed data with an outlier}
 \label{sec:data-models.outlier}
 
-In Section \ref{sec:results.outlier}, we generated datasets of $N = 12$ points
+In Section~\ref{sec:results.outlier}, we generated datasets of $N = 12$ points
 using the model:
 \begin{alignat}{1}
     x_i& \sim \mathcal N (\mu = 5, \sigma^2 = 9) \\
@@ -1430,7 +1418,7 @@ We introduce the parameter $O_i$ to indicate whether the $i$th datapoint is
 drawn from the core distribution (in which case, $O_i = 0$) or from the outlier
 distribution (for which $O_i = 1$).
 
-In Section \ref{sec:results.gmm}, we generated a dataset of $N = 200$ points
+In Section~\ref{sec:results.gmm}, we generated a dataset of $N = 200$ points
 using the model:
 \begin{alignat}{1}
     \boldsymbol{x}_i& \sim
@@ -1465,7 +1453,7 @@ $\mathbb{I}$ denotes the 2x2 identity matrix.
 \subsection{Laplace-distributed data}
 \label{sec:data-models.laplace}
 
-In Section \ref{sec:results.laplace}, we generate $N = 25$ datapoints under the
+In Section~\ref{sec:results.laplace}, we generate $N = 25$ datapoints under the
 following model:
 \begin{eqnarray}
     x_i &\sim& \mathcal U (-5, 5) \\

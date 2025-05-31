@@ -229,12 +229,14 @@ analysis. From the review of previous methods, we can identify properties that
 we would like to see in our regression model:
 
 \begin{itemize}
-	\item A BHM -- we favour a hierarchical approach
-	because it naturally encodes the hierarchical structure of astronomical
-	regression problems (i.e.\ objects are drawn from a high-level population;
-	the objects intrinsically obey some relationship; the objects are measured
-	with error and only the measured values are known). We adopt a Bayesian
-	approach both for practical reasons -- the resultant posterior distributions provide full uncertainty quantification -- and due to their logical consistency \citep[e.g.][]{Cox:1946, vanHorn:2003, Knuth:2010}.
+	\item A BHM -- we favour a hierarchical approach because it naturally
+	encodes the hierarchical structure of astronomical regression problems
+	(i.e.\ objects are drawn from a high-level population; the objects
+	intrinsically obey some relationship; the objects are measured with error
+	and only the measured values are known). We adopt a Bayesian approach both
+	for practical reasons -- the resultant posterior distributions provide full
+	uncertainty quantification -- and due to their logical consistency
+	\citep[e.g.][]{Cox:1946, vanHorn:2003, Knuth:2010}.
 
 	\item A robust model -- we desire a model that is robust to both outliers
 	(i.e.\ data points that, whether intrinsically or by virtue of measurement
@@ -253,9 +255,11 @@ we would like to see in our regression model:
 We implement these ideas in this paper, beginning with a discussion of our model
 in Section~\ref{sec:formalism}. In Section~\ref{sec:methods}, we outline the
 methods that we use to validate our model; the results of these validation
-checks are presented in Section~\ref{sec:results}. In Section~\ref{sec:real-world}, we compare the performance of our model on real-world
-datasets with the models outlined in \citet{Kelly:2007} and \citet{Park:2017},
-before summarizing our conclusions in Section~\ref{sec:conclusion}.
+checks are presented in Section~\ref{sec:results}. In
+Section~\ref{sec:real-world}, we compare the performance of our model on
+real-world datasets with the models outlined in \citet{Kelly:2007} and
+\citet{Park:2017}, before summarizing our conclusions in
+Section~\ref{sec:conclusion}.
 
 \section{Formalism}
 \label{sec:formalism}
@@ -263,29 +267,36 @@ before summarizing our conclusions in Section~\ref{sec:conclusion}.
 Here we establish notation and set out our model. Our dataset has $N$
 astronomical objects, each with a $K$-dimensional vector of associated
 independent quantities $\{\boldsymbol{x}_i\}$ and a dependent quantity
-$\{y_i\}$. For example, if we were estimating SMBH mass
-using measurements of luminosity and line width, we would have $K = 2$
-dimensional vectors of independent quantities $\{\boldsymbol{x}_i\} = \{(L_i, \Delta V_i)^T\}$, and the dependent quantity $\{y_i\}$ would
-correspond to the black hole mass.
+$\{y_i\}$. For example, if we were estimating SMBH mass using measurements of
+luminosity and line width, we would have $K = 2$ dimensional vectors of
+independent quantities $\{\boldsymbol{x}_i\} = \{(L_i, \Delta V_i)^T\}$, and the
+dependent quantity $\{y_i\}$ would correspond to the black hole mass.
 
 We assume that the independent quantities $\{\boldsymbol{x}_i\}$ and dependent
 quantities $\{y_i\}$ are related by a regression relation
 \begin{align}
     y_i =&\; f(\boldsymbol{x}_i; \boldsymbol{\theta}_f) + \delta_i, \\
-    \delta_i \sim&\; \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
+    \delta_i \sim&\;
+       \mathcal{P}_{\text{int}} \left( \boldsymbol{\theta}_{\text{int}} \right),
 \end{align}
 where $f(\boldsymbol{x}_i; \boldsymbol{\theta}_f)$ is a function relating
 $\{\boldsymbol{x}_i\}$ to $\{y_i\}$, with parameters $\boldsymbol{\theta}_f$,
 and $\mathcal{P}_{\text{int}}$ is an unknown probability distribution with
 parameters $\boldsymbol{\theta}_{\text{int}}$.
 
-These objects are then observed, resulting in the measured
-data
+These objects are then observed, resulting in the measured data
 \begin{align}
-    \hat{\boldsymbol{x}}_i =&\; \boldsymbol{x}_i + \boldsymbol{\epsilon}_{x,i}, \\
+    \hat{\boldsymbol{x}}_i =&\;
+        \boldsymbol{x}_i + \boldsymbol{\epsilon}_{x,i}, \\
     \hat{y}_i =&\; y_i + \epsilon_{y,i}, \\
-    \boldsymbol{\epsilon}_{x,i} \sim&\; \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right), \\
-    \epsilon_{y,i} \sim&\; \mathcal{P}_{\text{obs}} \left( \boldsymbol{\theta}_{\text{obs}} \right),
+    \boldsymbol{\epsilon}_{x,i} \sim&\;
+        \mathcal{P}_{\text{obs}} \left(
+            \boldsymbol{\theta}_{\text{obs}}
+        \right), \\
+    \epsilon_{y,i} \sim&\;
+        \mathcal{P}_{\text{obs}} \left(
+            \boldsymbol{\theta}_{\text{obs}}
+        \right),
 \end{align}
 where $\mathcal{P}_{\text{obs}}$ is an unknown probability distribution with
 parameters $\boldsymbol{\theta}_{\text{obs}}$.
@@ -352,11 +363,11 @@ distribution is. While the interpretation of $\nu$ as ``degrees-of-freedom''
 only makes sense for $\nu \in \mathbb Z^+$, the distribution is normalizable for
 any positive, real $\nu$; for this reason, we shall refer to $\nu$ as the shape
 parameter.
-% Constructing a statistical model that treats this shape parameter as
-% a free parameter to be fitted allows the model to adapt to outliers in the data,
-% reverting to the result of a model that uses normal distributions in the absence
-% of outliers \citep{Feeney:2018}. In this context, $\nu$ is considered a
-% nuisance parameter: its exact value is unimportant, and its inclusion in the
+% Constructing a statistical model that treats this shape parameter as a free
+% parameter to be fitted allows the model to adapt to outliers in the data,
+% reverting to the result of a model that uses normal distributions in the
+% absence of outliers \citep{Feeney:2018}. In this context, $\nu$ is considered
+% a nuisance parameter: its exact value is unimportant, and its inclusion in the
 % model is solely to ensure that inference is robust to outliers.
 
 The Student's $t$-distribution, with location $\mu$ and scale $\sigma$, has
@@ -419,9 +430,10 @@ highest density interval for a $t$-distribution with scale parameter $\sigma =
         },
     \label{eqn:model.sigma_68}
 \end{equation}
-where $\Phi_{\sigma=1} = \text{erf}(2^{-1/2}) \approx 0.6827$
-is the posterior density contained within $\pm1\sigma$ of the mean for a normal
-distribution, and $I^{-1}$ is the inverse of the regularized incomplete beta function, which we define as
+where $\Phi_{\sigma=1} = \text{erf}(2^{-1/2}) \approx 0.6827$ is the posterior
+density contained within $\pm1\sigma$ of the mean for a normal distribution, and
+$I^{-1}$ is the inverse of the regularized incomplete beta function, which we
+define as
 \begin{equation}
     I(x; a, b) = \frac{
         \int_0^x t^{a-1} (1 - t)^{b-1} {\rm d}t
@@ -432,8 +444,8 @@ distribution, and $I^{-1}$ is the inverse of the regularized incomplete beta fun
 This quantity is useful for defining a ``scale'' parameter that is less tightly
 coupled to $\nu$ than the $\sigma$ parameter of the $t$-distribution.
 
-The second quantity we use is an ``outlier fraction'' $\omega$, which
-is defined as the fraction of points expected to lie more than $3\sigma$ from the
+The second quantity we use is an ``outlier fraction'' $\omega$, which is defined
+as the fraction of points expected to lie more than $3\sigma$ from the
 distribution mean $\mu$. For a $t$-distribution, this is given by
 \begin{eqnarray}
     \omega(\nu)
@@ -483,7 +495,7 @@ represent the probability distribution $\mathcal P_{\text{int}}$ with a
 Student's $t$-distribution with shape parameter $\nu$ and scale parameter
 $\sigma_{\text{int}}$ -- i.e.\
 \begin{equation}
-\depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr^2}.
+    \depvar \sim \studentt{\intercept + \covariate \indepvars}{\intscttr^2}.
 \end{equation}
 We use a Student's $t$-distribution here not because we believe that the data
 intrinsically follows this distribution, but because the resulting model is
@@ -708,10 +720,10 @@ this as $n$-cup.
 \label{sec:methods}
 
 In this section, we outline the methods used to validate the model set out in
-Section~\ref{sec:formalism}. We run two types of tests to validate the performance of
-$t$-cup under different types of model mis-specification: simulation-based
-calibration tests \citep{Cook:2006, Talts:2018}; and fixed value calibration
-tests.
+Section~\ref{sec:formalism}. We run two types of tests to validate the
+performance of $t$-cup under different types of model mis-specification:
+simulation-based calibration tests \citep{Cook:2006, Talts:2018}; and fixed
+value calibration tests.
 
 \subsection{Simulation-based calibration}
 \label{sec:methods.sbc}
@@ -726,12 +738,13 @@ for a discussion of independence criteria). We then compute the rank statistic
     r(\theta_0, \tilde{\boldsymbol{\theta}}_{\text{MCMC}})
         = \sum_{i = 1}^{L} \mathbb I (\tilde{\theta}_i < \theta_0),
 \end{equation}
-where $\mathbb{I}(\cdot)$ is the indicator function which evaluates to 1 if its (logical) argument is true and 0 if it is false.
-If the generative model matches the sampling model and the sampling algorithm
-correctly draws from the posterior, the rank statistic will be uniformly
-distributed across the integers $[0, L]$. We can, therefore, repeat this process
-many times to build a histogram of rank statistics; any shortfalls in the
-sampling algorithm will manifest as deviations from uniformity.
+where $\mathbb{I}(\cdot)$ is the indicator function which evaluates to 1 if its
+(logical) argument is true and 0 if it is false.  If the generative model
+matches the sampling model and the sampling algorithm correctly draws from the
+posterior, the rank statistic will be uniformly distributed across the integers
+$[0, L]$. We can, therefore, repeat this process many times to build a histogram
+of rank statistics; any shortfalls in the sampling algorithm will manifest as
+deviations from uniformity.
 
 While this procedure has been developed to diagnose sampling issues, we can also
 use the method to build a heuristic measure of how robust a model is to
@@ -864,9 +877,10 @@ for $n$-cup.
 
 A dataset of $N = 12$ points was generated with $(\alpha, \beta, \sigma_{\rm
 int}) = (3, 2, 0.2)$, and one of the points was modified to be a
-$\sim20\,\sigma$ outlier (the full generative model is given in Appendix~\ref{sec:data-models.outlier}). While such an extreme outlier could easily be
-identified and removed, the purpose here is to demonstrate that $t$-cup does not
-require this to obtain sensible inferences.
+$\sim20\,\sigma$ outlier (the full generative model is given in
+Appendix~\ref{sec:data-models.outlier}). While such an extreme outlier could
+easily be identified and removed, the purpose here is to demonstrate that
+$t$-cup does not require this to obtain sensible inferences.
 
 \begin{figure*}
     \includegraphics[width=\linewidth]{graphics/fixed/regression_outlier.pdf}
@@ -1028,7 +1042,8 @@ distribution as $\mathcal P_{\rm int}$, giving another example of performance
 under explicit model mis-specification. The Laplace distribution has probability
 density
 \begin{equation}
-    {\rm Laplace}\left(x; \mu, b\right) = \frac1{2b} \exp\left(-\frac{\left|x - \mu\right|}{b}\right),
+    {\rm Laplace}\left(x; \mu, b\right) =
+        \frac1{2b} \exp\left(-\frac{\left|x - \mu\right|}{b}\right),
 \end{equation}
 with scale parameter $b$ related to $\sigma_{68}$ as $b(\sigma_{68}) =
 - \sigma_{68} / \ln \left( 1 - {\rm erf} (2^{-1/2})\right) \approx 0.87\,
@@ -1039,7 +1054,8 @@ We generate $N = 25$ datapoints from a model with Laplacian intrinsic scatter
 (i.e.\ $\mathcal P_{\rm int} = \mathrm{Laplace}$), normally distributed
 observation noise (i.e.\ $\mathcal P_{\rm obs} = \mathcal N$), and $K = 1$
 independent variables. For the fixed-value tests, we set $(\alpha, \beta, b) =
-(-1, 0.8, 0.2)$. The full generative model can be found in Appendix~\ref{sec:data-models.laplace}.
+(-1, 0.8, 0.2)$. The full generative model can be found in
+Appendix~\ref{sec:data-models.laplace}.
 
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/fixed/corner_laplace.pdf}
@@ -1060,7 +1076,9 @@ pattern -- that $t$-cup is able to accurately constrain the intrinsic scatter,
 while the estimate from the normal model is biased high.
 
 \begin{figure*}
-    \includegraphics[width=\textwidth, trim={0 0.3cm 0 0}, clip]{graphics/fixed/laplace_cdf.pdf}
+    \includegraphics[width=\textwidth, trim={0 0.3cm 0 0}, clip]{
+        graphics/fixed/laplace_cdf.pdf
+    }
     \caption{The combined cumulative distribution function of the regression
     parameters for 400 Laplace datasets under the normal model
     (blue) and $t$-cup model (red).}
@@ -1095,14 +1113,14 @@ by \citeauthor{Kelly:2007} -- see Figure~\ref{fig:real-world.kelly.regression}.
 
 \begin{table}
 	\centering
-	\caption{Estimates for the intercept, slope, and intrinsic scatter inferred for
-	the relationship between Eddington ratio $L / L_{\text{Edd}}$ and X-ray
+	\caption{Estimates for the intercept, slope, and intrinsic scatter inferred
+	for the relationship between Eddington ratio $L / L_{\text{Edd}}$ and X-ray
 	spectral index $\Gamma$ for the sample of quasars analysed by
-	\citet{Kelly:2007}. The parameter estimates reported in \citet{Kelly:2007} are
-	the posterior median and ``a robust estimate of the standard deviation''; for
-	linmix and $t$-cup, we report the posterior median and an estimate of the
-	standard deviation as $\sigma = 1.4826 \, \text{MAD}$, where MAD is the median
-	absolute deviation.}
+	\citet{Kelly:2007}. The parameter estimates reported in \citet{Kelly:2007}
+	are the posterior median and ``a robust estimate of the standard
+	deviation''; for linmix and $t$-cup, we report the posterior median and an
+	estimate of the standard deviation as $\sigma = 1.4826 \, \text{MAD}$, where
+	MAD is the median absolute deviation.}
 	\label{tab:real-world.kelly.params}
 	\begin{tabular}{lccc} % four columns, alignment for each
                                & \citet{Kelly:2007} & linmix   & $t$-cup       \\
@@ -1113,10 +1131,12 @@ by \citeauthor{Kelly:2007} -- see Figure~\ref{fig:real-world.kelly.regression}.
 \end{tabular}
 \end{table}
 
-While the parameter estimates are broadly consistent (see Table~\ref{tab:real-world.kelly.params}), the posterior distributions in Figure~\ref{fig:real-world.kelly.corner} can be seen to differ, with the posterior
-inferred by \textsc{linmix} being more diffuse than that inferred by $t$-cup.
-The tighter constraints of $t$-cup suggest that the inference presented by
-\citet{Kelly:2007} may be biased by the enforced assumption of
+While the parameter estimates are broadly consistent (see
+Table~\ref{tab:real-world.kelly.params}), the posterior distributions in
+Figure~\ref{fig:real-world.kelly.corner} can be seen to differ, with the
+posterior inferred by \textsc{linmix} being more diffuse than that inferred by
+$t$-cup.  The tighter constraints of $t$-cup suggest that the inference
+presented by \citet{Kelly:2007} may be biased by the enforced assumption of
 normally-distributed data, which may not be accurate. The explicit assumption of
 normality in \textsc{linmix} is in tension with the outlier fraction estimated
 by $t$-cup (68\% CI $\omega = 0.05$\raisebox{0.5ex}{\tiny$^{+0.04}_{-0.01}$}).
@@ -1149,7 +1169,8 @@ median absolute deviation. This dataset is used to fit the regression relation
         \label{eqn:real-world.park}
 \end{equation}
 The $t$-cup posterior for parameters $\alpha$, $\beta$ and $\gamma$, as well as
-intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in Figure~\ref{fig:real-world.park.corner}.
+intrinsic scatter $\sigma_{68}$ and shape parameter $\nu$, is shown in
+Figure~\ref{fig:real-world.park.corner}.
 
 The constraints on the intercept, $\alpha$, and slopes, $\beta$ and $\gamma$,
 are consistent with those derived by \citet{Park:2017} for all three measures of
@@ -1160,7 +1181,9 @@ this may be influenced by different prior choice for $\nu$.
 
 \begin{table*}
 	\centering
-	\caption{A comparison between the constraints on the parameters in Equation~\ref{eqn:real-world.park} derived by \citet{Park:2017} and using $t$-cup.}
+	\caption{A comparison between the constraints on the parameters in
+	Equation~\ref{eqn:real-world.park} derived by \citet{Park:2017} and using
+	$t$-cup.}
 	\label{tab:real-world.park.params}
 	\begin{tabular}{lcc|cc|cc} % seven columns, alignment for each
                           & \multicolumn{2}{c}{FWHM} & \multicolumn{2}{c}{$\sigma_l$} & \multicolumn{2}{c}{MAD} \\
@@ -1175,7 +1198,8 @@ this may be influenced by different prior choice for $\nu$.
 \begin{figure}
     \includegraphics[width=\columnwidth]{graphics/real/corner_park_fwhm.pdf}
     \caption{The posterior distributions for the data from \citet{Park:2017}
-    under the $t$-cup model. This figure is directly comparable with Figure~9 from \citet{Park:2017}.}
+    under the $t$-cup model. This figure is directly comparable with Figure~9
+    from \citet{Park:2017}.}
     \label{fig:real-world.park.corner}
 \end{figure}
 
@@ -1187,7 +1211,8 @@ as $t$-cup, that is robust to model mis-specification, with a model laid out in
 Section~\ref{sec:formalism}. In Section~\ref{sec:results}, we demonstrated that
 the model recovers constraints consistent with those used to generate the
 datasets, including in cases where there is a mismatch between the generative
-model used to create the dataset and our regression model. In Section~\ref{sec:real-world}, we compared the method to \citet{Kelly:2007} and
+model used to create the dataset and our regression model. In
+Section~\ref{sec:real-world}, we compared the method to \citet{Kelly:2007} and
 \citet{Park:2017} on real-world data, illustrating that the models derive
 consistent constraints.
 
@@ -1218,8 +1243,9 @@ STFC grant ST/T506151/1.
 \section*{Data Availability}
 
 The data in this paper is sourced from \citet{Kelly:2007} and \citet{Park:2017}.
-Scripts to generate the simulated datasets used to validate the model in Section~\ref{sec:results} are available from the GitHub repository for this paper, at
-\url{https://github.com/wm1995/tcup-paper}.
+Scripts to generate the simulated datasets used to validate the model in
+Section~\ref{sec:results} are available from the GitHub repository for this
+paper, at \url{https://github.com/wm1995/tcup-paper}.
 
 %%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
 
@@ -1252,14 +1278,21 @@ distributions as well. Priors meeting this criterion include:
           \citet{Juarez:2010} uses $\left\{\alpha = 2, \beta = 0.1\right\}$;
           \citet{Ding:2014} uses $\left\{\alpha = 1, \beta = 0.1\right\}$
     \item A uniform prior in $\frac1\nu \sim U(0, 1)$ \citep{Gelman:2013}
-    \item A uniform prior\footnotemark in distribution peak height relative to a normal
-    distribution, $t$, such that
+    \item A uniform prior\footnotemark in distribution peak height relative to a
+    normal distribution, $t$, such that
     \begin{equation}
-        t \equiv \sqrt{\frac2\nu}\frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)} \sim U(0, 1).
+        t \equiv
+           \sqrt{\frac2\nu}\frac{
+                \Gamma\left(\frac{\nu + 1}{2}\right)
+            }{
+                \Gamma\left(\frac{\nu}{2}\right)
+            } \sim U(0, 1).
     \end{equation}
 \end{itemize}
-These priors, along with the prior we adopted, are illustrated in Figure~\ref{fig:priors.pdf}. The cumulative distribution functions for the priors in
-terms of outlier fraction, $\omega$, are illustrated in Figure~\ref{fig:priors.outlier_frac}.
+These priors, along with the prior we adopted, are illustrated in
+Figure~\ref{fig:priors.pdf}. The cumulative distribution functions for the
+priors in terms of outlier fraction, $\omega$, are illustrated in
+Figure~\ref{fig:priors.outlier_frac}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{graphics/pdf_nu}
@@ -1268,8 +1301,8 @@ terms of outlier fraction, $\omega$, are illustrated in Figure~\ref{fig:priors.o
     \label{fig:priors.pdf}
 \end{figure}
 
-\footnotetext{Strictly, \citet{Feeney:2018} approximate this prior with the closed
-form prior on shape parameter, $\nu$, of
+\footnotetext{Strictly, \citet{Feeney:2018} approximate this prior with the
+closed form prior on shape parameter, $\nu$, of
 \begin{equation*}
     \mathcal P\left(\nu\right) \propto
     \frac{
@@ -1293,7 +1326,8 @@ of parameter space ought to be excluded during the process of inference.
 However, the use of HMC in such cases can lead to divergences in the sampling
 process or inefficient sampling as the sampler struggles with regions of high
 curvature -- see the discussion of this phenomenon in \citet{Neal:2003} and
-\citet{Betancourt:2013}. As discussed in Section~\ref{sec:formalism.implementation}, reparametrizing the Student's
+\citet{Betancourt:2013}. As discussed in
+Section~\ref{sec:formalism.implementation}, reparametrizing the Student's
 $t$-distribution as a mixture of normals was found to help with, but not
 alleviate, this problem.
 
@@ -1355,27 +1389,36 @@ a series of $N$ points drawn from a normal distribution with zero mean and unit
 variance. The log likelihood, $\ell (\mu; \nu, \{x_i\})$, when analyzed with a
 $t$-distribution, is
 \begin{equation}
-    \ell (\mu; \nu, \{x_i\}) = - \sum_i \frac{\nu + 1}{2} \log \left(1 + \frac{(x_i - \mu)^2}{\nu}\right) + C,
+    \ell (\mu; \nu, \{x_i\}) =
+        - \sum_i \frac{\nu + 1}{2} \log \left(
+            1 + \frac{(x_i - \mu)^2}{\nu}
+        \right) + C,
 \end{equation}
 where $C$ is a constant. Thus, the Fisher information is
 \begin{equation}
-    \mathcal F(\mu; \nu, \{x_i\}) = (\nu + 1) \sum_i \frac{\nu - (x_i - \mu)^2}{\nu + (x_i - \mu)^2}.
+    \mathcal F(\mu; \nu, \{x_i\}) =
+        (\nu + 1) \sum_i \frac{\nu - (x_i - \mu)^2}{\nu + (x_i - \mu)^2}.
 \end{equation}
-We can then evaluate the Cram\'er-Rao bound at the true mean $\mu = 0$, marginalising over
-the particular dataset $\{x_i\}$, to derive the variance in the estimate
+We can then evaluate the Cram\'er-Rao bound at the true mean $\mu = 0$,
+marginalising over the particular dataset $\{x_i\}$, to derive the variance in
+the estimate
 \begin{equation}
-    {\rm Var}(\hat{\mu}) \geq \frac{1}{N(\nu + 1) \left(1 - \sqrt{\frac\nu2 \pi} \exp\left(\frac\nu2\right) {\rm erfc}\left(\sqrt{\frac\nu2}\right)\right)},
+    {\rm Var}(\hat{\mu}) \geq
+        \frac{1}{N(\nu + 1) \left(
+            1 - \sqrt{\frac\nu2 \pi} \exp\left(\frac\nu2\right)
+            {\rm erfc}\left(\sqrt{\frac\nu2}\right)
+        \right)},
 \end{equation}
-where ${\rm erfc (x)} = 1 - 2/\sqrt{\pi} \int_0^x \exp(-t^2) \,{\rm d}t$ is the complementary error function.
-This bound is used to derive the posterior standard deviation ratio plotted in
-Figure~\ref{fig:formalism.posterior-sd}.
+where ${\rm erfc (x)} = 1 - 2/\sqrt{\pi} \int_0^x \exp(-t^2) \,{\rm d}t$ is the
+complementary error function.  This bound is used to derive the posterior
+standard deviation ratio plotted in Figure~\ref{fig:formalism.posterior-sd}.
 
 
 \section{Fixed-value calibration data models}
 \label{sec:data-models}
 
-Here, we fully specify the dataset models used for fixed-value
-calibration tests in Section~\ref{sec:results}.
+Here, we fully specify the dataset models used for fixed-value calibration tests
+in Section~\ref{sec:results}.
 
 \subsection{\textit{t}-distributed data}
 \label{sec:data-models.t}
@@ -1444,7 +1487,8 @@ using the model:
     \end{cases}\\
     \Sigma_{x, i}& \sim \mathcal W_2 (\boldsymbol{V} = 0.1 \mathbb{I}, n = 3) \\
     \log_{10} \sigma_{y, i}& \sim \mathcal N (\mu = -1, \sigma^2 = 0.01) \\
-    \hat{x}_i& \sim \mathcal N (\mu = \boldsymbol{x}_i, \Sigma^2 = \Sigma_{x, i}^2) \\
+    \hat{x}_i& \sim
+        \mathcal N (\mu = \boldsymbol{x}_i, \Sigma^2 = \Sigma_{x, i}^2) \\
     \hat{y}_i& \sim \mathcal N (\mu = y_i, \sigma^2 = \sigma_{y, i}^2),
 \end{alignat}
 where $\mathcal W_2$ denotes a Wishart distribution over 2x2 matrices and
@@ -1470,7 +1514,8 @@ following model:
 % We generate $N = 25$ datapoints under the following model:
 % \begin{eqnarray}
 %     x_i &\sim& \mathcal U (-5, 5) \\
-%     \log_{10} y_i &\sim& \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
+%     \log_{10} y_i &\sim&
+%         \mathcal N (\mu = \log_{10} (4 + 8 x_i), \sigma = 0.2) \\
 %     \log_{10} \sigma_{x, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
 %     \log_{10} \sigma_{y, i} &\sim& \mathcal N (\mu = -1, \sigma = 0.1) \\
 %     \hat{x}_i &\sim& \mathcal N (\mu = x_i, \sigma = \sigma_{x, i}) \\

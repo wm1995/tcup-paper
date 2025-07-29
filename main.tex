@@ -106,19 +106,24 @@ $^{2}$Department of Mathematics, Imperial College London, London, SW7 2AZ, UK
 % Abstract of the paper
 \begin{abstract}
 Model mis-specification (e.g.\ the presence of outliers) is commonly encountered
-in astronomical analyses, often requiring the use of ad hoc algorithms (e.g.\
-sigma-clipping). We develop and implement a generic Bayesian approach to linear
-regression, based on Student's $t$-distributions, that is robust to outliers and
-mis-specification of the noise model. Our method is validated using simulated
-datasets with various degrees of model mis-specification; the derived
-constraints are shown to be systematically less biased than those from a similar
-model using normal distributions. We demonstrate that, for a dataset without
-outliers, a worst-case inference using $t$-distributions would give unbiased
-results with $\lesssim\!\!10$ per cent increase in the reported parameter
-uncertainties. We also compare with existing analyses of real-world datasets,
-finding qualitatively different results where normal distributions have been
-used and agreement where more robust methods have been applied. A Python
-implementation of this model, $t$-cup, is made available for others to use.
+in astronomical analyses, often requiring the use of ad hoc algorithms  which
+are sensitive to arbitrary thresholds (e.g.\ sigma-clipping). For any given
+dataset, the optimal approach will be to develop a bespoke statistical model of
+the data generation and measurement processes, but these come with a development
+cost; there is hence utility in having generic modelling approaches that are
+both principled and robust to model mis-specification. Here we develop and
+implement a generic Bayesian approach to linear regression, based on Student's
+$t$-distributions, that is robust to outliers and mis-specification of the noise
+model. Our method is validated using simulated datasets with various degrees of
+model mis-specification; the derived constraints are shown to be systematically
+less biased than those from a similar model using normal distributions. We
+demonstrate that, for a dataset without outliers, a worst-case inference using
+$t$-distributions would give unbiased results with $\lesssim\!\!10$ per cent
+increase in the reported parameter uncertainties. We also compare with existing
+analyses of real-world datasets, finding qualitatively different results where
+normal distributions have been used and agreement where more robust methods have
+been applied. A Python implementation of this model, $t$-cup, is made available
+for others to use.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.

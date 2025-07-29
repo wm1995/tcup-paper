@@ -628,23 +628,24 @@ Therefore, we use extreme deconvolution \citep{Bovy:2011} to estimate the
 parameters of a Gaussian mixture model approximating the latent distribution of
 $\{\indepvars\}$, and use these parameters for the prior.
 
-The prior on the shape parameter $\nu$ is
+In principle, the exact choice of prior for $\nu$ is unimportant, as the model
+is designed to be robust to model mis-specification; the only key element is
+that $\nu$ can take on values which correspond to both normal and heavy-tailed
+distributions. While difficulties in sampling $\nu$ according to a given prior
+distribution would not necessarily invalidate the results of the model as long
+as there is coverage at both small and large values, we use a prior that can be
+efficiently sampled using HMC.  The prior we adopt on the shape parameter $\nu$
+is
 \begin{align}
-    \nu \sim&\; \text{Inv-}\Gamma(4, 15);
+    \nu \sim&\; \text{Inv-}\Gamma(4, 15),
 \end{align}
-this prior was chosen to balance flexibility (such that the model could
-accommodate both heavily leptokurtic distributions -- e.g.\ the Cauchy
-distribution -- and normally-distributed data) and sampling issues (as $\nu
-\rightarrow 0$, the posterior geometry becomes highly curved, which leads to
-numerical issues; as $\nu \rightarrow \infty$, different values of $\nu$ become
-rapidly indistinguishable). The reasoning behind this choice of prior is
-expanded upon in Appendix~\ref{sec:t-prior}. The exact choice of prior for $\nu$
-is unimportant, as the model is designed to be robust to model
-mis-specification; the only key element is that $\nu$ is allowed to vary to
-accommodate both normal and heavy-tailed distributions. By virtue of this,
-difficulties in sampling $\nu$ according to this prior distribution do not
-invalidate the results of the model, as long as there is coverage at both small
-and large values of $\nu$.
+which balances flexibility (such that the model could accommodate both heavily
+leptokurtic distributions -- e.g.\ the Cauchy distribution -- and
+normally-distributed data) and numerical considerations (as $\nu \rightarrow 0$,
+the posterior geometry becomes highly curved, which leads to numerical issues;
+as $\nu \rightarrow \infty$, different values of $\nu$ become rapidly
+indistinguishable; both are down-weighted by this prior). The reasoning behind
+this choice of prior is expanded upon in Appendix~\ref{sec:t-prior}.
 
 \subsection{Asymptotic normality}
 \label{sec:formalism.asymptotic}

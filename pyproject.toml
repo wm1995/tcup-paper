@@ -7,4 +7,30 @@ authors = [
     {name = "William Martin", email = "w.martin19@imperial.ac.uk"},
 ]
 description = "Common functions used for the tcup paper"
+requires-python = "==3.10.8"
 dynamic = ["version"]
+dependencies = [
+    "daft-pgm>=0.1.2",
+    "h5netcdf>=1.3.0",
+    "tcup==0.7.0",
+]
+
+[project.optional-dependencies]
+notebooks = [
+    "marimo>=0.13.9",
+    "ipykernel>=6.29.5",
+]
+webapp = [
+    "dash>=2.17.1",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "ruff>=0.11.10",
+]
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"

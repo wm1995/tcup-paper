@@ -3,5 +3,5 @@ line-length = 79
 
 [lint]
 select = ["B", "E", "F", "I", "W"]
-ignore = ["B028"]
+ignore = ["B028", "B905"]
 fixable = ["ALL"]

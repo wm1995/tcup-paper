@@ -68,7 +68,7 @@ DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
 MCMC :=  $(foreach dataset, $(DATASETS), $(foreach model, ${MODELS}, results/${dataset}_${model}.nc))
 CORNER_PLOTS := $(foreach dataset, $(CORNER_DATASETS), plots/corner_${dataset}.pdf) plots/corner_tcup.pdf plots/corner_ncup.pdf
 
-.PHONY = analysis datasets mcmc templates venv clean deep-clean sbc-datasets sbc-mcmc sbc-plots arxiv
+.PHONY = analysis datasets mcmc templates venv clean deep-clean sbc-datasets sbc-mcmc sbc-plots arxiv rasti
 
 ################################################################################
 # Set up Python virtual environment
@@ -544,6 +544,33 @@ arxiv: build/latex/main.bbl
 		graphics/real/corner_park_fwhm.pdf \
 		build/${ARXIV_ID}/graphics/real/
 	cd build && tar --disable-copyfile -czf paper.tar.gz ${ARXIV_ID}/
+
+rasti: build/latex/main.bbl
+	mkdir -p build/rasti/
+	cp main.tex references.bib rasti.bst rasti.cls build/latex/main.bbl \
+		build/rasti
+	mkdir -p build/rasti/graphics/
+	cp graphics/t-dist-log.pdf graphics/outlier_frac.pdf graphics/dag.pdf \
+		graphics/posterior_sd.pdf graphics/pdf_nu.pdf \
+		graphics/cdf_outlier_frac.pdf \
+		graphics/pdf_mixture_double_power.pdf \
+		graphics/pdf_mixture_schechter.pdf \
+		build/rasti/graphics/
+	mkdir -p build/rasti/graphics/sbc/
+	cp graphics/sbc/tcup_sbc.pdf graphics/sbc/outlier20_sbc.pdf \
+		graphics/sbc/mixed_obs_sbc.pdf \
+		build/rasti/graphics/sbc/
+	mkdir -p build/rasti/graphics/fixed/
+	cp graphics/fixed/corner_t.pdf graphics/fixed/regression_outlier.pdf \
+		graphics/fixed/corner_outlier_*cup.pdf graphics/fixed/normal_cdf.pdf \
+		graphics/fixed/corner_gaussian_mix.pdf \
+		graphics/fixed/corner_laplace.pdf graphics/fixed/laplace_cdf.pdf \
+		build/rasti/graphics/fixed/
+	mkdir -p build/rasti/graphics/real/
+	cp graphics/real/regression_kelly.pdf graphics/real/corner_kelly.pdf \
+		graphics/real/corner_park_fwhm.pdf \
+		build/rasti/graphics/real/
+	cd build && zip -r rasti.zip rasti/
 
 ################################################################################
 # Clean up

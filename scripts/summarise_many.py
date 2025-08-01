@@ -77,7 +77,7 @@ if __name__ == "__main__":
     for idx in trange(args.num_repeats):
         try:
             mcmc = az.from_netcdf(
-                f"results/fixed/{args.model}/{args.dataset}/{idx+1}.nc"
+                f"results/fixed/{args.model}/{args.dataset}/{idx + 1}.nc"
             )
         except FileNotFoundError:
             warnings.warn("File not found")

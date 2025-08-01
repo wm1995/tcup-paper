@@ -25,7 +25,9 @@ if __name__ == "__main__":
 
     for idx in trange(args.num_repeats):
         try:
-            _, params = load_dataset(f"data/fixed/{args.dataset}/{idx+1}.json")
+            _, params = load_dataset(
+                f"data/fixed/{args.dataset}/{idx + 1}.json"
+            )
             true_vals = {
                 param_name: params.get(param_name) for param_name in var_names
             }
@@ -34,7 +36,7 @@ if __name__ == "__main__":
                 # the older sigma_int specification
                 true_vals["sigma_68"] = params.get("sigma_int")
             mcmc = az.from_netcdf(
-                f"results/fixed/{args.model}/{args.dataset}/{idx+1}.nc"
+                f"results/fixed/{args.model}/{args.dataset}/{idx + 1}.nc"
             )
         except FileNotFoundError:
             warnings.warn("File not found")

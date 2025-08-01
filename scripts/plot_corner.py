@@ -200,7 +200,7 @@ if __name__ == "__main__":
         subplot_ax.set_ylim(curr_bins.min(), curr_bins.max())
         if var_name in locators:
             subplot_ax.yaxis.set_major_locator(locators[var_name])
-            
+
     if "park" in args.mcmc_file[0]:
         ax[1, 0].set_ylabel(r"$\beta$")
         ax[2, 0].set_ylabel(r"$\gamma$")

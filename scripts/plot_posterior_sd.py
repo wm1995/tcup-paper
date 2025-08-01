@@ -1,21 +1,21 @@
 import jax
 import jax.numpy as jnp
-from jax.scipy.optimize import minimize
 import jax.scipy.stats as jsps
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
+from tcup_paper.plot import style
 from tensorflow_probability.substrates.jax.math import erfcx
 from tqdm import tqdm
 
-from tcup_paper.plot import style
-
 jax.config.update("jax_enable_x64", True)
+
 
 @jax.jit
 def fisher_pred(nu):
     f = jnp.sqrt(nu / 2)
     q = (nu + 1) * (1 - jnp.sqrt(jnp.pi) * f * erfcx(f))
     return 1 / jnp.sqrt(q)
+
 
 if __name__ == "__main__":
     style.apply_matplotlib_style()
@@ -45,7 +45,9 @@ if __name__ == "__main__":
         post /= (xgrid[1] - xgrid[0]) * post.sum(axis=0)
 
         mean = jnp.sum(xgrid * post, axis=0) / jnp.sum(post, axis=0)
-        stdev = jnp.sqrt(jnp.sum((xgrid - mean)**2 * post, axis=0)) / jnp.sum(post, axis=0)
+        stdev = jnp.sqrt(
+            jnp.sum((xgrid - mean) ** 2 * post, axis=0)
+        ) / jnp.sum(post, axis=0)
 
         ratio = ratio.at[idx].set(stdev[0] / stdev[1])
 
@@ -55,10 +57,10 @@ if __name__ == "__main__":
     plt.xlim(0.2, 300)
     plt.ylim(0, 1.5)
     plt.axhline([1.0], color="k", linestyle="--", alpha=0.5)
-    
+
     ax = plt.gca()
     ax.xaxis.set_major_formatter(ScalarFormatter())
     plt.xlabel(r"Shape parameter, $\nu$")
     plt.ylabel(r"Posterior standard deviation ratio")
     plt.tight_layout()
-    plt.savefig(f"plots/posterior_sd.pdf")
+    plt.savefig("plots/posterior_sd.pdf")

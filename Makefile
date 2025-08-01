@@ -28,6 +28,8 @@ REAL_LINMIX_DATASETS := kelly
 PYTHON := python
 PIP := ${VENV}/bin/pip
 
+ARXIV_ID := 2411.02380
+
 SBC_RANDOM_SEEDS := $(shell seq ${NUM_SBC_DATASETS})
 SBC_DATASET_DEPENDENCIES := scripts/gen_sbc_dataset.py tcup-paper/data/sbc/dataset.py
 SBC_DATA_DIRS := $(foreach dataset, ${SBC_DATASETS}, data/sbc/${dataset})
@@ -66,7 +68,7 @@ DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
 MCMC :=  $(foreach dataset, $(DATASETS), $(foreach model, ${MODELS}, results/${dataset}_${model}.nc))
 CORNER_PLOTS := $(foreach dataset, $(CORNER_DATASETS), plots/corner_${dataset}.pdf) plots/corner_tcup.pdf plots/corner_ncup.pdf
 
-.PHONY = analysis datasets mcmc templates venv clean deep-clean sbc-datasets sbc-mcmc sbc-plots
+.PHONY = analysis datasets mcmc templates venv clean deep-clean sbc-datasets sbc-mcmc sbc-plots arxiv
 
 ################################################################################
 # Set up Python virtual environment
@@ -509,6 +511,39 @@ templates: datasets.tex
 
 datasets.tex: datasets templates/datasets.tex scripts/build_templates.py
 	${PYTHON} scripts/build_templates.py
+
+################################################################################
+# Build LaTeX for arXiv
+################################################################################
+
+build/latex/main.bbl: main.tex references.bib rasti.bst
+	latexmk -auxdir=build/latex -emulate-aux-dir -outdir=build -interaction=nonstopmode -pdf main
+
+arxiv: build/latex/main.bbl
+	mkdir -p build/${ARXIV_ID}/
+	cp main.tex rasti.bst rasti.cls build/latex/main.bbl build/${ARXIV_ID}
+	mkdir -p build/${ARXIV_ID}/graphics/
+	cp graphics/t-dist-log.pdf graphics/outlier_frac.pdf graphics/dag.pdf \
+		graphics/posterior_sd.pdf graphics/pdf_nu.pdf \
+		graphics/cdf_outlier_frac.pdf \
+		graphics/pdf_mixture_double_power.pdf \
+		graphics/pdf_mixture_schechter.pdf \
+		build/${ARXIV_ID}/graphics/
+	mkdir -p build/${ARXIV_ID}/graphics/sbc/
+	cp graphics/sbc/tcup_sbc.pdf graphics/sbc/outlier20_sbc.pdf \
+		graphics/sbc/mixed_obs_sbc.pdf \
+		build/${ARXIV_ID}/graphics/sbc/
+	mkdir -p build/${ARXIV_ID}/graphics/fixed/
+	cp graphics/fixed/corner_t.pdf graphics/fixed/regression_outlier.pdf \
+		graphics/fixed/corner_outlier_*cup.pdf graphics/fixed/normal_cdf.pdf \
+		graphics/fixed/corner_gaussian_mix.pdf \
+		graphics/fixed/corner_laplace.pdf graphics/fixed/laplace_cdf.pdf \
+		build/${ARXIV_ID}/graphics/fixed/
+	mkdir -p build/${ARXIV_ID}/graphics/real/
+	cp graphics/real/regression_kelly.pdf graphics/real/corner_kelly.pdf \
+		graphics/real/corner_park_fwhm.pdf \
+		build/${ARXIV_ID}/graphics/real/
+	cd build && tar --disable-copyfile -czf paper.tar.gz ${ARXIV_ID}/
 
 ################################################################################
 # Clean up

@@ -23,12 +23,12 @@ bar_kwargs = {
 
 def pool_bins(bins, pooling_factor):
     # Check pooling factor, bin sizes are powers of 2
-    assert np.isclose(
-        np.mod(np.log2(pooling_factor), 1), 0
-    ), "pooling_factor must be power of 2"
-    assert np.isclose(
-        np.mod(np.log2(bins.shape[0]), 1), 0
-    ), "len(bins) must be power of 2"
+    assert np.isclose(np.mod(np.log2(pooling_factor), 1), 0), (
+        "pooling_factor must be power of 2"
+    )
+    assert np.isclose(np.mod(np.log2(bins.shape[0]), 1), 0), (
+        "len(bins) must be power of 2"
+    )
 
     if pooling_factor == 1:
         return bins

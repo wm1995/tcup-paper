@@ -10,6 +10,9 @@ if __name__ == "__main__":
     distribution = parser.add_mutually_exclusive_group(required=True)
     distribution.add_argument("--t-dist", action="store_true")
     distribution.add_argument("--t-obs", action="store_true")
+    distribution.add_argument("--cauchy-obs", action="store_true")
+    distribution.add_argument("--laplace-obs", action="store_true")
+    distribution.add_argument("--mixed-obs", action="store_true")
     distribution.add_argument("--fixed-nu", type=float)
     distribution.add_argument("--normal", action="store_true")
     distribution.add_argument("--outlier", type=float)
@@ -42,6 +45,21 @@ if __name__ == "__main__":
             "name": "tobs",
         }
         dataset = sbc_data.TObsDataset(**dataset_params)
+    elif args.cauchy_obs:
+        dist_params = {
+            "name": "cauchy_obs",
+        }
+        dataset = sbc_data.CauchyObsDataset(**dataset_params)
+    elif args.laplace_obs:
+        dist_params = {
+            "name": "laplace_obs",
+        }
+        dataset = sbc_data.LaplaceObsDataset(**dataset_params)
+    elif args.mixed_obs:
+        dist_params = {
+            "name": "mixed_obs",
+        }
+        dataset = sbc_data.MixedObsDataset(**dataset_params)
     elif args.fixed_nu:
         dist_params = {
             "name": "fixed",

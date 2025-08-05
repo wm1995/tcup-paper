@@ -50,6 +50,12 @@ elif [[ "$DATASET" == "laplace" ]]; then
 	DATA_FLAG=(--laplace)
 elif [[ "$DATASET" == "lognormal" ]]; then
 	DATA_FLAG=(--lognormal)
+elif [[ "$DATASET" == "cauchy_obs" ]]; then
+	DATA_FLAG=(--cauchy-obs)
+elif [[ "$DATASET" == "laplace_obs" ]]; then
+	DATA_FLAG=(--laplace-obs)
+elif [[ "$DATASET" == "mixed_obs" ]]; then
+	DATA_FLAG=(--mixed-obs)
 fi
 echo "=> Generating dataset at $(date)"
 ${PYTHON} $PBS_O_WORKDIR/scripts/gen_sbc_dataset.py "${DATA_FLAG[@]}" --seed ${PBS_ARRAY_INDEX}

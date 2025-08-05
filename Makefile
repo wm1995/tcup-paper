@@ -25,8 +25,10 @@ REAL_LINMIX_DATASETS := kelly
 ################################################################################
 # Makefile variables
 ################################################################################
-PYTHON := ${VENV}/bin/python
+PYTHON := python
 PIP := ${VENV}/bin/pip
+
+ARXIV_ID := 2411.02380
 
 SBC_RANDOM_SEEDS := $(shell seq ${NUM_SBC_DATASETS})
 SBC_DATASET_DEPENDENCIES := scripts/gen_sbc_dataset.py tcup-paper/data/sbc/dataset.py
@@ -66,7 +68,7 @@ DATASETS_JSON := $(addsuffix .json, $(addprefix data/, ${DATASETS}))
 MCMC :=  $(foreach dataset, $(DATASETS), $(foreach model, ${MODELS}, results/${dataset}_${model}.nc))
 CORNER_PLOTS := $(foreach dataset, $(CORNER_DATASETS), plots/corner_${dataset}.pdf) plots/corner_tcup.pdf plots/corner_ncup.pdf
 
-.PHONY = analysis datasets mcmc templates venv clean deep-clean sbc-datasets sbc-mcmc sbc-plots
+.PHONY = analysis datasets mcmc templates venv clean deep-clean sbc-datasets sbc-mcmc sbc-plots arxiv rasti
 
 ################################################################################
 # Set up Python virtual environment
@@ -273,6 +275,15 @@ $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/lognormal/${plot}.pdf) &: $(
 $(foreach plot, ${SBC_PLOT_TYPES}, plots/sbc/fixed3/tobs/${plot}.pdf) &: $(wildcard data/sbc/fixed3/tobs/*.nc) | ${SBC_PLOT_DIRS}
 	${PYTHON} scripts/plot_sbc.py --fixed --t-obs
 
+plots/sbc/outlier20_sbc.pdf:
+	${PYTHON} scripts/plot_multi_sbc.py --models tcup ncup --outlier 20 --output plots/sbc/outlier20_sbc.pdf --no-share-y
+
+plots/sbc/tcup_sbc.pdf:
+	${PYTHON} scripts/plot_multi_sbc.py --models tcup --t-dist --output plots/sbc/tcup_sbc.pdf
+
+plots/sbc/mixed_obs_sbc.pdf:
+	${PYTHON} scripts/plot_multi_sbc.py --models tcup ncup --mixed-obs --output plots/sbc/mixed_obs_sbc.pdf --no-share-y
+
 ################################################################################
 # Generate mock datasets
 ################################################################################
@@ -387,6 +398,8 @@ graphics: plots/ ${CORNER_PLOTS}
 	cp plots/dag.pdf graphics/
 	cp plots/pdf_nu.pdf graphics/
 	cp plots/cdf_outlier_frac.pdf graphics/
+	cp plots/pdf_mixture_schechter.pdf graphics/
+	cp plots/pdf_mixture_double_power.pdf graphics/
 
 plots:
 	mkdir plots
@@ -405,6 +418,7 @@ plots/corner_t.pdf: results/t_tcup.nc results/t_fixed3.nc
 		--range sigma 0 0.6 \
 		--range nu 0 50 \
 		--output plots/corner_t.pdf
+	python scripts/plot_corner.py     --dataset data/fixed/t/1.json --mcmc-file results/fixed/tcup/t/1.nc --mcmc-file results/fixed/fixed/t/1.nc --var-names alpha beta sigma_68 nu --range alpha 2.6 3.4 --range beta_0 1.81 2.19 --range sigma_68 0 0.5 --range nu 0 25 --single-column --output plots/fixed/corner_t.pdf
 
 plots/corner_outlier_ncup.pdf: results/normal_tcup.nc results/outlier_tcup.nc results/outlier_ncup.nc
 	${PYTHON} scripts/plot_corner.py \
@@ -417,6 +431,7 @@ plots/corner_outlier_ncup.pdf: results/normal_tcup.nc results/outlier_tcup.nc re
 		--range beta 1 2.5 \
 		--range sigma 0 2 \
 		--output plots/corner_outlier_ncup.pdf
+	python scripts/plot_corner.py     --dataset data/fixed/outlier/1.json --mcmc-file results/fixed/tcup/outlier/1.nc --mcmc-fileresults/fixed/ncup/outlier/1.nc --mcmc-file results/fixed/ncup/normal/1.nc --var-names alpha beta sigma_68 --range alpha -2 9 --range beta_0 0.8 2.9 --range sigma_68 0 4 --output plots/fixed/corner_outlier_ncup.pdf
 
 plots/corner_outlier_tcup.pdf: results/normal_tcup.nc results/outlier_tcup.nc
 	${PYTHON} scripts/plot_corner.py \
@@ -428,6 +443,7 @@ plots/corner_outlier_tcup.pdf: results/normal_tcup.nc results/outlier_tcup.nc
 		--range beta 1 2.5 \
 		--range sigma 0 8 \
 		--output plots/corner_outlier_tcup.pdf
+	${PYTHON} scripts/plot_corner.py     --dataset data/fixed/outlier/1.json --mcmc-file results/fixed/tcup/normal/1.nc --mcmc-file results/fixed/tcup/outlier/1.nc --var-names alpha beta sigma_68 outlier_frac --range alpha 0.3 4.8 --range beta_0 1.6 2.49 --range sigma_68 0 1.9     --rangeoutlier_frac 0 0.19 --output plots/fixed/corner_outlier_tcup.pdf
 
 plots/corner_gaussian_mix.pdf: results/gaussian_mix_tcup.nc results/gaussian_mix_ncup.nc
 	${PYTHON} scripts/plot_corner.py \
@@ -442,6 +458,20 @@ plots/corner_gaussian_mix.pdf: results/gaussian_mix_tcup.nc results/gaussian_mix
 		--range outlier_frac 0 0.12 \
 		--output plots/corner_gaussian_mix.pdf
 
+	${PYTHON} scripts/plot_corner.py     --dataset data/fixed/gaussian_mix/1.json --mcmc-file results/fixed/tcup/gaussian_mix/1.nc --mcmc-file results/fixed/ncup/gaussian_mix/1.nc --var-names alpha beta sigma_68 outlier_frac --range alpha 1.1 3.9 --range beta_0 2.6 3.9 --range beta_1 -1.2 -0.51 --range sigma_68 0 1.8 --range outlier_frac 0 0.17 --output plots/fixed/corner_gaussian_mix.pdf
+
+plots/fixed/corner_laplace.pdf: results/fixed/tcup/laplace/1.nc results/fixed/ncup/laplace/1.nc
+	${PYTHON} scripts/plot_corner.py \
+        --dataset data/fixed/laplace/1.json \
+        --mcmc-file results/fixed/tcup/laplace/1.nc \
+        --mcmc-file results/fixed/ncup/laplace/1.nc \
+        --var-names alpha beta sigma_68 outlier_frac \
+        --range alpha -1.4 -0.6 \
+        --range beta_0 0.65 0.95 \
+        --range sigma_68 0.1 0.5 \
+        --range outlier_frac 0 0.12 \
+        --output plots/fixed/corner_laplace.pdf
+
 plots/corner_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/kelly.nc
 	${PYTHON} scripts/plot_corner.py \
 		--mcmc-file results/real/tcup/kelly.nc \
@@ -453,8 +483,10 @@ plots/corner_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/kelly.nc
 		--range outlier_frac 0 0.15 \
 		--output plots/corner_kelly.pdf
 
+	${PYTHON} scripts/plot_corner.py --mcmc-file results/real/tcup/kelly.nc --mcmc-file results/real/linmix/kelly.nc --var-names alpha beta sigma_68 outlier_frac --single-column --range alpha 1.8 5.2 --range beta_0 -0.2 3.5 --range sigma_68 0 0.65 --range outlier_frac 0 0.19 --output plots/real/corner_kelly.pdf
+
 plots/real/regression_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/kelly.nc
-    ${PYTHON} scripts/plot_regression.py \
+	${PYTHON} scripts/plot_regression.py \
         --dataset data/real/kelly.json \
         --tcup-file results/real/tcup/kelly.nc \
         --ncup-file results/real/linmix/kelly.nc \
@@ -462,6 +494,8 @@ plots/real/regression_kelly.pdf: results/real/linmix/kelly.nc results/real/tcup/
         --xlabel 'Eddington ratio, $\log L / L_{\text{Edd}}$' \
         --ylabel 'X-ray spectral index, $\Gamma$' \
         --output plots/real/regression_kelly.pdf
+
+	${PYTHON} -i  scripts/plot_corner.py --mcmc-file results/real/tcup/park_FWHM.nc --var-names alpha beta sigma_68 nu --range alpha 6.7 8.3 --range beta_0 0.21 0.65 --range beta_1 -0.9 1.9 --range sigma_68 0 0.45 --range nu 0 19 --output plots/real/corner_park_fwhm.pdf
 
 plots/corner_%.pdf: results/%.nc scripts/plot_corner.py
 	${PYTHON} scripts/plot_corner.py
@@ -477,6 +511,66 @@ templates: datasets.tex
 
 datasets.tex: datasets templates/datasets.tex scripts/build_templates.py
 	${PYTHON} scripts/build_templates.py
+
+################################################################################
+# Build LaTeX for arXiv
+################################################################################
+
+build/latex/main.bbl: main.tex references.bib rasti.bst
+	latexmk -auxdir=build/latex -emulate-aux-dir -outdir=build -interaction=nonstopmode -pdf main
+
+arxiv: build/latex/main.bbl
+	mkdir -p build/${ARXIV_ID}/
+	cp main.tex rasti.bst rasti.cls build/latex/main.bbl build/${ARXIV_ID}
+	mkdir -p build/${ARXIV_ID}/graphics/
+	cp graphics/t-dist-log.pdf graphics/outlier_frac.pdf graphics/dag.pdf \
+		graphics/posterior_sd.pdf graphics/pdf_nu.pdf \
+		graphics/cdf_outlier_frac.pdf \
+		graphics/pdf_mixture_double_power.pdf \
+		graphics/pdf_mixture_schechter.pdf \
+		build/${ARXIV_ID}/graphics/
+	mkdir -p build/${ARXIV_ID}/graphics/sbc/
+	cp graphics/sbc/tcup_sbc.pdf graphics/sbc/outlier20_sbc.pdf \
+		graphics/sbc/mixed_obs_sbc.pdf \
+		build/${ARXIV_ID}/graphics/sbc/
+	mkdir -p build/${ARXIV_ID}/graphics/fixed/
+	cp graphics/fixed/corner_t.pdf graphics/fixed/regression_outlier.pdf \
+		graphics/fixed/corner_outlier_*cup.pdf graphics/fixed/normal_cdf.pdf \
+		graphics/fixed/corner_gaussian_mix.pdf \
+		graphics/fixed/corner_laplace.pdf graphics/fixed/laplace_cdf.pdf \
+		build/${ARXIV_ID}/graphics/fixed/
+	mkdir -p build/${ARXIV_ID}/graphics/real/
+	cp graphics/real/regression_kelly.pdf graphics/real/corner_kelly.pdf \
+		graphics/real/corner_park_fwhm.pdf \
+		build/${ARXIV_ID}/graphics/real/
+	cd build && tar --disable-copyfile -czf paper.tar.gz ${ARXIV_ID}/
+
+rasti: build/latex/main.bbl
+	mkdir -p build/rasti/
+	cp main.tex references.bib rasti.bst rasti.cls build/latex/main.bbl \
+		build/rasti
+	mkdir -p build/rasti/graphics/
+	cp graphics/t-dist-log.pdf graphics/outlier_frac.pdf graphics/dag.pdf \
+		graphics/posterior_sd.pdf graphics/pdf_nu.pdf \
+		graphics/cdf_outlier_frac.pdf \
+		graphics/pdf_mixture_double_power.pdf \
+		graphics/pdf_mixture_schechter.pdf \
+		build/rasti/graphics/
+	mkdir -p build/rasti/graphics/sbc/
+	cp graphics/sbc/tcup_sbc.pdf graphics/sbc/outlier20_sbc.pdf \
+		graphics/sbc/mixed_obs_sbc.pdf \
+		build/rasti/graphics/sbc/
+	mkdir -p build/rasti/graphics/fixed/
+	cp graphics/fixed/corner_t.pdf graphics/fixed/regression_outlier.pdf \
+		graphics/fixed/corner_outlier_*cup.pdf graphics/fixed/normal_cdf.pdf \
+		graphics/fixed/corner_gaussian_mix.pdf \
+		graphics/fixed/corner_laplace.pdf graphics/fixed/laplace_cdf.pdf \
+		build/rasti/graphics/fixed/
+	mkdir -p build/rasti/graphics/real/
+	cp graphics/real/regression_kelly.pdf graphics/real/corner_kelly.pdf \
+		graphics/real/corner_park_fwhm.pdf \
+		build/rasti/graphics/real/
+	cd build && zip -r rasti.zip rasti/
 
 ################################################################################
 # Clean up

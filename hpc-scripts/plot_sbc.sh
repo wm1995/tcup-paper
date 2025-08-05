@@ -44,6 +44,12 @@ if [[ "$DATASET" == "t" ]]; then
 	DATA_FLAG=(--t-dist)
 elif [[ "$DATASET" == "tobs" ]]; then
 	DATA_FLAG=(--t-obs)
+elif [[ "$DATASET" == "cauchy_obs" ]]; then
+	DATA_FLAG=(--cauchy-obs)
+elif [[ "$DATASET" == "laplace_obs" ]]; then
+	DATA_FLAG=(--laplace-obs)
+elif [[ "$DATASET" == "mixed_obs" ]]; then
+	DATA_FLAG=(--mixed-obs)
 elif [[ "$DATASET" == "fixed" ]]; then
 	DATA_FLAG=(--fixed-nu)
 elif [[ "$DATASET" == "normal" ]]; then

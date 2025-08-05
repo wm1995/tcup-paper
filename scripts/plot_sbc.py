@@ -15,12 +15,12 @@ B = 16
 
 def pool_bins(bins, pooling_factor):
     # Check pooling factor, bin sizes are powers of 2
-    assert np.isclose(
-        np.mod(np.log2(pooling_factor), 1), 0
-    ), "pooling_factor must be power of 2"
-    assert np.isclose(
-        np.mod(np.log2(bins.shape[0]), 1), 0
-    ), "len(bins) must be power of 2"
+    assert np.isclose(np.mod(np.log2(pooling_factor), 1), 0), (
+        "pooling_factor must be power of 2"
+    )
+    assert np.isclose(np.mod(np.log2(bins.shape[0]), 1), 0), (
+        "len(bins) must be power of 2"
+    )
 
     if pooling_factor == 1:
         return bins
@@ -72,6 +72,9 @@ if __name__ == "__main__":
     dataset_type.add_argument("--laplace", action="store_true")
     dataset_type.add_argument("--lognormal", action="store_true")
     dataset_type.add_argument("--t-obs", action="store_true")
+    dataset_type.add_argument("--cauchy-obs", action="store_true")
+    dataset_type.add_argument("--laplace-obs", action="store_true")
+    dataset_type.add_argument("--mixed-obs", action="store_true")
     args = parser.parse_args()
 
     var_names = None
@@ -103,6 +106,12 @@ if __name__ == "__main__":
         dataset = "lognormal"
     elif args.t_obs:
         dataset = "tobs"
+    elif args.cauchy_obs:
+        dataset = "cauchy_obs"
+    elif args.laplace_obs:
+        dataset = "laplace_obs"
+    elif args.mixed_obs:
+        dataset = "mixed_obs"
 
     results_path = f"results/sbc/{model}/{dataset}/"
     data_path = f"data/sbc/{dataset}/"

@@ -2,10 +2,8 @@ import argparse
 import json
 
 import arviz as az
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-
 from tcup_paper.plot import style
 
 SEED = 2023
@@ -67,7 +65,9 @@ if __name__ == "__main__":
     rng = np.random.default_rng(SEED)
 
     fig, ax = plt.subplots(1, 2, figsize=(7.06, 3.57), sharey=True)
-    for idx, (ax_i, mcmc, color) in enumerate(zip(ax, [n_mcmc, t_mcmc], colors)):
+    for idx, (ax_i, mcmc, color) in enumerate(
+        zip(ax, [n_mcmc, t_mcmc], colors)
+    ):
         inds = rng.choice(
             mcmc["posterior"].sizes["chain"] * mcmc["posterior"].sizes["draw"],
             size=100,

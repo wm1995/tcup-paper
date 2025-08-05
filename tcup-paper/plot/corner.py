@@ -188,7 +188,7 @@ def plot_corner(
                     [f"$_{x_coord}$" for x_coord in var_idx]
                 )
                 ax[-1, ax_idx].set_xlabel(var_labels[var_x] + var_x_suffix)
- 
+
     fig.align_labels()
     fig.subplots_adjust(wspace=0, hspace=0)
 

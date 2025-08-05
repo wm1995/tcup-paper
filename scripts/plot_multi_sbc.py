@@ -20,14 +20,15 @@ bar_kwargs = {
     "tobs": {"color": "darkgreen", "alpha": 0.3},
 }
 
+
 def pool_bins(bins, pooling_factor):
     # Check pooling factor, bin sizes are powers of 2
-    assert np.isclose(
-        np.mod(np.log2(pooling_factor), 1), 0
-    ), "pooling_factor must be power of 2"
-    assert np.isclose(
-        np.mod(np.log2(bins.shape[0]), 1), 0
-    ), "len(bins) must be power of 2"
+    assert np.isclose(np.mod(np.log2(pooling_factor), 1), 0), (
+        "pooling_factor must be power of 2"
+    )
+    assert np.isclose(np.mod(np.log2(bins.shape[0]), 1), 0), (
+        "len(bins) must be power of 2"
+    )
 
     if pooling_factor == 1:
         return bins
@@ -75,6 +76,9 @@ if __name__ == "__main__":
     dataset_type.add_argument("--laplace", action="store_true")
     dataset_type.add_argument("--lognormal", action="store_true")
     dataset_type.add_argument("--t-obs", action="store_true")
+    dataset_type.add_argument("--cauchy-obs", action="store_true")
+    dataset_type.add_argument("--laplace-obs", action="store_true")
+    dataset_type.add_argument("--mixed-obs", action="store_true")
     parser.add_argument("--output", required=True)
     parser.add_argument("--no-share-y", action="store_false")
     args = parser.parse_args()
@@ -97,8 +101,18 @@ if __name__ == "__main__":
         dataset = "lognormal"
     elif args.t_obs:
         dataset = "tobs"
+    elif args.cauchy_obs:
+        dataset = "cauchy_obs"
+    elif args.laplace_obs:
+        dataset = "laplace_obs"
+    elif args.mixed_obs:
+        dataset = "mixed_obs"
 
-    if dataset not in ["t", "tobs"] or "ncup" in args.models or "fixed3" in args.models:
+    if (
+        dataset not in ["t", "tobs"]
+        or "ncup" in args.models
+        or "fixed3" in args.models
+    ):
         if dataset == "gaussian_mix":
             nvar = 4
         else:
@@ -106,7 +120,9 @@ if __name__ == "__main__":
     else:
         nvar = 4
     apply_matplotlib_style()
-    fig, ax = plt.subplots(1, nvar, sharey=args.no_share_y, figsize=(7.06, 2.5))
+    fig, ax = plt.subplots(
+        1, nvar, sharey=args.no_share_y, figsize=(7.06, 2.5)
+    )
 
     for model in args.models:
         var_names = None
@@ -201,7 +217,13 @@ if __name__ == "__main__":
                     [-0.05, 1.05], lower, upper, alpha=0.1, color="k"
                 )
             edges = np.linspace(0, 1 - 1 / B, B)
-            ax[idx].bar(edges, pooled_bins, width=1 / B, align="edge", **bar_kwargs[model])
+            ax[idx].bar(
+                edges,
+                pooled_bins,
+                width=1 / B,
+                align="edge",
+                **bar_kwargs[model],
+            )
             ax[idx].hlines(
                 [N / B],
                 xmin=-0.05,
